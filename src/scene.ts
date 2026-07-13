@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { discoveries, type Discovery } from "./discoveries";
 import { poetQuotes, type PoetQuote } from "./quotes";
-import { createOverworldHero, facingFromDir, type Facing } from "./hero";
+import { createOverworldHero, facingFromDir, type Facing, type HeroAction } from "./hero";
 
 export type WorldCallbacks = {
   onDiscover: (item: Discovery, foundCount: number, total: number) => void;
@@ -41,6 +41,8 @@ export type WorldApi = {
   reopenQuote: (id: string) => boolean;
   unlockQuietMoment: (tier: QuietTier) => boolean;
   lookAtConstellation: (ms?: number) => void;
+  spawnPartner: () => void;
+  hasPartner: () => boolean;
 };
 
 function mulberry32(seed: number) {
@@ -327,7 +329,9 @@ export function createWorld(
         twin.scale.setScalar(1.35);
         constellation.add(twin);
       }
-      if (!silentRestore) callbacks.onConstellationComplete();
+      if (!silentRestore) {
+        callbacks.onConstellationComplete();
+      }
     }
   };
 
@@ -387,12 +391,12 @@ export function createWorld(
   const rand = mulberry32(11);
 
   // Decorative flowers everywhere (not interactive)
-  const flowerColors = [0xf2d6e0, 0xf7e2a8, 0xe8c4d4, 0xd9ecb8, 0xffd9c8, 0xe4d4f0];
-  for (let i = 0; i < 90; i++) {
+  const flowerColors = [0xf2d6e0, 0xf7e2a8, 0xe8c4d4, 0xd9ecb8, 0xffd9c8, 0xe4d4f0, 0xf0c8b8, 0xc8e4f0];
+  for (let i = 0; i < 170; i++) {
     const angle = rand() * Math.PI * 2;
-    const radius = 2.2 + rand() * 18;
+    const radius = 2.0 + rand() * 19;
     const f = makeFlower(
-      0.55 + rand() * 0.7,
+      0.5 + rand() * 0.85,
       flowerColors[i % flowerColors.length],
       0xf0d878,
       false,
@@ -539,24 +543,55 @@ export function createWorld(
   }
 
   // Extra decorative sakura (non-interactive)
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 14; i++) {
     const tree = makeSakuraTree();
-    const a = (i / 5) * Math.PI * 2 + 0.4;
-    tree.position.set(Math.cos(a) * 14.5, 0, Math.sin(a) * 14.5);
-    tree.scale.setScalar(0.85 + (i % 3) * 0.1);
+    const a = (i / 14) * Math.PI * 2 + 0.35;
+    const r = 12.5 + (i % 4) * 1.4;
+    tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+    tree.scale.setScalar(0.75 + (i % 4) * 0.12);
+    tree.rotation.y = rand() * Math.PI;
     scene.add(tree);
   }
 
-  const hero = createOverworldHero();
+  // Meadow clusters of small trees near the ring
+  for (let i = 0; i < 8; i++) {
+    const tree = makeSakuraTree();
+    const a = (i / 8) * Math.PI * 2;
+    tree.position.set(Math.cos(a) * 5.8, 0, Math.sin(a) * 5.8);
+    tree.scale.setScalar(0.55 + (i % 3) * 0.08);
+    scene.add(tree);
+  }
+
+  const hero = createOverworldHero("girl");
   hero.group.position.set(0, 0, 6.5);
   scene.add(hero.group);
+
+  let partner: ReturnType<typeof createOverworldHero> | null = null;
+  const partnerPos = { x: 0, z: 7.3 };
+  let partnerJoined = false;
 
   const player = {
     x: 0,
     z: 6.5,
+    y: 0,
+    vy: 0,
     facing: "down" as Facing,
     walking: false,
+    running: false,
+    jumping: false,
+    dancing: false,
+    danceUntil: 0,
     enabled: false,
+  };
+
+  const spawnPartner = () => {
+    if (partnerJoined) return;
+    partnerJoined = true;
+    partner = createOverworldHero("boy");
+    partnerPos.x = player.x - 0.85;
+    partnerPos.z = player.z + 0.55;
+    partner.group.position.set(partnerPos.x, 0, partnerPos.z);
+    scene.add(partner.group);
   };
 
   const keys = new Set<string>();
@@ -576,7 +611,8 @@ export function createWorld(
   const pointer = new THREE.Vector2();
 
   const BOUND = 20;
-  const SPEED = 3.2;
+  const WALK_SPEED = 3.2;
+  const RUN_SPEED = 5.4;
 
   // Pokémon-style overworld camera: high and tilted down
   const syncCamera = () => {
@@ -804,7 +840,9 @@ export function createWorld(
 
   const onPointerDown = (e: PointerEvent) => {
     if (!player.enabled) return;
-    if ((e.target as HTMLElement | null)?.closest?.(".letterbox, .note, .finale, .dpad, .mute, .atmos"))
+    if ((e.target as HTMLElement | null)?.closest?.(
+      ".letterbox, .note, .finale, .dpad, .mute, .atmos, .journal, .song-panel, .sound-dock",
+    ))
       return;
     pickAt(e.clientX, e.clientY);
   };
@@ -827,10 +865,24 @@ export function createWorld(
         "ArrowDown",
         "ArrowLeft",
         "ArrowRight",
+        "Space",
+        "ShiftLeft",
+        "ShiftRight",
+        "KeyE",
       ].includes(e.code)
     ) {
       hasWalkTarget = false;
       e.preventDefault();
+    }
+    if (e.code === "Space" && !player.jumping) {
+      player.jumping = true;
+      player.vy = 5.2;
+      player.dancing = false;
+    }
+    if (e.code === "KeyE") {
+      player.dancing = true;
+      player.danceUntil = performance.now() + 2200;
+      hasWalkTarget = false;
     }
   };
 
@@ -863,22 +915,35 @@ export function createWorld(
     const drift = reducedMotion ? 0 : 1;
 
     player.walking = false;
+    player.running = false;
 
     if (player.enabled) {
+      if (player.dancing && performance.now() > player.danceUntil) {
+        player.dancing = false;
+      }
+
       // Classic overworld axes: W north (-Z), S south (+Z), A west (-X), D east (+X)
       wish.set(0, 0, 0);
-      if (keys.has("KeyW") || keys.has("ArrowUp")) wish.z -= 1;
-      if (keys.has("KeyS") || keys.has("ArrowDown")) wish.z += 1;
-      if (keys.has("KeyA") || keys.has("ArrowLeft")) wish.x -= 1;
-      if (keys.has("KeyD") || keys.has("ArrowRight")) wish.x += 1;
+      if (!player.dancing) {
+        if (keys.has("KeyW") || keys.has("ArrowUp")) wish.z -= 1;
+        if (keys.has("KeyS") || keys.has("ArrowDown")) wish.z += 1;
+        if (keys.has("KeyA") || keys.has("ArrowLeft")) wish.x -= 1;
+        if (keys.has("KeyD") || keys.has("ArrowRight")) wish.x += 1;
+      }
+
+      const sprint =
+        keys.has("ShiftLeft") || keys.has("ShiftRight") || keys.has("KeyR");
+      const speed = sprint ? RUN_SPEED : WALK_SPEED;
 
       if (wish.lengthSq() > 0) {
-        wish.normalize().multiplyScalar(SPEED * dt);
+        wish.normalize().multiplyScalar(speed * dt);
         player.x = THREE.MathUtils.clamp(player.x + wish.x, -BOUND, BOUND);
         player.z = THREE.MathUtils.clamp(player.z + wish.z, -BOUND, BOUND);
         player.facing = facingFromDir(wish.x, wish.z);
         player.walking = true;
-      } else if (hasWalkTarget) {
+        player.running = sprint;
+        player.dancing = false;
+      } else if (hasWalkTarget && !player.dancing) {
         const dx = walkTarget.x - player.x;
         const dz = walkTarget.z - player.z;
         const dist = Math.hypot(dx, dz);
@@ -896,7 +961,7 @@ export function createWorld(
           walkKind = null;
           walkId = null;
         } else {
-          const step = Math.min(dist, SPEED * dt);
+          const step = Math.min(dist, WALK_SPEED * dt);
           player.x += (dx / dist) * step;
           player.z += (dz / dist) * step;
           player.facing = facingFromDir(dx, dz);
@@ -904,14 +969,64 @@ export function createWorld(
         }
       }
 
+      // Jump physics
+      if (player.jumping) {
+        player.vy -= 14 * dt;
+        player.y += player.vy * dt;
+        if (player.y <= 0) {
+          player.y = 0;
+          player.vy = 0;
+          player.jumping = false;
+        }
+      }
+
       tryRevealNear();
     }
 
+    let action: HeroAction = "idle";
+    if (player.dancing) action = "dance";
+    else if (player.jumping) action = "jump";
+    else if (player.running) action = "run";
+    else if (player.walking) action = "walk";
+
     hero.group.position.set(player.x, 0, player.z);
-    hero.setPose(player.facing, player.walking, t);
+    hero.setPose(player.facing, action, t, player.y);
+
+    if (partner) {
+      let ox = 0;
+      let oz = 0.9;
+      if (player.facing === "up") {
+        ox = 0.15;
+        oz = 0.95;
+      } else if (player.facing === "down") {
+        ox = -0.15;
+        oz = -0.95;
+      } else if (player.facing === "left") {
+        ox = 0.95;
+        oz = 0.1;
+      } else {
+        ox = -0.95;
+        oz = 0.1;
+      }
+      const targetX = player.x + ox;
+      const targetZ = player.z + oz;
+      partnerPos.x += (targetX - partnerPos.x) * Math.min(1, dt * 3.2);
+      partnerPos.z += (targetZ - partnerPos.z) * Math.min(1, dt * 3.2);
+      const moving = Math.hypot(targetX - partnerPos.x, targetZ - partnerPos.z) > 0.08;
+      const pFacing = moving
+        ? facingFromDir(targetX - partnerPos.x, targetZ - partnerPos.z)
+        : player.facing;
+      let pAction: HeroAction = "idle";
+      if (player.dancing) pAction = "dance";
+      else if (player.jumping) pAction = "jump";
+      else if (player.running && moving) pAction = "run";
+      else if (moving || player.walking) pAction = "walk";
+      partner.group.position.set(partnerPos.x, 0, partnerPos.z);
+      partner.setPose(pFacing, pAction, t, player.jumping ? player.y * 0.85 : 0);
+    }
 
     // Petal trail
-    if (player.walking && !reducedMotion) {
+    if ((player.walking || player.running) && !reducedMotion) {
       trailAcc += dt;
       if (trailAcc > 0.12) {
         trailAcc = 0;
@@ -1087,6 +1202,7 @@ export function createWorld(
         addConstellationStar(faithCoins - 1);
       }
       for (const tier of save.unlocked ?? []) applyQuietMoment(tier);
+      if (constellationDone) spawnPartner();
       silentRestore = false;
     },
     reopenLetter(id: string) {
@@ -1113,6 +1229,12 @@ export function createWorld(
       if (!constellationDone) return;
       camMode = "sky";
       skyCamUntil = performance.now() + (reducedMotion ? 1200 : ms);
+    },
+    spawnPartner() {
+      spawnPartner();
+    },
+    hasPartner() {
+      return partnerJoined;
     },
     destroy() {
       cancelAnimationFrame(raf);

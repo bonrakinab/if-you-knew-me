@@ -73,7 +73,7 @@
               aria-label="Choose a song"
             ></div>
             <div id="spotify-player" class="spotify-player">
-              <p class="spotify-player-label">Spotify controls</p>
+              <p class="spotify-player-label">Spotify</p>
               <iframe
                 id="spotify-embed"
                 class="spotify-embed"
@@ -81,6 +81,7 @@
                 src="https://open.spotify.com/embed/track/3h78AziF7cEXfm50J2TNcA?utm_source=generator&amp;theme=0"
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                 loading="lazy"
+                style="height:152px"
               ></iframe>
               <p id="spotify-fallback" class="spotify-fallback is-hidden">
                 Spotify embed unavailable for this track —
@@ -93,6 +94,9 @@
                   >open in Spotify</a
                 >
               </p>
+              <p class="spotify-hint">
+                Full songs: open Music in the garden and Connect Spotify (Premium).
+              </p>
             </div>
             <button type="button" id="play-song" class="play-song">
               Play song first
@@ -104,7 +108,7 @@
           Listen &amp; begin wandering
         </button>
         <p class="how">
-          Phone: use the on-screen pad · Desktop: W A S D · tap lights to walk
+          Phone: on-screen pad · Desktop: WASD move · Shift run · Space jump · E dance · tap lights to walk
         </p>
       </section>
     </div>
@@ -199,7 +203,23 @@
         aria-label="Garden song list"
       ></div>
       <div id="spotify-player-garden" class="spotify-player">
-        <p class="spotify-player-label">Spotify controls</p>
+        <p class="spotify-player-label">Spotify full tracks</p>
+        <div class="spotify-full-row">
+          <input
+            id="spotify-client-id"
+            class="spotify-client-id"
+            type="text"
+            placeholder="Spotify Client ID (from developer dashboard)"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button type="button" id="spotify-connect" class="spotify-connect">
+            Connect Spotify
+          </button>
+        </div>
+        <p id="spotify-full-status" class="spotify-hint">
+          Premium + Connect plays full songs here (not 30s preview). Embeds below stay as fallback.
+        </p>
         <iframe
           id="spotify-embed-garden"
           class="spotify-embed"
@@ -221,7 +241,7 @@
         </p>
       </div>
       <p class="spotify-hint">
-        Press play on Spotify to take over; mute still silences the garden bed.
+        After Connect, pick a track to play the full song. Mute still quiets YouTube ambient bed.
       </p>
       <button type="button" id="song-panel-close" class="note-close">
         Close

@@ -13,6 +13,14 @@ import {
   youtubeEmbedSrc,
   type Track,
 } from "./tracks";
+import {
+  beginSpotifyLogin,
+  ensureSpotifyToken,
+  getSpotifyClientId,
+  isSpotifyConnected,
+  playFullSpotifyTrack,
+  setSpotifyClientId,
+} from "./spotifyFull";
 import { loadGardenSave, saveGardenSave } from "./progress";
 import {
   fetchWeather,
@@ -76,6 +84,12 @@ const spotifyFallbackGarden =
 const spotifyLink = document.querySelector<HTMLAnchorElement>("#spotify-link");
 const spotifyLinkGarden =
   document.querySelector<HTMLAnchorElement>("#spotify-link-garden");
+const spotifyConnect =
+  document.querySelector<HTMLButtonElement>("#spotify-connect");
+const spotifyClientIdInput =
+  document.querySelector<HTMLInputElement>("#spotify-client-id");
+const spotifyFullStatus =
+  document.querySelector<HTMLElement>("#spotify-full-status");
 const ytMount = document.querySelector<HTMLIFrameElement>("#yt-mount");
 const songKicker = document.querySelector<HTMLElement>(".song-kicker");
 const playSongBtn = document.querySelector<HTMLButtonElement>("#play-song");
@@ -139,6 +153,9 @@ if (
   !spotifyFallbackGarden ||
   !spotifyLink ||
   !spotifyLinkGarden ||
+  !spotifyConnect ||
+  !spotifyClientIdInput ||
+  !spotifyFullStatus ||
   !ytMount ||
   !playSongBtn ||
   !faithCoinsEl ||
@@ -402,8 +419,10 @@ const world = createWorld(canvas, {
         /* ignore */
       }
     }
+    world.spawnPartner();
     showDedication(name);
-    compass.textContent = "Constellation complete—looking up";
+    compass.textContent =
+      "He found you—together, notice what remains.";
     world.lookAtConstellation();
   },
   onComplete() {
@@ -607,6 +626,23 @@ const selectTrack = async (trackId: string) => {
   try {
     const api = await ensureMusic();
     await api.setTrack(track.id);
+    if (isSpotifyConnected() && track.spotifyId) {
+      try {
+        await playFullSpotifyTrack(track.spotifyId);
+        usingSpotify = true;
+        if (!api.isMuted()) api.toggleMute();
+        syncMuteUi(true);
+        if (songKicker) songKicker.textContent = "spotify full track";
+        if (spotifyFullStatus)
+          spotifyFullStatus.textContent = `Playing full track: ${track.title}`;
+      } catch (err) {
+        console.warn(err);
+        if (spotifyFullStatus)
+          spotifyFullStatus.textContent =
+            "Full Spotify play failed—check Premium + Connect. YouTube still available.";
+        await api.play();
+      }
+    }
   } catch (err) {
     console.warn("Track switch failed:", err);
   }
@@ -628,6 +664,40 @@ songToggle.addEventListener("click", () => {
 });
 
 songPanelClose.addEventListener("click", () => setSongPanelOpen(false));
+
+spotifyClientIdInput.value = getSpotifyClientId();
+const refreshSpotifyStatus = () => {
+  if (isSpotifyConnected()) {
+    spotifyConnect.textContent = "Spotify connected";
+    spotifyFullStatus.textContent =
+      "Connected. Pick a track for the full song (Premium).";
+  } else {
+    spotifyConnect.textContent = "Connect Spotify";
+    spotifyFullStatus.textContent =
+      "Premium + Connect plays full songs here (not 30s preview).";
+  }
+};
+refreshSpotifyStatus();
+void ensureSpotifyToken().then(() => refreshSpotifyStatus());
+
+spotifyConnect.addEventListener("click", async () => {
+  const id = spotifyClientIdInput.value.trim() || getSpotifyClientId();
+  if (!id) {
+    spotifyFullStatus.textContent =
+      "Paste your Spotify Client ID first (developer.spotify.com → create app). Redirect URI: this page URL.";
+    spotifyClientIdInput.focus();
+    return;
+  }
+  setSpotifyClientId(id);
+  spotifyFullStatus.textContent = "Opening Spotify login…";
+  try {
+    await beginSpotifyLogin(id);
+  } catch (err) {
+    console.warn(err);
+    spotifyFullStatus.textContent =
+      "Could not start Spotify login. Check Client ID + Redirect URI.";
+  }
+});
 
 const startSong = async () => {
   const api = await ensureMusic();
