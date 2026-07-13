@@ -5,6 +5,14 @@ import { poetQuotes } from "./quotes";
 import { createMusic } from "./audio";
 import { createAmbient } from "./ambient";
 import {
+  TRACKS,
+  getTrackById,
+  loadSavedTrackId,
+  saveTrackId,
+  youtubeEmbedSrc,
+  type Track,
+} from "./tracks";
+import {
   fetchWeather,
   formatLocalDate,
   formatLocalTime,
@@ -35,8 +43,21 @@ const savedNote = document.querySelector<HTMLElement>("#saved-note");
 const letterboxClose =
   document.querySelector<HTMLButtonElement>("#letterbox-close");
 const vinyl = document.querySelector<HTMLElement>("#vinyl");
+const vinylArtist = document.querySelector<HTMLElement>("#vinyl-artist");
 const eq = document.querySelector<HTMLElement>("#eq");
 const muteBtn = document.querySelector<HTMLButtonElement>("#mute");
+const songToggle = document.querySelector<HTMLButtonElement>("#song-toggle");
+const songPanel = document.querySelector<HTMLElement>("#song-panel");
+const songPanelClose =
+  document.querySelector<HTMLButtonElement>("#song-panel-close");
+const trackList = document.querySelector<HTMLElement>("#track-list");
+const trackListGarden = document.querySelector<HTMLElement>("#track-list-garden");
+const songTitleEl = document.querySelector<HTMLElement>("#song-title");
+const songCreditEl = document.querySelector<HTMLElement>("#song-credit");
+const spotifyLink = document.querySelector<HTMLAnchorElement>("#spotify-link");
+const spotifyLinkGarden =
+  document.querySelector<HTMLAnchorElement>("#spotify-link-garden");
+const ytMount = document.querySelector<HTMLIFrameElement>("#yt-mount");
 const songKicker = document.querySelector<HTMLElement>(".song-kicker");
 const playSongBtn = document.querySelector<HTMLButtonElement>("#play-song");
 const faithCoinsEl = document.querySelector<HTMLElement>("#faith-coins");
@@ -74,8 +95,19 @@ if (
   !savedNote ||
   !letterboxClose ||
   !vinyl ||
+  !vinylArtist ||
   !eq ||
   !muteBtn ||
+  !songToggle ||
+  !songPanel ||
+  !songPanelClose ||
+  !trackList ||
+  !trackListGarden ||
+  !songTitleEl ||
+  !songCreditEl ||
+  !spotifyLink ||
+  !spotifyLinkGarden ||
+  !ytMount ||
   !playSongBtn ||
   !faithCoinsEl ||
   !faithTotalEl ||
@@ -94,6 +126,60 @@ if (
 
 const NOTE_KEY = "if-you-knew-me-letter";
 
+let selectedTrack = getTrackById(loadSavedTrackId());
+
+const applyTrackUi = (track: Track) => {
+  selectedTrack = track;
+  songTitleEl.textContent = track.title;
+  songCreditEl.textContent = track.artist;
+  vinylArtist.textContent = track.artist;
+  spotifyLink.href = track.spotifyUrl;
+  spotifyLinkGarden.href = track.spotifyUrl;
+  ytMount.title = `${track.title} — ${track.artist}`;
+
+  for (const btn of document.querySelectorAll<HTMLButtonElement>(
+    ".track-option",
+  )) {
+    const on = btn.dataset.trackId === track.id;
+    btn.classList.toggle("is-selected", on);
+    btn.setAttribute("aria-checked", on ? "true" : "false");
+  }
+};
+
+const renderTrackList = (container: HTMLElement) => {
+  container.replaceChildren();
+  for (const track of TRACKS) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "track-option";
+    btn.dataset.trackId = track.id;
+    btn.setAttribute("role", "radio");
+    btn.setAttribute(
+      "aria-checked",
+      track.id === selectedTrack.id ? "true" : "false",
+    );
+    if (track.id === selectedTrack.id) btn.classList.add("is-selected");
+
+    const title = document.createElement("span");
+    title.className = "track-option-title";
+    title.textContent = track.title;
+    const artist = document.createElement("span");
+    artist.className = "track-option-artist";
+    artist.textContent = track.artist;
+    btn.append(title, artist);
+    container.append(btn);
+  }
+};
+
+renderTrackList(trackList);
+renderTrackList(trackListGarden);
+applyTrackUi(selectedTrack);
+ytMount.src = youtubeEmbedSrc(selectedTrack.youtubeId);
+
+const setSongPanelOpen = (open: boolean) => {
+  songPanel.classList.toggle("is-hidden", !open);
+  songToggle.setAttribute("aria-expanded", open ? "true" : "false");
+};
 totalEl.textContent = String(discoveries.length);
 faithTotalEl.textContent = String(poetQuotes.length);
 
@@ -225,6 +311,7 @@ const syncMuteUi = (muted: boolean) => {
 
 const openGarden = () => {
   muteBtn.classList.remove("is-hidden");
+  songToggle.classList.remove("is-hidden");
   dpad.classList.remove("is-hidden");
   gate.classList.add("is-leaving");
   document.body.classList.remove("is-prologue");
@@ -249,8 +336,38 @@ const beatObserver = new IntersectionObserver(
 );
 for (const beat of beats) beatObserver.observe(beat);
 
+const selectTrack = async (trackId: string) => {
+  const track = getTrackById(trackId);
+  saveTrackId(track.id);
+  applyTrackUi(track);
+  try {
+    const api = await ensureMusic();
+    await api.setTrack(track.id);
+  } catch (err) {
+    console.warn("Track switch failed:", err);
+  }
+};
+
+const onTrackListClick = (e: Event) => {
+  const target = (e.target as HTMLElement).closest<HTMLButtonElement>(
+    ".track-option",
+  );
+  if (!target?.dataset.trackId) return;
+  void selectTrack(target.dataset.trackId);
+};
+
+trackList.addEventListener("click", onTrackListClick);
+trackListGarden.addEventListener("click", onTrackListClick);
+
+songToggle.addEventListener("click", () => {
+  setSongPanelOpen(songPanel.classList.contains("is-hidden"));
+});
+
+songPanelClose.addEventListener("click", () => setSongPanelOpen(false));
+
 const startSong = async () => {
   const api = await ensureMusic();
+  await api.setTrack(selectedTrack.id);
   await api.play();
   await ambient.start();
   ambient.setMuted(soundMuted);
@@ -259,6 +376,7 @@ const startSong = async () => {
   if (songKicker) songKicker.textContent = "now playing";
   playSongBtn.classList.add("is-hidden");
   muteBtn.classList.remove("is-hidden");
+  songToggle.classList.remove("is-hidden");
   syncMuteUi(false);
 };
 

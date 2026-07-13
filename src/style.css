@@ -282,6 +282,73 @@ body.is-garden #world {
   animation: eq 0.95s ease-in-out infinite 0.2s;
 }
 
+.song-pick-label {
+  margin: 0.85rem 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-height: 9.5rem;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+  width: min(100%, 16rem);
+}
+
+.track-option {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0.35rem 0.45rem;
+  cursor: pointer;
+  border-radius: 2px;
+  color: var(--ink-soft);
+  font-family: "Newsreader", Georgia, serif;
+  line-height: 1.25;
+}
+
+.track-option:hover,
+.track-option:focus-visible {
+  background: rgba(40, 55, 50, 0.06);
+  outline: none;
+}
+
+.track-option.is-selected {
+  background: rgba(40, 55, 50, 0.08);
+  color: var(--ink);
+}
+
+.track-option-title {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.track-option-artist {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.spotify-link {
+  display: inline-block;
+  margin-top: 0.55rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--sage);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.spotify-link:hover {
+  border-bottom-color: currentColor;
+}
+
 .play-song {
   margin-top: 0.7rem;
   appearance: none;
@@ -297,6 +364,74 @@ body.is-garden #world {
 
 .play-song.is-hidden {
   display: none !important;
+}
+
+.sound-dock {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.song-toggle,
+.mute {
+  position: static;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.song-toggle.is-hidden,
+.mute.is-hidden {
+  display: none;
+}
+
+.song-toggle[aria-expanded="true"] {
+  color: var(--sage);
+}
+
+.song-panel {
+  position: fixed;
+  top: 4rem;
+  right: 1rem;
+  z-index: 13;
+  width: min(17.5rem, calc(100vw - 2rem));
+  padding: 0.9rem 0.95rem 0.85rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 32px rgba(40, 55, 50, 0.12);
+}
+
+.song-panel-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.song-panel .track-list {
+  max-height: 14rem;
+  width: 100%;
+}
+
+.song-panel .spotify-link {
+  margin-top: 0.65rem;
+}
+
+.song-panel .note-close {
+  margin-top: 0.7rem;
 }
 
 .yt-host {
@@ -321,23 +456,6 @@ body.is-garden #world {
 /* Visible while debugging playback — remove class via JS once playing */
 .yt-host.is-audible {
   opacity: 0.01;
-}
-
-.mute {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 12;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--panel);
-  backdrop-filter: blur(10px);
-  color: var(--ink);
-  font-size: 1rem;
-  cursor: pointer;
-  line-height: 1;
 }
 
 .mute.is-muted {
@@ -1153,7 +1271,9 @@ body.is-garden .atmos {
 .enter,
 .play-song,
 .note-close,
-.mute {
+.mute,
+.song-toggle,
+.track-option {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -1194,9 +1314,18 @@ body.is-garden .atmos {
     top: max(3.4rem, calc(env(safe-area-inset-top) + 2.8rem));
   }
 
-  .mute {
+  .sound-dock {
     top: max(0.55rem, env(safe-area-inset-top));
     right: max(0.55rem, env(safe-area-inset-right));
+  }
+
+  .song-panel {
+    top: max(3.6rem, calc(env(safe-area-inset-top) + 3.1rem));
+    right: max(0.55rem, env(safe-area-inset-right));
+  }
+
+  .track-list {
+    max-height: 8.5rem;
   }
 
   .hud {

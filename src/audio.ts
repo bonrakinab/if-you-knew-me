@@ -1,7 +1,17 @@
-type MusicApi = {
+import {
+  getTrackById,
+  loadSavedTrackId,
+  saveTrackId,
+  youtubeEmbedSrc,
+  type Track,
+} from "./tracks";
+
+export type MusicApi = {
   play: () => Promise<void>;
   toggleMute: () => boolean;
   isMuted: () => boolean;
+  setTrack: (trackId: string) => Promise<void>;
+  getTrack: () => Track;
   destroy: () => void;
 };
 
@@ -12,6 +22,7 @@ declare global {
         elementId: string,
         opts?: Record<string, unknown>,
       ) => YTPlayer;
+      PlayerState?: { ENDED: number };
     };
     onYouTubeIframeAPIReady?: () => void;
   }
@@ -25,10 +36,17 @@ type YTPlayer = {
   unMute: () => void;
   isMuted: () => boolean;
   destroy: () => void;
+  loadVideoById: (opts: {
+    videoId: string;
+    startSeconds?: number;
+  }) => void;
+  cueVideoById: (opts: {
+    videoId: string;
+    startSeconds?: number;
+  }) => void;
 };
 
-const VIDEO_ID = "HvH-DXHvnrM"; // Level Five — 60's Love
-const LOCAL_SRC = `${import.meta.env.BASE_URL}audio/60s-love.mp3`;
+const YT_ENDED = 0;
 
 function loadYouTubeApi(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -62,9 +80,9 @@ function loadYouTubeApi(): Promise<void> {
   });
 }
 
-async function hasLocalAudio(): Promise<boolean> {
+async function hasLocalAudio(src: string): Promise<boolean> {
   try {
-    const res = await fetch(LOCAL_SRC, { method: "HEAD", cache: "no-store" });
+    const res = await fetch(src, { method: "HEAD", cache: "no-store" });
     if (!res.ok) return false;
     const type = (res.headers.get("content-type") || "").toLowerCase();
     return (
@@ -78,38 +96,52 @@ async function hasLocalAudio(): Promise<boolean> {
   }
 }
 
-function createLocalMusic(): MusicApi {
-  const local = new Audio(LOCAL_SRC);
-  local.loop = true;
-  local.preload = "auto";
-  local.volume = 0.6;
-  let muted = false;
-
-  return {
-    async play() {
-      await local.play();
-    },
-    toggleMute() {
-      muted = !muted;
-      local.muted = muted;
-      return muted;
-    },
-    isMuted: () => muted,
-    destroy() {
-      local.pause();
-      local.removeAttribute("src");
-      local.load();
-    },
-  };
+function syncIframeTitle(iframeId: string, track: Track) {
+  const el = document.getElementById(iframeId);
+  if (el instanceof HTMLIFrameElement) {
+    el.title = `${track.title} — ${track.artist}`;
+  }
 }
 
-function createYouTubeMusic(iframeId: string): MusicApi {
+export async function createMusic(iframeId: string): Promise<MusicApi> {
+  let current = getTrackById(loadSavedTrackId());
   let player: YTPlayer | null = null;
+  let local: HTMLAudioElement | null = null;
+  let usingLocal = false;
   let muted = false;
+  let started = false;
 
-  const ensure = async () => {
+  const stopLocal = () => {
+    if (!local) return;
+    local.pause();
+    local.removeAttribute("src");
+    local.load();
+    local = null;
+  };
+
+  const ensureLocal = async (track: Track) => {
+    if (!track.localSrc || !(await hasLocalAudio(track.localSrc))) {
+      return false;
+    }
+    stopLocal();
+    local = new Audio(track.localSrc);
+    local.loop = true;
+    local.preload = "auto";
+    local.volume = 0.6;
+    local.muted = muted;
+    usingLocal = true;
+    return true;
+  };
+
+  const ensurePlayer = async () => {
     if (player) return player;
     await loadYouTubeApi();
+
+    const mount = document.getElementById(iframeId);
+    if (mount instanceof HTMLIFrameElement) {
+      mount.src = youtubeEmbedSrc(current.youtubeId);
+    }
+    syncIframeTitle(iframeId, current);
 
     player = await new Promise<YTPlayer>((resolve, reject) => {
       let done = false;
@@ -123,6 +155,11 @@ function createYouTubeMusic(iframeId: string): MusicApi {
         events: {
           onReady: (e: { target: YTPlayer }) => finish(e.target ?? p),
           onError: () => reject(new Error("YouTube playback error")),
+          onStateChange: (e: { data: number; target: YTPlayer }) => {
+            if (e.data === (window.YT?.PlayerState?.ENDED ?? YT_ENDED)) {
+              e.target.playVideo();
+            }
+          },
         },
       } as Record<string, unknown>);
 
@@ -132,47 +169,101 @@ function createYouTubeMusic(iframeId: string): MusicApi {
     return player;
   };
 
-  return {
-    async play() {
-      const p = await ensure();
-      muted = false;
+  const playCurrent = async () => {
+    started = true;
+    if (usingLocal && local) {
+      local.muted = muted;
+      await local.play();
+      return;
+    }
+
+    const p = await ensurePlayer();
+    if (muted) p.mute();
+    else {
       p.unMute();
       p.setVolume(80);
-      p.playVideo();
-      window.setTimeout(() => {
+    }
+    p.playVideo();
+    window.setTimeout(() => {
+      if (muted) p.mute();
+      else {
         p.unMute();
         p.setVolume(80);
-        p.playVideo();
-      }, 500);
+      }
+      p.playVideo();
+    }, 500);
+  };
+
+  return {
+    async play() {
+      if (usingLocal && local) {
+        await playCurrent();
+        return;
+      }
+      // Prefer local file for tracks that ship one
+      if (current.localSrc && (await ensureLocal(current))) {
+        await playCurrent();
+        return;
+      }
+      usingLocal = false;
+      await playCurrent();
     },
     toggleMute() {
-      if (!player) {
-        muted = !muted;
+      muted = !muted;
+      if (usingLocal && local) {
+        local.muted = muted;
         return muted;
       }
-      muted = !muted;
+      if (!player) return muted;
       if (muted) player.mute();
       else {
         player.unMute();
-        player.playVideo();
+        if (started) player.playVideo();
       }
       return muted;
     },
     isMuted: () => muted,
+    getTrack: () => current,
+    async setTrack(trackId: string) {
+      const next = getTrackById(trackId);
+      if (next.id === current.id) return;
+      current = next;
+      saveTrackId(next.id);
+      syncIframeTitle(iframeId, next);
+
+      stopLocal();
+      usingLocal = false;
+
+      if (next.localSrc && (await ensureLocal(next))) {
+        if (started) await playCurrent();
+        return;
+      }
+
+      const p = await ensurePlayer();
+      if (started) {
+        p.loadVideoById({ videoId: next.youtubeId });
+        if (muted) p.mute();
+        else {
+          p.unMute();
+          p.setVolume(80);
+        }
+        p.playVideo();
+      } else {
+        p.cueVideoById({ videoId: next.youtubeId });
+      }
+    },
     destroy() {
+      stopLocal();
       try {
         player?.destroy();
       } catch {
         /* ignore */
       }
       player = null;
+      usingLocal = false;
+      started = false;
     },
   };
 }
 
-export async function createMusic(iframeId: string): Promise<MusicApi> {
-  if (await hasLocalAudio()) return createLocalMusic();
-  return createYouTubeMusic(iframeId);
-}
-
-export { VIDEO_ID };
+export { youtubeEmbedSrc };

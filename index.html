@@ -55,16 +55,32 @@
         <div class="song-stage">
           <div id="vinyl" class="vinyl">
             <div class="vinyl-label">
-              <span>Level Five</span>
+              <span id="vinyl-artist">Level Five</span>
             </div>
           </div>
           <div class="song-meta">
             <p class="song-kicker">playing softly</p>
-            <p class="song-title">60's Love</p>
-            <p class="song-credit">Level Five</p>
+            <p class="song-title" id="song-title">60's Love</p>
+            <p class="song-credit" id="song-credit">Level Five</p>
             <div class="eq" id="eq">
               <span></span><span></span><span></span><span></span><span></span>
             </div>
+            <p class="song-pick-label">or choose another</p>
+            <div
+              id="track-list"
+              class="track-list"
+              role="radiogroup"
+              aria-label="Choose a song"
+            ></div>
+            <a
+              id="spotify-link"
+              class="spotify-link"
+              href="https://open.spotify.com/search/60%27s%20Love%20Level%20Five"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Spotify
+            </a>
             <button type="button" id="play-song" class="play-song">
               Play song first
             </button>
@@ -122,15 +138,55 @@
       </div>
     </div>
 
-    <button
-      type="button"
-      id="mute"
-      class="mute is-hidden"
-      aria-label="Mute sound"
-      title="Mute"
+    <div id="sound-dock" class="sound-dock">
+      <button
+        type="button"
+        id="song-toggle"
+        class="song-toggle is-hidden"
+        aria-label="Choose song"
+        title="Song"
+        aria-expanded="false"
+        aria-controls="song-panel"
+      >
+        ♫
+      </button>
+      <button
+        type="button"
+        id="mute"
+        class="mute is-hidden"
+        aria-label="Mute sound"
+        title="Mute"
+      >
+        ♪
+      </button>
+    </div>
+
+    <div
+      id="song-panel"
+      class="song-panel is-hidden"
+      role="dialog"
+      aria-label="Choose a song"
     >
-      ♪
-    </button>
+      <p class="song-panel-title">Choose a song</p>
+      <div
+        id="track-list-garden"
+        class="track-list"
+        role="radiogroup"
+        aria-label="Garden song list"
+      ></div>
+      <a
+        id="spotify-link-garden"
+        class="spotify-link"
+        href="https://open.spotify.com/search/60%27s%20Love%20Level%20Five"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open in Spotify
+      </a>
+      <button type="button" id="song-panel-close" class="note-close">
+        Close
+      </button>
+    </div>
 
     <div id="hud" class="hud is-hidden" aria-live="polite">
       <p class="progress"><span id="found">0</span> of <span id="total">8</span> noticed</p>
