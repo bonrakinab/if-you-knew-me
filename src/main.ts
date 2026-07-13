@@ -105,6 +105,7 @@ const weatherTempEl = document.querySelector<HTMLElement>("#weather-temp");
 const weatherLabelEl = document.querySelector<HTMLElement>("#weather-label");
 const weatherPlaceEl = document.querySelector<HTMLElement>("#weather-place");
 const dpad = document.querySelector<HTMLElement>("#dpad");
+const actionPad = document.querySelector<HTMLElement>("#action-pad");
 
 if (
   !canvas ||
@@ -171,7 +172,8 @@ if (
   !weatherTempEl ||
   !weatherLabelEl ||
   !weatherPlaceEl ||
-  !dpad
+  !dpad ||
+  !actionPad
 ) {
   throw new Error("Missing required UI elements");
 }
@@ -556,6 +558,7 @@ const openGarden = () => {
   songToggle.classList.remove("is-hidden");
   journalToggle.classList.remove("is-hidden");
   dpad.classList.remove("is-hidden");
+  actionPad.classList.remove("is-hidden");
   gate.classList.add("is-leaving");
   document.body.classList.remove("is-prologue");
   document.body.classList.add("is-garden");
@@ -850,13 +853,52 @@ for (const btn of dpad.querySelectorAll<HTMLButtonElement>(".dpad-btn")) {
   bindPadButton(btn);
 }
 
+const bindActionButton = (btn: HTMLButtonElement) => {
+  const action = btn.dataset.action;
+  if (!action) return;
+
+  if (action === "run") {
+    const down = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      btn.classList.add("is-active");
+      world.setHeld("ShiftLeft", true);
+    };
+    const up = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      btn.classList.remove("is-active");
+      world.setHeld("ShiftLeft", false);
+    };
+    btn.addEventListener("pointerdown", down);
+    btn.addEventListener("pointerup", up);
+    btn.addEventListener("pointercancel", up);
+    btn.addEventListener("pointerleave", up);
+    return;
+  }
+
+  const tap = (e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    btn.classList.add("is-active");
+    if (action === "jump") world.jump();
+    if (action === "dance") world.dance();
+    window.setTimeout(() => btn.classList.remove("is-active"), 140);
+  };
+  btn.addEventListener("pointerdown", tap);
+};
+
+for (const btn of actionPad.querySelectorAll<HTMLButtonElement>(".action-btn")) {
+  bindActionButton(btn);
+}
+
 document.body.addEventListener(
   "touchmove",
   (e) => {
     if (document.body.classList.contains("is-garden")) {
       const target = e.target as HTMLElement | null;
       if (target?.closest(
-        ".note, .dpad, .finale, .letterbox, .dedication, .journal, .song-panel, .sound-dock",
+        ".note, .dpad, .action-pad, .finale, .letterbox, .dedication, .journal, .song-panel, .sound-dock",
       ))
         return;
       e.preventDefault();

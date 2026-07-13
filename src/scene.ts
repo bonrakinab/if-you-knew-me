@@ -31,6 +31,8 @@ export type WorldProgress = {
 export type WorldApi = {
   enable: () => void;
   setHeld: (code: string, down: boolean) => void;
+  jump: () => void;
+  dance: () => void;
   setHour: (hour: number) => void;
   destroy: () => void;
   getProgress: () => WorldProgress;
@@ -570,7 +572,10 @@ export function createWorld(
 
   const bees: Bee[] = [];
   const BEE_COUNT = 8;
-  const BEE_HIT = 0.78;
+  const touchFriendly =
+    typeof window !== "undefined" &&
+    window.matchMedia("(pointer: coarse)").matches;
+  const BEE_HIT = touchFriendly ? 0.7 : 0.78;
   const BEE_BOUND = 16;
   let stung = false;
   for (let i = 0; i < BEE_COUNT; i++) {
@@ -585,6 +590,10 @@ export function createWorld(
       bz = Math.sin(a) * r;
     }
     const bee = createBee(bx, bz, i * 1.7);
+    if (touchFriendly) {
+      bee.speed *= 0.78;
+      bee.sprite.scale.set(0.7, 0.7, 1);
+    }
     bee.tx = THREE.MathUtils.clamp(bx + (rand() - 0.5) * 5, -BEE_BOUND, BEE_BOUND);
     bee.tz = THREE.MathUtils.clamp(bz + (rand() - 0.5) * 5, -BEE_BOUND, BEE_BOUND);
     bees.push(bee);
@@ -866,7 +875,7 @@ export function createWorld(
   const onPointerDown = (e: PointerEvent) => {
     if (!player.enabled) return;
     if ((e.target as HTMLElement | null)?.closest?.(
-      ".letterbox, .note, .finale, .dpad, .mute, .atmos, .journal, .song-panel, .sound-dock",
+      ".letterbox, .note, .finale, .dpad, .action-pad, .mute, .atmos, .journal, .song-panel, .sound-dock",
     ))
       return;
     pickAt(e.clientX, e.clientY);
@@ -875,6 +884,21 @@ export function createWorld(
   const onPointerMove = (e: PointerEvent) => {
     if (!player.enabled) return;
     updateHover(e.clientX, e.clientY);
+  };
+
+  const triggerJump = () => {
+    if (!player.enabled || player.jumping || stung) return;
+    player.jumping = true;
+    player.vy = 5.2;
+    player.dancing = false;
+    hasWalkTarget = false;
+  };
+
+  const triggerDance = () => {
+    if (!player.enabled || stung) return;
+    player.dancing = true;
+    player.danceUntil = performance.now() + 2200;
+    hasWalkTarget = false;
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -899,15 +923,11 @@ export function createWorld(
       hasWalkTarget = false;
       e.preventDefault();
     }
-    if (e.code === "Space" && !player.jumping) {
-      player.jumping = true;
-      player.vy = 5.2;
-      player.dancing = false;
+    if (e.code === "Space") {
+      triggerJump();
     }
     if (e.code === "KeyE") {
-      player.dancing = true;
-      player.danceUntil = performance.now() + 2200;
-      hasWalkTarget = false;
+      triggerDance();
     }
   };
 
@@ -1232,6 +1252,12 @@ export function createWorld(
       } else {
         keys.delete(code);
       }
+    },
+    jump() {
+      triggerJump();
+    },
+    dance() {
+      triggerDance();
     },
     setHour(hour: number) {
       // Map hour to dayBlend: peak day ~13, night ~0/24

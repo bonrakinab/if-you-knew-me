@@ -1441,7 +1441,22 @@ body.is-garden .atmos {
 
 @media (max-width: 720px) {
   .letterbox {
-    bottom: max(10.5rem, calc(env(safe-area-inset-bottom) + 9.5rem));
+    bottom: max(12.5rem, calc(env(safe-area-inset-bottom) + 11.5rem));
+  }
+
+  .death-toast {
+    width: min(18rem, calc(100vw - 2rem));
+    font-size: 0.95rem;
+    top: 38%;
+  }
+
+  .action-pad {
+    width: 8rem;
+  }
+
+  .dpad {
+    width: 9.6rem;
+    height: 9.6rem;
   }
 }
 
@@ -1498,6 +1513,57 @@ body.is-garden .atmos {
 .dpad-btn.is-active {
   background: rgba(28, 36, 48, 0.82);
   color: #eef3f0;
+}
+
+.action-pad {
+  position: fixed;
+  right: max(0.85rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 12;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  width: 7.6rem;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.action-btn {
+  appearance: none;
+  border: 1px solid rgba(28, 36, 48, 0.14);
+  border-radius: 0.85rem;
+  background: rgba(236, 241, 238, 0.72);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  min-height: 2.75rem;
+  padding: 0.35rem 0.4rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+.action-btn-jump {
+  grid-column: 1 / -1;
+  min-height: 3.25rem;
+  font-size: 0.9rem;
+  background: rgba(242, 201, 76, 0.55);
+  border-color: rgba(90, 70, 20, 0.2);
+}
+
+.action-btn.is-active {
+  background: rgba(28, 36, 48, 0.82);
+  color: #eef3f0;
+}
+
+.action-btn-jump.is-active {
+  background: rgba(90, 70, 20, 0.88);
+  color: #fff6d8;
 }
 
 .gate {
@@ -1605,9 +1671,10 @@ body.is-garden .atmos {
   }
 }
 
-/* Hide D-pad on large pointer devices with keyboard */
+/* Hide touch pads on large pointer devices with keyboard */
 @media (hover: hover) and (pointer: fine) and (min-width: 900px) {
-  .dpad {
+  .dpad,
+  .action-pad {
     display: none !important;
   }
 }

@@ -105,7 +105,7 @@
           Listen &amp; begin wandering
         </button>
         <p class="how">
-          Phone: on-screen pad · Desktop: WASD · Shift run · Space jump (dodge bees) · E dance · tap lights
+          Phone: move pad + Jump/Run · Desktop: WASD · Shift run · Space jump (dodge bees) · E dance
         </p>
       </section>
     </div>
@@ -333,6 +333,18 @@
       <button type="button" class="dpad-btn" data-key="KeyA" aria-label="Left">◀</button>
       <button type="button" class="dpad-btn" data-key="KeyS" aria-label="Down">▼</button>
       <button type="button" class="dpad-btn" data-key="KeyD" aria-label="Right">▶</button>
+    </div>
+
+    <div id="action-pad" class="action-pad is-hidden" aria-label="Actions">
+      <button type="button" class="action-btn" data-action="run" aria-label="Run">
+        Run
+      </button>
+      <button type="button" class="action-btn action-btn-jump" data-action="jump" aria-label="Jump">
+        Jump
+      </button>
+      <button type="button" class="action-btn" data-action="dance" aria-label="Dance">
+        Dance
+      </button>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
