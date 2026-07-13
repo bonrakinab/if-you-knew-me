@@ -55,17 +55,17 @@
         <div class="song-stage">
           <div id="vinyl" class="vinyl">
             <div class="vinyl-label">
-              <span id="vinyl-artist">Level Five</span>
+              <span id="vinyl-artist">Habib Wahid &amp; Nancy</span>
             </div>
           </div>
           <div class="song-meta">
             <p class="song-kicker">playing softly</p>
-            <p class="song-title" id="song-title">60's Love</p>
-            <p class="song-credit" id="song-credit">Level Five</p>
+            <p class="song-title" id="song-title">Ami Tomar Moner Vitor</p>
+            <p class="song-credit" id="song-credit">Habib Wahid &amp; Nancy</p>
             <div class="eq" id="eq">
               <span></span><span></span><span></span><span></span><span></span>
             </div>
-            <p class="song-pick-label">or choose another</p>
+            <p class="song-pick-label">Habib Wahid — pick a song</p>
             <div
               id="track-list"
               class="track-list"
@@ -73,30 +73,27 @@
               aria-label="Choose a song"
             ></div>
             <div id="spotify-player" class="spotify-player">
-              <p class="spotify-player-label">Spotify</p>
-              <iframe
-                id="spotify-embed"
-                class="spotify-embed"
-                title="Spotify player"
-                src="https://open.spotify.com/embed/track/3h78AziF7cEXfm50J2TNcA?utm_source=generator&amp;theme=0"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                style="height:152px"
-              ></iframe>
-              <p id="spotify-fallback" class="spotify-fallback is-hidden">
-                Spotify embed unavailable for this track —
+              <p class="spotify-player-label">Full track in the garden</p>
+              <p class="spotify-hint">
+                Songs play in full here (not Spotify’s 30s preview). Optional:
                 <a
                   id="spotify-link"
                   class="spotify-link"
-                  href="https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA"
+                  href="https://open.spotify.com/track/2JU4bkZOLDrGFGGeAsD6gK"
                   target="_blank"
                   rel="noopener noreferrer"
                   >open in Spotify</a
                 >
               </p>
-              <p class="spotify-hint">
-                Full songs: open Music in the garden and Connect Spotify (Premium).
-              </p>
+              <iframe
+                id="spotify-embed"
+                class="spotify-embed is-hidden"
+                title="Spotify player (unused)"
+                src="about:blank"
+                aria-hidden="true"
+                tabindex="-1"
+              ></iframe>
+              <p id="spotify-fallback" class="spotify-fallback is-hidden"></p>
             </div>
             <button type="button" id="play-song" class="play-song">
               Play song first
@@ -116,8 +113,8 @@
     <div id="yt-host" class="yt-host" aria-hidden="true">
       <iframe
         id="yt-mount"
-        title="60's Love — Level Five"
-        src="https://www.youtube.com/embed/HvH-DXHvnrM?enablejsapi=1&amp;playsinline=1&amp;rel=0&amp;loop=1&amp;playlist=HvH-DXHvnrM&amp;controls=0&amp;modestbranding=1"
+        title="Ami Tomar Moner Vitor — Habib Wahid &amp; Nancy"
+        src="https://www.youtube.com/embed/BPPLC6eD4BA?enablejsapi=1&amp;playsinline=1&amp;rel=0&amp;loop=1&amp;playlist=BPPLC6eD4BA&amp;controls=0&amp;modestbranding=1"
         allow="autoplay; encrypted-media"
         referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
@@ -203,13 +200,27 @@
         aria-label="Garden song list"
       ></div>
       <div id="spotify-player-garden" class="spotify-player">
-        <p class="spotify-player-label">Spotify full tracks</p>
+        <p class="spotify-player-label">Listening</p>
+        <p class="spotify-hint">
+          Picking a song plays the <strong>full track</strong> in the garden.
+          Spotify embeds (30s preview) are off.
+        </p>
+        <p class="spotify-hint">
+          <a
+            id="spotify-link-garden"
+            class="spotify-link"
+            href="https://open.spotify.com/track/2JU4bkZOLDrGFGGeAsD6gK"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Open current song in Spotify</a
+          >
+        </p>
         <div class="spotify-full-row">
           <input
             id="spotify-client-id"
             class="spotify-client-id"
             type="text"
-            placeholder="Spotify Client ID (from developer dashboard)"
+            placeholder="Spotify Client ID (optional Premium Connect)"
             autocomplete="off"
             spellcheck="false"
           />
@@ -218,31 +229,18 @@
           </button>
         </div>
         <p id="spotify-full-status" class="spotify-hint">
-          Premium + Connect plays full songs here (not 30s preview). Embeds below stay as fallback.
+          Optional: Premium + Connect routes full Spotify into the page instead of YouTube.
         </p>
         <iframe
           id="spotify-embed-garden"
-          class="spotify-embed"
-          title="Spotify player"
-          src="https://open.spotify.com/embed/track/3h78AziF7cEXfm50J2TNcA?utm_source=generator&amp;theme=0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
+          class="spotify-embed is-hidden"
+          title="Spotify player (unused)"
+          src="about:blank"
+          aria-hidden="true"
+          tabindex="-1"
         ></iframe>
-        <p id="spotify-fallback-garden" class="spotify-fallback is-hidden">
-          Spotify embed unavailable for this track —
-          <a
-            id="spotify-link-garden"
-            class="spotify-link"
-            href="https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA"
-            target="_blank"
-            rel="noopener noreferrer"
-            >open in Spotify</a
-          >
-        </p>
+        <p id="spotify-fallback-garden" class="spotify-fallback is-hidden"></p>
       </div>
-      <p class="spotify-hint">
-        After Connect, pick a track to play the full song. Mute still quiets YouTube ambient bed.
-      </p>
       <button type="button" id="song-panel-close" class="note-close">
         Close
       </button>

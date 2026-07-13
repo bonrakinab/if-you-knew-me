@@ -4,79 +4,91 @@ export type Track = {
   artist: string;
   youtubeId: string;
   spotifyUrl: string;
-  /** Spotify track id for in-page embed controls (when available). */
+  /** Spotify track id for Web Playback / Open in Spotify (when available). */
   spotifyId?: string;
   localSrc?: string;
 };
 
 export const TRACK_STORAGE_KEY = "if-you-knew-me-track";
-export const DEFAULT_TRACK_ID = "60s-love";
+export const DEFAULT_TRACK_ID = "ami-tomar-moner-vitor";
 
 export const TRACKS: Track[] = [
   {
-    id: "60s-love",
-    title: "60's Love",
-    artist: "Level Five",
-    youtubeId: "HvH-DXHvnrM",
-    spotifyId: "3h78AziF7cEXfm50J2TNcA",
-    spotifyUrl: "https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA",
-    localSrc: `${import.meta.env.BASE_URL}audio/60s-love.mp3`,
+    id: "ami-tomar-moner-vitor",
+    title: "Ami Tomar Moner Vitor",
+    artist: "Habib Wahid & Nancy",
+    youtubeId: "BPPLC6eD4BA",
+    spotifyId: "2JU4bkZOLDrGFGGeAsD6gK",
+    spotifyUrl: "https://open.spotify.com/track/2JU4bkZOLDrGFGGeAsD6gK",
   },
   {
-    id: "abar-hashimukh",
-    title: "Abar Hashimukh",
-    artist: "Shironamhin",
-    youtubeId: "Cptlr__Fwx4",
+    id: "beni-khuley",
+    title: "Beni Khuley",
+    artist: "Habib Wahid & Muza",
+    youtubeId: "WhXsfZpHsWE",
+    spotifyId: "4awSQT4xNM70C77YMJyqfF",
+    spotifyUrl: "https://open.spotify.com/track/4awSQT4xNM70C77YMJyqfF",
+  },
+  {
+    id: "moha-jadu",
+    title: "Moha Jadu",
+    artist: "Habib Wahid & Mehrnigori Rustam",
+    youtubeId: "UghMf59vDJM",
+    spotifyId: "72iCVDN10ihLqPgm6U9z0z",
+    spotifyUrl: "https://open.spotify.com/track/72iCVDN10ihLqPgm6U9z0z",
+  },
+  {
+    id: "valobashbo-bashbo-re",
+    title: "Valobashbo Bashbo Re",
+    artist: "Habib Wahid",
+    youtubeId: "IWAke2_ogeI",
     spotifyUrl:
-      "https://open.spotify.com/search/Abar%20Hashimukh%20Shironamhin",
+      "https://open.spotify.com/search/Valobashbo%20Bashbo%20Re%20Habib%20Wahid",
   },
   {
-    id: "tumi-ashbe-bole",
-    title: "Tumi Ashbe Bole",
-    artist: "Nachiketa",
-    youtubeId: "7gbfDlIs3hg",
-    spotifyId: "45iWmUICn1eWaef0bwyP0r",
-    spotifyUrl: "https://open.spotify.com/track/45iWmUICn1eWaef0bwyP0r",
+    id: "cholo-na",
+    title: "Cholo Na",
+    artist: "Habib Wahid & Fuad",
+    youtubeId: "-qaRJIP0U2I",
+    spotifyUrl: "https://open.spotify.com/search/Cholo%20Na%20Habib%20Wahid",
   },
   {
-    id: "bela-bose",
-    title: "Bela Bose",
-    artist: "Anjan Dutt",
-    youtubeId: "HKrou2ENSe8",
-    spotifyId: "7so0EN7GbY9OWt1nzCWCkw",
-    spotifyUrl: "https://open.spotify.com/track/7so0EN7GbY9OWt1nzCWCkw",
+    id: "hariye-fela-bhalobasha",
+    title: "Hariye Fela Bhalobasha",
+    artist: "Habib Wahid",
+    youtubeId: "zQjvGFV8cBk",
+    spotifyUrl:
+      "https://open.spotify.com/search/Hariye%20Fela%20Bhalobasha%20Habib%20Wahid",
   },
   {
-    id: "stardew-overture",
-    title: "Stardew Valley Overture",
-    artist: "ConcernedApe",
-    youtubeId: "FQSHcl6TJb4",
-    spotifyId: "2q2Z2A0Mt8AsWyQEdB6wuu",
-    spotifyUrl: "https://open.spotify.com/track/2q2Z2A0Mt8AsWyQEdB6wuu",
+    id: "din-gelo",
+    title: "Din Gelo",
+    artist: "Habib Wahid",
+    youtubeId: "sAqUdcz-jRA",
+    spotifyUrl: "https://open.spotify.com/search/Din%20Gelo%20Habib%20Wahid",
   },
   {
-    id: "first-steps",
-    title: "First Steps",
-    artist: "Lena Raine",
-    youtubeId: "N8OHSXvneOE",
-    spotifyId: "03EyMyy76ZYLUh3lvGrNgE",
-    spotifyUrl: "https://open.spotify.com/track/03EyMyy76ZYLUh3lvGrNgE",
+    id: "moina-go",
+    title: "Moina Go",
+    artist: "Habib Wahid",
+    youtubeId: "40XLVuPlL4I",
+    spotifyUrl: "https://open.spotify.com/search/Moina%20Go%20Habib%20Wahid",
   },
   {
-    id: "home",
-    title: "Home",
-    artist: "Toby Fox",
-    youtubeId: "J_hJDitrh8M",
-    spotifyId: "5L9MJsGqzTRD09rSzHkCDy",
-    spotifyUrl: "https://open.spotify.com/track/5L9MJsGqzTRD09rSzHkCDy",
+    id: "moner-thikana",
+    title: "Moner Thikana",
+    artist: "Habib Wahid",
+    youtubeId: "0OrRQ0PA5F4",
+    spotifyUrl:
+      "https://open.spotify.com/search/Moner%20Thikana%20Habib%20Wahid",
   },
   {
-    id: "dirtmouth",
-    title: "Dirtmouth",
-    artist: "Christopher Larkin",
-    youtubeId: "NSlkW1fFkyo",
-    spotifyId: "4gCnaT6NKQmR3hqEeHp30t",
-    spotifyUrl: "https://open.spotify.com/track/4gCnaT6NKQmR3hqEeHp30t",
+    id: "bhalobasa-dao",
+    title: "Bhalobasa Dao Bhalobasa Nao",
+    artist: "Habib Wahid",
+    youtubeId: "v4J1NtT4114",
+    spotifyId: "4uqrDdawq9ZR7YCOSghfAx",
+    spotifyUrl: "https://open.spotify.com/track/4uqrDdawq9ZR7YCOSghfAx",
   },
 ];
 

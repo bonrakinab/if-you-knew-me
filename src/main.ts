@@ -9,7 +9,6 @@ import {
   getTrackById,
   loadSavedTrackId,
   saveTrackId,
-  spotifyEmbedSrc,
   youtubeEmbedSrc,
   type Track,
 } from "./tracks";
@@ -211,23 +210,15 @@ const setIdleCompass = () => {
 };
 
 let selectedTrack = getTrackById(loadSavedTrackId());
-let usingSpotify = false;
 
 const syncSpotifyEmbed = (track: Track) => {
   spotifyLink.href = track.spotifyUrl;
   spotifyLinkGarden.href = track.spotifyUrl;
-
-  const hasEmbed = Boolean(track.spotifyId);
-  spotifyEmbed.classList.toggle("is-hidden", !hasEmbed);
-  spotifyEmbedGarden.classList.toggle("is-hidden", !hasEmbed);
-  spotifyFallback.classList.toggle("is-hidden", hasEmbed);
-  spotifyFallbackGarden.classList.toggle("is-hidden", hasEmbed);
-
-  if (track.spotifyId) {
-    const src = spotifyEmbedSrc(track.spotifyId);
-    if (spotifyEmbed.src !== src) spotifyEmbed.src = src;
-    if (spotifyEmbedGarden.src !== src) spotifyEmbedGarden.src = src;
-  }
+  // Keep embed iframes hidden — Spotify embeds are 30s previews only.
+  spotifyEmbed.classList.add("is-hidden");
+  spotifyEmbedGarden.classList.add("is-hidden");
+  spotifyFallback.classList.add("is-hidden");
+  spotifyFallbackGarden.classList.add("is-hidden");
 };
 
 const applyTrackUi = (track: Track) => {
@@ -570,26 +561,6 @@ const syncMuteUi = (muted: boolean) => {
   ambient.setMuted(muted);
 };
 
-const preferSpotifyPlayback = async () => {
-  if (usingSpotify) return;
-  usingSpotify = true;
-  try {
-    const api = await ensureMusic();
-    if (!api.isMuted()) api.toggleMute();
-    syncMuteUi(true);
-  } catch {
-    /* ignore */
-  }
-  if (songKicker) songKicker.textContent = "spotify playing";
-};
-
-spotifyEmbed.addEventListener("pointerdown", () => {
-  void preferSpotifyPlayback();
-});
-spotifyEmbedGarden.addEventListener("pointerdown", () => {
-  void preferSpotifyPlayback();
-});
-
 const openGarden = () => {
   muteBtn.classList.remove("is-hidden");
   songToggle.classList.remove("is-hidden");
@@ -626,23 +597,25 @@ const selectTrack = async (trackId: string) => {
   try {
     const api = await ensureMusic();
     await api.setTrack(track.id);
+    // Default: full YouTube in-site. Spotify Web Playback only after Connect.
     if (isSpotifyConnected() && track.spotifyId) {
       try {
         await playFullSpotifyTrack(track.spotifyId);
-        usingSpotify = true;
         if (!api.isMuted()) api.toggleMute();
         syncMuteUi(true);
         if (songKicker) songKicker.textContent = "spotify full track";
         if (spotifyFullStatus)
           spotifyFullStatus.textContent = `Playing full track: ${track.title}`;
+        return;
       } catch (err) {
         console.warn(err);
         if (spotifyFullStatus)
           spotifyFullStatus.textContent =
-            "Full Spotify play failed—check Premium + Connect. YouTube still available.";
-        await api.play();
+            "Full Spotify play failed—playing full YouTube instead.";
       }
     }
+    await api.play();
+    if (songKicker) songKicker.textContent = "playing full track";
   } catch (err) {
     console.warn("Track switch failed:", err);
   }
@@ -674,7 +647,7 @@ const refreshSpotifyStatus = () => {
   } else {
     spotifyConnect.textContent = "Connect Spotify";
     spotifyFullStatus.textContent =
-      "Premium + Connect plays full songs here (not 30s preview).";
+      "Optional Premium Connect for Spotify full tracks; otherwise YouTube plays the full song.";
   }
 };
 refreshSpotifyStatus();
@@ -701,7 +674,6 @@ spotifyConnect.addEventListener("click", async () => {
 
 const startSong = async () => {
   const api = await ensureMusic();
-  usingSpotify = false;
   await api.setTrack(selectedTrack.id);
   await api.play();
   await ambient.start();
