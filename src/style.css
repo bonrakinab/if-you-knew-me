@@ -1183,6 +1183,24 @@ body.is-garden .atmos {
   animation: toastOut 0.45s var(--ease) forwards;
 }
 
+.death-toast {
+  position: fixed;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  padding: 0.85rem 1.2rem;
+  background: rgba(40, 28, 22, 0.88);
+  border: 1px solid rgba(242, 201, 76, 0.45);
+  color: #f6edd8;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-align: center;
+  animation: toastIn 0.45s var(--ease);
+  pointer-events: none;
+}
+
 @keyframes coinPulse {
   0% {
     transform: scale(1);

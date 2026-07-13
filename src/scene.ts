@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { discoveries, type Discovery } from "./discoveries";
 import { poetQuotes, type PoetQuote } from "./quotes";
 import { createOverworldHero, facingFromDir, type Facing, type HeroAction } from "./hero";
+import { createBee, flapBee, type Bee } from "./bees";
 
 export type WorldCallbacks = {
   onDiscover: (item: Discovery, foundCount: number, total: number) => void;
@@ -12,6 +13,7 @@ export type WorldCallbacks = {
   onConstellationComplete: () => void;
   onComplete: () => void;
   onHoverChange: (title: string | null) => void;
+  onDeath?: () => void;
 };
 
 export type QuietTier = "path" | "moon" | "sky";
@@ -566,6 +568,29 @@ export function createWorld(
   hero.group.position.set(0, 0, 6.5);
   scene.add(hero.group);
 
+  const bees: Bee[] = [];
+  const BEE_COUNT = 8;
+  const BEE_HIT = 0.78;
+  const BEE_BOUND = 16;
+  let stung = false;
+  for (let i = 0; i < BEE_COUNT; i++) {
+    const a = (i / BEE_COUNT) * Math.PI * 2 + 0.4;
+    let r = 5.2 + (i % 3) * 2.6;
+    let bx = Math.cos(a) * r;
+    let bz = Math.sin(a) * r;
+    // Nudge away from player spawn if needed
+    if (Math.hypot(bx - 0, bz - 6.5) < 3.2) {
+      r += 2.5;
+      bx = Math.cos(a) * r;
+      bz = Math.sin(a) * r;
+    }
+    const bee = createBee(bx, bz, i * 1.7);
+    bee.tx = THREE.MathUtils.clamp(bx + (rand() - 0.5) * 5, -BEE_BOUND, BEE_BOUND);
+    bee.tz = THREE.MathUtils.clamp(bz + (rand() - 0.5) * 5, -BEE_BOUND, BEE_BOUND);
+    bees.push(bee);
+    scene.add(bee.group);
+  }
+
   let partner: ReturnType<typeof createOverworldHero> | null = null;
   const partnerPos = { x: 0, z: 7.3 };
   let partnerJoined = false;
@@ -981,6 +1006,54 @@ export function createWorld(
       }
 
       tryRevealNear();
+
+      // Bees wander and sting on contact (jump over to dodge)
+      if (!stung) {
+        for (const bee of bees) {
+          const dx = bee.tx - bee.x;
+          const dz = bee.tz - bee.z;
+          const dist = Math.hypot(dx, dz);
+          if (dist < 0.2) {
+            bee.tx = THREE.MathUtils.clamp(
+              bee.x + (rand() - 0.5) * 7,
+              -BEE_BOUND,
+              BEE_BOUND,
+            );
+            bee.tz = THREE.MathUtils.clamp(
+              bee.z + (rand() - 0.5) * 7,
+              -BEE_BOUND,
+              BEE_BOUND,
+            );
+          } else {
+            const step = Math.min(dist, bee.speed * dt);
+            bee.x += (dx / dist) * step;
+            bee.z += (dz / dist) * step;
+          }
+          bee.y = 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
+          bee.group.position.set(bee.x, bee.y, bee.z);
+          flapBee(bee, t);
+
+          const canDodge = player.jumping && player.y > 0.35;
+          if (
+            !canDodge &&
+            Math.hypot(bee.x - player.x, bee.z - player.z) < BEE_HIT
+          ) {
+            stung = true;
+            player.enabled = false;
+            hasWalkTarget = false;
+            keys.clear();
+            callbacks.onDeath?.();
+            break;
+          }
+        }
+      }
+    } else {
+      // Keep bees animated even when player is gated / after sting
+      for (const bee of bees) {
+        bee.y = 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
+        bee.group.position.set(bee.x, bee.y, bee.z);
+        flapBee(bee, t);
+      }
     }
 
     let action: HeroAction = "idle";

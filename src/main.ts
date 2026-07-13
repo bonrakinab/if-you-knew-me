@@ -97,6 +97,7 @@ const faithCoinsEl = document.querySelector<HTMLElement>("#faith-coins");
 const faithTotalEl = document.querySelector<HTMLElement>("#faith-total");
 const coinsRow = document.querySelector<HTMLElement>(".coins");
 const coinToast = document.querySelector<HTMLElement>("#coin-toast");
+const deathToast = document.querySelector<HTMLElement>("#death-toast");
 const atmosStage = document.querySelector<HTMLElement>("#atmos-stage");
 const localTimeEl = document.querySelector<HTMLElement>("#local-time");
 const localDateEl = document.querySelector<HTMLElement>("#local-date");
@@ -163,6 +164,7 @@ if (
   !faithTotalEl ||
   !coinsRow ||
   !coinToast ||
+  !deathToast ||
   !atmosStage ||
   !localTimeEl ||
   !localDateEl ||
@@ -428,6 +430,14 @@ const world = createWorld(canvas, {
     if (note.classList.contains("is-hidden")) {
       compass.textContent = title ? `Toward: ${title}` : weatherWhisper;
     }
+  },
+  onDeath() {
+    compass.textContent = "A bee stung you—starting over…";
+    deathToast.classList.remove("is-hidden");
+    window.setTimeout(() => {
+      clearGardenSave();
+      window.location.reload();
+    }, 1600);
   },
 });
 
