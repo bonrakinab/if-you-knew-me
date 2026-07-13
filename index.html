@@ -18,8 +18,8 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Noto+Serif+Bengali:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/if-you-knew-me/assets/index-v7ebCwtJ.js"></script>
-    <link rel="stylesheet" crossorigin href="/if-you-knew-me/assets/index-B9G308c3.css">
+    <script type="module" crossorigin src="/if-you-knew-me/assets/index-DC_B8Rxu.js"></script>
+    <link rel="stylesheet" crossorigin href="/if-you-knew-me/assets/index-D2vAcul5.css">
   </head>
   <body class="is-prologue">
     <canvas id="world"></canvas>
@@ -57,15 +57,44 @@
         <div class="song-stage">
           <div id="vinyl" class="vinyl">
             <div class="vinyl-label">
-              <span>Level Five</span>
+              <span id="vinyl-artist">Level Five</span>
             </div>
           </div>
           <div class="song-meta">
             <p class="song-kicker">playing softly</p>
-            <p class="song-title">60's Love</p>
-            <p class="song-credit">Level Five</p>
+            <p class="song-title" id="song-title">60's Love</p>
+            <p class="song-credit" id="song-credit">Level Five</p>
             <div class="eq" id="eq">
               <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <p class="song-pick-label">or choose another</p>
+            <div
+              id="track-list"
+              class="track-list"
+              role="radiogroup"
+              aria-label="Choose a song"
+            ></div>
+            <div id="spotify-player" class="spotify-player">
+              <p class="spotify-player-label">Spotify controls</p>
+              <iframe
+                id="spotify-embed"
+                class="spotify-embed"
+                title="Spotify player"
+                src="https://open.spotify.com/embed/track/3h78AziF7cEXfm50J2TNcA?utm_source=generator&amp;theme=0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+              ></iframe>
+              <p id="spotify-fallback" class="spotify-fallback is-hidden">
+                Spotify embed unavailable for this track —
+                <a
+                  id="spotify-link"
+                  class="spotify-link"
+                  href="https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >open in Spotify</a
+                >
+              </p>
             </div>
             <button type="button" id="play-song" class="play-song">
               Play song first
@@ -124,15 +153,109 @@
       </div>
     </div>
 
-    <button
-      type="button"
-      id="mute"
-      class="mute is-hidden"
-      aria-label="Mute sound"
-      title="Mute"
+    <div id="sound-dock" class="sound-dock">
+      <button
+        type="button"
+        id="journal-toggle"
+        class="journal-toggle is-hidden"
+        aria-label="Garden journal"
+        title="Journal"
+        aria-expanded="false"
+        aria-controls="journal"
+      >
+        Journal
+      </button>
+      <button
+        type="button"
+        id="song-toggle"
+        class="song-toggle is-hidden"
+        aria-label="Music and Spotify"
+        title="Music"
+        aria-expanded="false"
+        aria-controls="song-panel"
+      >
+        Music
+      </button>
+      <button
+        type="button"
+        id="mute"
+        class="mute is-hidden"
+        aria-label="Mute sound"
+        title="Mute"
+      >
+        ♪
+      </button>
+    </div>
+
+    <div
+      id="song-panel"
+      class="song-panel is-hidden"
+      role="dialog"
+      aria-label="Choose a song"
     >
-      ♪
-    </button>
+      <p class="song-panel-title">Music</p>
+      <div
+        id="track-list-garden"
+        class="track-list"
+        role="radiogroup"
+        aria-label="Garden song list"
+      ></div>
+      <div id="spotify-player-garden" class="spotify-player">
+        <p class="spotify-player-label">Spotify controls</p>
+        <iframe
+          id="spotify-embed-garden"
+          class="spotify-embed"
+          title="Spotify player"
+          src="https://open.spotify.com/embed/track/3h78AziF7cEXfm50J2TNcA?utm_source=generator&amp;theme=0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        ></iframe>
+        <p id="spotify-fallback-garden" class="spotify-fallback is-hidden">
+          Spotify embed unavailable for this track —
+          <a
+            id="spotify-link-garden"
+            class="spotify-link"
+            href="https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA"
+            target="_blank"
+            rel="noopener noreferrer"
+            >open in Spotify</a
+          >
+        </p>
+      </div>
+      <p class="spotify-hint">
+        Press play on Spotify to take over; mute still silences the garden bed.
+      </p>
+      <button type="button" id="song-panel-close" class="note-close">
+        Close
+      </button>
+    </div>
+
+    <div
+      id="journal"
+      class="journal is-hidden"
+      role="dialog"
+      aria-label="Garden journal"
+    >
+      <p class="journal-title">Garden journal</p>
+      <p class="journal-kicker">Letters</p>
+      <div id="journal-letters" class="journal-list"></div>
+      <p class="journal-kicker">Poems &amp; faith</p>
+      <div id="journal-quotes" class="journal-list"></div>
+      <p class="journal-kicker">Quiet moments</p>
+      <div class="quiet-row">
+        <button type="button" id="quiet-path" class="quiet-btn" data-tier="path" disabled>
+          Path light · 3
+        </button>
+        <button type="button" id="quiet-moon" class="quiet-btn" data-tier="moon" disabled>
+          Moon beat · 6
+        </button>
+        <button type="button" id="quiet-sky" class="quiet-btn" data-tier="sky" disabled>
+          Soft sky · all
+        </button>
+      </div>
+      <p id="quiet-status" class="quiet-status"></p>
+      <button type="button" id="journal-close" class="note-close">Close</button>
+    </div>
 
     <div id="hud" class="hud is-hidden" aria-live="polite">
       <p class="progress"><span id="found">0</span> of <span id="total">8</span> noticed</p>
@@ -188,6 +311,6 @@
       <button type="button" class="dpad-btn" data-key="KeyS" aria-label="Down">▼</button>
       <button type="button" class="dpad-btn" data-key="KeyD" aria-label="Right">▶</button>
     </div>
-
+
   </body>
 </html>
