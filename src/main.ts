@@ -20,7 +20,7 @@ import {
   playFullSpotifyTrack,
   setSpotifyClientId,
 } from "./spotifyFull";
-import { loadGardenSave, saveGardenSave } from "./progress";
+import { clearGardenSave } from "./progress";
 import {
   fetchWeather,
   formatLocalDate,
@@ -60,6 +60,7 @@ const journalToggle =
   document.querySelector<HTMLButtonElement>("#journal-toggle");
 const journal = document.querySelector<HTMLElement>("#journal");
 const journalClose = document.querySelector<HTMLButtonElement>("#journal-close");
+const gardenReset = document.querySelector<HTMLButtonElement>("#garden-reset");
 const journalLetters = document.querySelector<HTMLElement>("#journal-letters");
 const journalQuotes = document.querySelector<HTMLElement>("#journal-quotes");
 const quietPath = document.querySelector<HTMLButtonElement>("#quiet-path");
@@ -133,6 +134,7 @@ if (
   !journalToggle ||
   !journal ||
   !journalClose ||
+  !gardenReset ||
   !journalLetters ||
   !journalQuotes ||
   !quietPath ||
@@ -175,7 +177,6 @@ if (
 const NOTE_KEY = "if-you-knew-me-letter";
 const DEFAULT_COMPASS = "চিঠির আলো, জ্বলন্ত ফুল, চেরিগাছ — ঘুরে দেখো";
 let weatherWhisper = DEFAULT_COMPASS;
-let gardenRestored = false;
 
 const whisperFor = (kind: WeatherKind, hour: number): string => {
   const night = hour >= 20 || hour < 5;
@@ -287,6 +288,10 @@ journalToggle.addEventListener("click", () => {
   setJournalOpen(journal.classList.contains("is-hidden"));
 });
 journalClose.addEventListener("click", () => setJournalOpen(false));
+gardenReset.addEventListener("click", () => {
+  clearGardenSave();
+  window.location.reload();
+});
 
 journalLetters.addEventListener("click", (e) => {
   const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
@@ -308,7 +313,6 @@ journalQuotes.addEventListener("click", (e) => {
 
 const unlockQuiet = (tier: QuietTier, label: string) => {
   if (!world.unlockQuietMoment(tier)) return;
-  persistGarden();
   refreshQuietUi();
   quietStatus.textContent = label;
   compass.textContent = label;
@@ -378,7 +382,6 @@ const world = createWorld(canvas, {
   onDiscover(item, foundCount) {
     foundEl.textContent = String(foundCount);
     showNote(item.title, item.text);
-    persistGarden();
     refreshJournal();
     compass.textContent =
       foundCount >= discoveries.length
@@ -388,7 +391,6 @@ const world = createWorld(canvas, {
   onQuote(quote, info) {
     showNote(quote.poet, quote.text);
     faithCoinsEl.textContent = String(info.faithCoins);
-    persistGarden();
     refreshJournal();
     if (info.isNew) {
       coinsRow.classList.remove("is-pulse");
@@ -428,15 +430,6 @@ const world = createWorld(canvas, {
     }
   },
 });
-
-const persistGarden = () => {
-  const progress = world.getProgress();
-  saveGardenSave({
-    letters: progress.letters,
-    quotes: progress.quotes,
-    unlocked: progress.unlocked,
-  });
-};
 
 const refreshQuietUi = () => {
   const progress = world.getProgress();
@@ -512,22 +505,9 @@ const refreshJournal = () => {
   refreshQuietUi();
 };
 
-const restoreGarden = () => {
-  if (gardenRestored) return;
-  gardenRestored = true;
-  const save = loadGardenSave();
-  if (!save.letters.length && !save.quotes.length && !save.unlocked.length) {
-    refreshJournal();
-    return;
-  }
-  world.restoreProgress(save);
-  const progress = world.getProgress();
-  foundEl.textContent = String(progress.foundCount);
-  faithCoinsEl.textContent = String(progress.faithCoins);
+const beginFreshGarden = () => {
+  clearGardenSave();
   refreshJournal();
-  if (progress.completed) {
-    compass.textContent = "Welcome back—your notices remain.";
-  }
 };
 
 let music: Awaited<ReturnType<typeof createMusic>> | null = null;
@@ -569,7 +549,7 @@ const openGarden = () => {
   gate.classList.add("is-leaving");
   document.body.classList.remove("is-prologue");
   document.body.classList.add("is-garden");
-  restoreGarden();
+  beginFreshGarden();
   window.setTimeout(() => {
     gate.classList.add("is-hidden");
     hud.classList.remove("is-hidden");

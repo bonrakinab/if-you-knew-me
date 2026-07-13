@@ -587,6 +587,25 @@ body.is-garden #world {
   min-height: 1.1em;
 }
 
+.garden-reset {
+  margin-top: 0.85rem;
+  width: 100%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  border-radius: 0.35rem;
+}
+
+.garden-reset:hover {
+  color: var(--ink);
+  border-color: rgba(28, 36, 48, 0.28);
+}
+
 .mute {
   position: static;
   width: 2.5rem;

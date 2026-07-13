@@ -39,3 +39,11 @@ export function saveGardenSave(save: GardenSave): void {
     /* ignore */
   }
 }
+
+export function clearGardenSave(): void {
+  try {
+    localStorage.removeItem(GARDEN_KEY);
+  } catch {
+    /* ignore */
+  }
+}
