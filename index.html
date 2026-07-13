@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta
+      name="description"
+      content="চিঠি, ভাবনা ও বোঝাপড়ার একটি নীরব আশ্রয়।"
+    />
+    <title>গুলবাহার — চিঠিপত্র</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Noto+Serif+Bengali:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="/if-you-knew-me/assets/index-v7ebCwtJ.js"></script>
+    <link rel="stylesheet" crossorigin href="/if-you-knew-me/assets/index-B9G308c3.css">
+  </head>
+  <body class="is-prologue">
+    <canvas id="world"></canvas>
+
+    <div id="gate" class="gate">
+      <section class="beat is-visible" data-beat>
+        <p class="brand">গুলবাহার</p>
+        <p class="beat-text">নীরবে আমরা সমুদ্র দেখি</p>
+        <p class="scroll-cue">scroll down</p>
+      </section>
+
+      <section class="beat" data-beat>
+        <p class="beat-text">পা দুটো ডুবে আছে সময়ের বালিতে</p>
+        <p class="scroll-cue">scroll down</p>
+      </section>
+
+      <section class="beat" data-beat>
+        <p class="beat-text">দিবালোক পৌঁছে যায় তার অবসানে</p>
+        <p class="scroll-cue">scroll down</p>
+      </section>
+
+      <section class="beat" data-beat>
+        <p class="beat-text">
+          খুঁজেছি তোমার চোখের এক ঝলক—কী মধুর সেই দৃশ্য
+        </p>
+        <p class="scroll-cue">scroll down</p>
+      </section>
+
+      <section class="beat beat-final" data-beat>
+        <p class="beat-kicker">আগে একটা গান</p>
+        <p class="beat-text beat-text-short">
+          তারপর বাগানে ঢোকো। কিছুই জটিল নয়—শুধু শোনো, হেঁটো, পড়ো।
+        </p>
+
+        <div class="song-stage">
+          <div id="vinyl" class="vinyl">
+            <div class="vinyl-label">
+              <span>Level Five</span>
+            </div>
+          </div>
+          <div class="song-meta">
+            <p class="song-kicker">playing softly</p>
+            <p class="song-title">60's Love</p>
+            <p class="song-credit">Level Five</p>
+            <div class="eq" id="eq">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <button type="button" id="play-song" class="play-song">
+              Play song first
+            </button>
+          </div>
+        </div>
+
+        <button type="button" id="enter" class="enter">
+          Listen &amp; begin wandering
+        </button>
+        <p class="how">
+          Phone: use the on-screen pad · Desktop: W A S D · tap lights to walk
+        </p>
+      </section>
+    </div>
+
+    <div id="yt-host" class="yt-host" aria-hidden="true">
+      <iframe
+        id="yt-mount"
+        title="60's Love — Level Five"
+        src="https://www.youtube.com/embed/HvH-DXHvnrM?enablejsapi=1&amp;playsinline=1&amp;rel=0&amp;loop=1&amp;playlist=HvH-DXHvnrM&amp;controls=0&amp;modestbranding=1"
+        allow="autoplay; encrypted-media"
+        referrerpolicy="strict-origin-when-cross-origin"
+      ></iframe>
+    </div>
+
+    <div id="atmos" class="atmos" aria-live="polite">
+      <div class="atmos-stage" id="atmos-stage" data-kind="cloudy">
+        <div class="wx sun" aria-hidden="true">
+          <span class="sun-core"></span>
+          <span class="sun-ray"></span>
+        </div>
+        <div class="wx clouds" aria-hidden="true">
+          <span class="cloud c1"></span>
+          <span class="cloud c2"></span>
+        </div>
+        <div class="wx rain" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="wx snow" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="wx fog" aria-hidden="true">
+          <span></span><span></span>
+        </div>
+        <div class="wx storm" aria-hidden="true">
+          <span class="bolt"></span>
+        </div>
+      </div>
+      <div class="atmos-meta">
+        <p class="atmos-time" id="local-time">--:--:--</p>
+        <p class="atmos-date" id="local-date">Locating…</p>
+        <p class="atmos-temp"><span id="weather-temp">--</span>°</p>
+        <p class="atmos-label" id="weather-label">Reading the sky…</p>
+        <p class="atmos-place" id="weather-place"></p>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      id="mute"
+      class="mute is-hidden"
+      aria-label="Mute sound"
+      title="Mute"
+    >
+      ♪
+    </button>
+
+    <div id="hud" class="hud is-hidden" aria-live="polite">
+      <p class="progress"><span id="found">0</span> of <span id="total">8</span> noticed</p>
+      <p class="coins">
+        <span class="coin-glyph" aria-hidden="true"></span>
+        <span id="faith-coins">0</span>
+        <span class="coin-label">faith coins</span>
+        <span class="coin-total">/ <span id="faith-total">0</span></span>
+      </p>
+      <p class="compass" id="compass">চিঠির আলো, জ্বলন্ত ফুল, চেরিগাছ — ঘুরে দেখো</p>
+    </div>
+
+    <div id="coin-toast" class="coin-toast is-hidden" aria-live="polite">
+      <span class="coin-glyph" aria-hidden="true"></span>
+      <span>+1 Faith coin</span>
+    </div>
+
+    <aside id="note" class="note is-hidden" role="dialog" aria-labelledby="note-title">
+      <p class="note-kicker" id="note-title"></p>
+      <p class="note-text" id="note-text"></p>
+      <button type="button" id="note-close" class="note-close">Keep wandering</button>
+    </aside>
+
+    <div id="finale" class="finale is-hidden" aria-live="polite">
+      <p>চেষ্টা করলে সবই সম্ভব</p>
+      <p class="finale-soft">অসম্ভবও একদিন পথ হয়ে ওঠে।</p>
+      <button type="button" id="finale-continue" class="enter finale-btn">
+        Leave a quiet line
+      </button>
+    </div>
+
+    <div id="dedication" class="dedication is-hidden" aria-live="polite">
+      <p class="dedication-kicker">constellation complete</p>
+      <p class="dedication-names"><span id="dedication-other">তুমি</span></p>
+      <p class="dedication-soft">দুজনের আকাশ—একটি নীরব মানচিত্র।</p>
+    </div>
+
+    <div id="letterbox" class="letterbox is-hidden" role="dialog" aria-labelledby="letterbox-title">
+      <p class="letterbox-title" id="letterbox-title">একটি বাক্য রেখে যাও</p>
+      <p class="letterbox-hint">শুধু এই ডিভাইসে থাকবে—নীরব সংযোগ।</p>
+      <label class="letterbox-label" for="her-name">তোমার নাম (ঐচ্ছিক)</label>
+      <input id="her-name" class="letterbox-input" type="text" maxlength="40" autocomplete="name" />
+      <label class="letterbox-label" for="her-note">তোমার বাক্য</label>
+      <textarea id="her-note" class="letterbox-area" maxlength="200" rows="3" placeholder="যে কথাটা মনে রাখতে চাও…"></textarea>
+      <button type="button" id="save-note" class="enter">Keep it here</button>
+      <p id="saved-note" class="saved-note is-hidden"></p>
+      <button type="button" id="letterbox-close" class="note-close">Back to the garden</button>
+    </div>
+
+    <div id="dpad" class="dpad is-hidden" aria-label="Move">
+      <button type="button" class="dpad-btn" data-key="KeyW" aria-label="Up">▲</button>
+      <button type="button" class="dpad-btn" data-key="KeyA" aria-label="Left">◀</button>
+      <button type="button" class="dpad-btn" data-key="KeyS" aria-label="Down">▼</button>
+      <button type="button" class="dpad-btn" data-key="KeyD" aria-label="Right">▶</button>
+    </div>
+
+  </body>
+</html>
