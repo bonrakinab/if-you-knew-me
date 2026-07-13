@@ -1,5 +1,5 @@
 import "./style.css";
-import { createWorld } from "./scene";
+import { createWorld, type QuietTier } from "./scene";
 import { discoveries } from "./discoveries";
 import { poetQuotes } from "./quotes";
 import { createMusic } from "./audio";
@@ -9,13 +9,16 @@ import {
   getTrackById,
   loadSavedTrackId,
   saveTrackId,
+  spotifyEmbedSrc,
   youtubeEmbedSrc,
   type Track,
 } from "./tracks";
+import { loadGardenSave, saveGardenSave } from "./progress";
 import {
   fetchWeather,
   formatLocalDate,
   formatLocalTime,
+  type WeatherKind,
   type WeatherSnapshot,
 } from "./weather";
 
@@ -46,6 +49,16 @@ const vinyl = document.querySelector<HTMLElement>("#vinyl");
 const vinylArtist = document.querySelector<HTMLElement>("#vinyl-artist");
 const eq = document.querySelector<HTMLElement>("#eq");
 const muteBtn = document.querySelector<HTMLButtonElement>("#mute");
+const journalToggle =
+  document.querySelector<HTMLButtonElement>("#journal-toggle");
+const journal = document.querySelector<HTMLElement>("#journal");
+const journalClose = document.querySelector<HTMLButtonElement>("#journal-close");
+const journalLetters = document.querySelector<HTMLElement>("#journal-letters");
+const journalQuotes = document.querySelector<HTMLElement>("#journal-quotes");
+const quietPath = document.querySelector<HTMLButtonElement>("#quiet-path");
+const quietMoon = document.querySelector<HTMLButtonElement>("#quiet-moon");
+const quietSky = document.querySelector<HTMLButtonElement>("#quiet-sky");
+const quietStatus = document.querySelector<HTMLElement>("#quiet-status");
 const songToggle = document.querySelector<HTMLButtonElement>("#song-toggle");
 const songPanel = document.querySelector<HTMLElement>("#song-panel");
 const songPanelClose =
@@ -54,6 +67,12 @@ const trackList = document.querySelector<HTMLElement>("#track-list");
 const trackListGarden = document.querySelector<HTMLElement>("#track-list-garden");
 const songTitleEl = document.querySelector<HTMLElement>("#song-title");
 const songCreditEl = document.querySelector<HTMLElement>("#song-credit");
+const spotifyEmbed = document.querySelector<HTMLIFrameElement>("#spotify-embed");
+const spotifyEmbedGarden =
+  document.querySelector<HTMLIFrameElement>("#spotify-embed-garden");
+const spotifyFallback = document.querySelector<HTMLElement>("#spotify-fallback");
+const spotifyFallbackGarden =
+  document.querySelector<HTMLElement>("#spotify-fallback-garden");
 const spotifyLink = document.querySelector<HTMLAnchorElement>("#spotify-link");
 const spotifyLinkGarden =
   document.querySelector<HTMLAnchorElement>("#spotify-link-garden");
@@ -98,6 +117,15 @@ if (
   !vinylArtist ||
   !eq ||
   !muteBtn ||
+  !journalToggle ||
+  !journal ||
+  !journalClose ||
+  !journalLetters ||
+  !journalQuotes ||
+  !quietPath ||
+  !quietMoon ||
+  !quietSky ||
+  !quietStatus ||
   !songToggle ||
   !songPanel ||
   !songPanelClose ||
@@ -105,6 +133,10 @@ if (
   !trackListGarden ||
   !songTitleEl ||
   !songCreditEl ||
+  !spotifyEmbed ||
+  !spotifyEmbedGarden ||
+  !spotifyFallback ||
+  !spotifyFallbackGarden ||
   !spotifyLink ||
   !spotifyLinkGarden ||
   !ytMount ||
@@ -125,17 +157,69 @@ if (
 }
 
 const NOTE_KEY = "if-you-knew-me-letter";
+const DEFAULT_COMPASS = "চিঠির আলো, জ্বলন্ত ফুল, চেরিগাছ — ঘুরে দেখো";
+let weatherWhisper = DEFAULT_COMPASS;
+let gardenRestored = false;
+
+const whisperFor = (kind: WeatherKind, hour: number): string => {
+  const night = hour >= 20 || hour < 5;
+  if (night) {
+    if (kind === "clear") return "Night clears the path—stars wait above.";
+    if (kind === "fog") return "Mist and moonlight share the garden.";
+    if (kind === "rain" || kind === "drizzle" || kind === "storm")
+      return "Rain at night softens every footstep.";
+    return "The garden holds its breath after dark.";
+  }
+  switch (kind) {
+    case "clear":
+      return "Sunlit petals lean toward unread letters.";
+    case "cloudy":
+      return "Soft clouds keep the garden unhurried.";
+    case "fog":
+      return "Mist hides a nearby light—walk gently.";
+    case "drizzle":
+      return "Drizzle brightens the path ring.";
+    case "rain":
+      return "Rain writes quiet lines on the leaves.";
+    case "snow":
+      return "Snow hushes the meadow—listen closer.";
+    case "storm":
+      return "Storm-light flickers—faith coins still shine.";
+  }
+};
+
+const setIdleCompass = () => {
+  if (!note.classList.contains("is-hidden")) return;
+  compass.textContent = weatherWhisper || DEFAULT_COMPASS;
+};
 
 let selectedTrack = getTrackById(loadSavedTrackId());
+let usingSpotify = false;
+
+const syncSpotifyEmbed = (track: Track) => {
+  spotifyLink.href = track.spotifyUrl;
+  spotifyLinkGarden.href = track.spotifyUrl;
+
+  const hasEmbed = Boolean(track.spotifyId);
+  spotifyEmbed.classList.toggle("is-hidden", !hasEmbed);
+  spotifyEmbedGarden.classList.toggle("is-hidden", !hasEmbed);
+  spotifyFallback.classList.toggle("is-hidden", hasEmbed);
+  spotifyFallbackGarden.classList.toggle("is-hidden", hasEmbed);
+
+  if (track.spotifyId) {
+    const src = spotifyEmbedSrc(track.spotifyId);
+    if (spotifyEmbed.src !== src) spotifyEmbed.src = src;
+    if (spotifyEmbedGarden.src !== src) spotifyEmbedGarden.src = src;
+  }
+};
 
 const applyTrackUi = (track: Track) => {
   selectedTrack = track;
   songTitleEl.textContent = track.title;
   songCreditEl.textContent = track.artist;
   vinylArtist.textContent = track.artist;
-  spotifyLink.href = track.spotifyUrl;
-  spotifyLinkGarden.href = track.spotifyUrl;
   ytMount.title = `${track.title} — ${track.artist}`;
+  syncSpotifyEmbed(track);
 
   for (const btn of document.querySelectorAll<HTMLButtonElement>(
     ".track-option",
@@ -179,7 +263,61 @@ ytMount.src = youtubeEmbedSrc(selectedTrack.youtubeId);
 const setSongPanelOpen = (open: boolean) => {
   songPanel.classList.toggle("is-hidden", !open);
   songToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) setJournalOpen(false);
 };
+
+const setJournalOpen = (open: boolean) => {
+  journal.classList.toggle("is-hidden", !open);
+  journalToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) {
+    setSongPanelOpen(false);
+    refreshJournal();
+  }
+};
+
+journalToggle.addEventListener("click", () => {
+  setJournalOpen(journal.classList.contains("is-hidden"));
+});
+journalClose.addEventListener("click", () => setJournalOpen(false));
+
+journalLetters.addEventListener("click", (e) => {
+  const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+    ".journal-item",
+  );
+  if (!btn?.dataset.letterId || btn.disabled) return;
+  world.reopenLetter(btn.dataset.letterId);
+  setJournalOpen(false);
+});
+
+journalQuotes.addEventListener("click", (e) => {
+  const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+    ".journal-item",
+  );
+  if (!btn?.dataset.quoteId || btn.disabled) return;
+  world.reopenQuote(btn.dataset.quoteId);
+  setJournalOpen(false);
+});
+
+const unlockQuiet = (tier: QuietTier, label: string) => {
+  if (!world.unlockQuietMoment(tier)) return;
+  persistGarden();
+  refreshQuietUi();
+  quietStatus.textContent = label;
+  compass.textContent = label;
+  setJournalOpen(false);
+};
+
+quietPath.addEventListener("click", () =>
+  unlockQuiet("path", "The path brightens under your feet."),
+);
+quietMoon.addEventListener("click", () =>
+  unlockQuiet("moon", "The moon answers with a soft beat."),
+);
+quietSky.addEventListener("click", () => {
+  unlockQuiet("sky", "The sky softens—look up when stars are ready.");
+  if (world.getProgress().constellationDone) world.lookAtConstellation();
+});
+
 totalEl.textContent = String(discoveries.length);
 faithTotalEl.textContent = String(poetQuotes.length);
 
@@ -232,14 +370,18 @@ const world = createWorld(canvas, {
   onDiscover(item, foundCount) {
     foundEl.textContent = String(foundCount);
     showNote(item.title, item.text);
+    persistGarden();
+    refreshJournal();
     compass.textContent =
       foundCount >= discoveries.length
         ? "চিঠিগুলো পড়া হয়েছে — ফুল ও চেরি গাছও ছুঁয়ে দেখো"
-        : "চিঠির আলো, জ্বলন্ত ফুল, চেরিগাছ — ঘুরে দেখো";
+        : "A letter noticed—another light may be near.";
   },
   onQuote(quote, info) {
     showNote(quote.poet, quote.text);
     faithCoinsEl.textContent = String(info.faithCoins);
+    persistGarden();
+    refreshJournal();
     if (info.isNew) {
       coinsRow.classList.remove("is-pulse");
       void coinsRow.offsetWidth;
@@ -261,7 +403,8 @@ const world = createWorld(canvas, {
       }
     }
     showDedication(name);
-    compass.textContent = "Constellation complete";
+    compass.textContent = "Constellation complete—looking up";
+    world.lookAtConstellation();
   },
   onComplete() {
     window.setTimeout(() => {
@@ -271,12 +414,111 @@ const world = createWorld(canvas, {
   },
   onHoverChange(title) {
     if (note.classList.contains("is-hidden")) {
-      compass.textContent = title
-        ? `Toward: ${title}`
-        : "চিঠির আলো, জ্বলন্ত ফুল, চেরিগাছ — ঘুরে দেখো";
+      compass.textContent = title ? `Toward: ${title}` : weatherWhisper;
     }
   },
 });
+
+const persistGarden = () => {
+  const progress = world.getProgress();
+  saveGardenSave({
+    letters: progress.letters,
+    quotes: progress.quotes,
+    unlocked: progress.unlocked,
+  });
+};
+
+const refreshQuietUi = () => {
+  const progress = world.getProgress();
+  const map: Record<QuietTier, HTMLButtonElement> = {
+    path: quietPath,
+    moon: quietMoon,
+    sky: quietSky,
+  };
+  const need: Record<QuietTier, number> = {
+    path: 3,
+    moon: 6,
+    sky: poetQuotes.length,
+  };
+  for (const tier of Object.keys(map) as QuietTier[]) {
+    const btn = map[tier];
+    const unlocked = progress.unlocked.includes(tier);
+    const ready = progress.faithCoins >= need[tier];
+    btn.disabled = unlocked || !ready;
+    btn.classList.toggle("is-unlocked", unlocked);
+  }
+  if (progress.unlocked.length === 3) {
+    quietStatus.textContent = "All quiet moments unlocked.";
+  } else if (progress.faithCoins < 3) {
+    quietStatus.textContent = "Collect faith coins to unlock quiet moments.";
+  } else {
+    quietStatus.textContent = "A quiet moment is ready in the journal.";
+  }
+};
+
+const refreshJournal = () => {
+  const progress = world.getProgress();
+  const found = new Set(progress.letters);
+  const collected = new Set(progress.quotes);
+
+  journalLetters.replaceChildren();
+  for (const item of discoveries) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "journal-item";
+    const isFound = found.has(item.id);
+    btn.classList.toggle("is-found", isFound);
+    btn.disabled = !isFound;
+    btn.dataset.letterId = item.id;
+    const title = document.createElement("span");
+    title.textContent = isFound ? item.title : "Still hidden";
+    const meta = document.createElement("span");
+    meta.className = "journal-item-meta";
+    meta.textContent = isFound ? "Tap to reread" : "Wander to notice";
+    btn.append(title, meta);
+    journalLetters.append(btn);
+  }
+
+  journalQuotes.replaceChildren();
+  for (const quote of poetQuotes) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "journal-item";
+    const isCollected = collected.has(quote.id);
+    btn.classList.toggle("is-found", isCollected);
+    btn.disabled = !isCollected;
+    btn.dataset.quoteId = quote.id;
+    const title = document.createElement("span");
+    title.textContent = isCollected ? quote.poet : "Poem still waiting";
+    const meta = document.createElement("span");
+    meta.className = "journal-item-meta";
+    meta.textContent = isCollected
+      ? "Tap to reread"
+      : "Touch a flower or sakura";
+    btn.append(title, meta);
+    journalQuotes.append(btn);
+  }
+
+  refreshQuietUi();
+};
+
+const restoreGarden = () => {
+  if (gardenRestored) return;
+  gardenRestored = true;
+  const save = loadGardenSave();
+  if (!save.letters.length && !save.quotes.length && !save.unlocked.length) {
+    refreshJournal();
+    return;
+  }
+  world.restoreProgress(save);
+  const progress = world.getProgress();
+  foundEl.textContent = String(progress.foundCount);
+  faithCoinsEl.textContent = String(progress.faithCoins);
+  refreshJournal();
+  if (progress.completed) {
+    compass.textContent = "Welcome back—your notices remain.";
+  }
+};
 
 let music: Awaited<ReturnType<typeof createMusic>> | null = null;
 let opening = false;
@@ -309,13 +551,35 @@ const syncMuteUi = (muted: boolean) => {
   ambient.setMuted(muted);
 };
 
+const preferSpotifyPlayback = async () => {
+  if (usingSpotify) return;
+  usingSpotify = true;
+  try {
+    const api = await ensureMusic();
+    if (!api.isMuted()) api.toggleMute();
+    syncMuteUi(true);
+  } catch {
+    /* ignore */
+  }
+  if (songKicker) songKicker.textContent = "spotify playing";
+};
+
+spotifyEmbed.addEventListener("pointerdown", () => {
+  void preferSpotifyPlayback();
+});
+spotifyEmbedGarden.addEventListener("pointerdown", () => {
+  void preferSpotifyPlayback();
+});
+
 const openGarden = () => {
   muteBtn.classList.remove("is-hidden");
   songToggle.classList.remove("is-hidden");
+  journalToggle.classList.remove("is-hidden");
   dpad.classList.remove("is-hidden");
   gate.classList.add("is-leaving");
   document.body.classList.remove("is-prologue");
   document.body.classList.add("is-garden");
+  restoreGarden();
   window.setTimeout(() => {
     gate.classList.add("is-hidden");
     hud.classList.remove("is-hidden");
@@ -367,6 +631,7 @@ songPanelClose.addEventListener("click", () => setSongPanelOpen(false));
 
 const startSong = async () => {
   const api = await ensureMusic();
+  usingSpotify = false;
   await api.setTrack(selectedTrack.id);
   await api.play();
   await ambient.start();
@@ -443,6 +708,7 @@ muteBtn.addEventListener("click", async () => {
 
 noteClose.addEventListener("click", () => {
   note.classList.add("is-hidden");
+  setIdleCompass();
 });
 
 finaleContinue.addEventListener("click", (e) => {
@@ -502,7 +768,10 @@ const paintWeather = (snap: WeatherSnapshot) => {
   weatherTempEl.textContent = String(snap.tempC);
   weatherLabelEl.textContent = snap.labelBn;
   weatherPlaceEl.textContent = snap.place;
+  const hour = hourInTz(weatherTz);
+  weatherWhisper = whisperFor(snap.kind, hour);
   paintClock();
+  setIdleCompass();
 };
 
 paintClock();
@@ -554,7 +823,9 @@ document.body.addEventListener(
   (e) => {
     if (document.body.classList.contains("is-garden")) {
       const target = e.target as HTMLElement | null;
-      if (target?.closest(".note, .dpad, .finale, .letterbox, .dedication"))
+      if (target?.closest(
+        ".note, .dpad, .finale, .letterbox, .dedication, .journal, .song-panel, .sound-dock",
+      ))
         return;
       e.preventDefault();
     }

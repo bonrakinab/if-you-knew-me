@@ -4,6 +4,8 @@ export type Track = {
   artist: string;
   youtubeId: string;
   spotifyUrl: string;
+  /** Spotify track id for in-page embed controls (when available). */
+  spotifyId?: string;
   localSrc?: string;
 };
 
@@ -16,8 +18,8 @@ export const TRACKS: Track[] = [
     title: "60's Love",
     artist: "Level Five",
     youtubeId: "HvH-DXHvnrM",
-    spotifyUrl:
-      "https://open.spotify.com/search/60%27s%20Love%20Level%20Five",
+    spotifyId: "3h78AziF7cEXfm50J2TNcA",
+    spotifyUrl: "https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA",
     localSrc: `${import.meta.env.BASE_URL}audio/60s-love.mp3`,
   },
   {
@@ -33,6 +35,7 @@ export const TRACKS: Track[] = [
     title: "Tumi Ashbe Bole",
     artist: "Nachiketa",
     youtubeId: "7gbfDlIs3hg",
+    spotifyId: "45iWmUICn1eWaef0bwyP0r",
     spotifyUrl: "https://open.spotify.com/track/45iWmUICn1eWaef0bwyP0r",
   },
   {
@@ -40,13 +43,15 @@ export const TRACKS: Track[] = [
     title: "Bela Bose",
     artist: "Anjan Dutt",
     youtubeId: "HKrou2ENSe8",
-    spotifyUrl: "https://open.spotify.com/search/Bela%20Bose%20Anjan%20Dutt",
+    spotifyId: "7so0EN7GbY9OWt1nzCWCkw",
+    spotifyUrl: "https://open.spotify.com/track/7so0EN7GbY9OWt1nzCWCkw",
   },
   {
     id: "stardew-overture",
     title: "Stardew Valley Overture",
     artist: "ConcernedApe",
     youtubeId: "FQSHcl6TJb4",
+    spotifyId: "2q2Z2A0Mt8AsWyQEdB6wuu",
     spotifyUrl: "https://open.spotify.com/track/2q2Z2A0Mt8AsWyQEdB6wuu",
   },
   {
@@ -54,6 +59,7 @@ export const TRACKS: Track[] = [
     title: "First Steps",
     artist: "Lena Raine",
     youtubeId: "N8OHSXvneOE",
+    spotifyId: "03EyMyy76ZYLUh3lvGrNgE",
     spotifyUrl: "https://open.spotify.com/track/03EyMyy76ZYLUh3lvGrNgE",
   },
   {
@@ -61,6 +67,7 @@ export const TRACKS: Track[] = [
     title: "Home",
     artist: "Toby Fox",
     youtubeId: "J_hJDitrh8M",
+    spotifyId: "5L9MJsGqzTRD09rSzHkCDy",
     spotifyUrl: "https://open.spotify.com/track/5L9MJsGqzTRD09rSzHkCDy",
   },
   {
@@ -68,6 +75,7 @@ export const TRACKS: Track[] = [
     title: "Dirtmouth",
     artist: "Christopher Larkin",
     youtubeId: "NSlkW1fFkyo",
+    spotifyId: "4gCnaT6NKQmR3hqEeHp30t",
     spotifyUrl: "https://open.spotify.com/track/4gCnaT6NKQmR3hqEeHp30t",
   },
 ];
@@ -105,4 +113,12 @@ export function youtubeEmbedSrc(videoId: string): string {
     modestbranding: "1",
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+}
+
+export function spotifyEmbedSrc(spotifyId: string): string {
+  const params = new URLSearchParams({
+    utm_source: "generator",
+    theme: "0",
+  });
+  return `https://open.spotify.com/embed/track/${spotifyId}?${params.toString()}`;
 }

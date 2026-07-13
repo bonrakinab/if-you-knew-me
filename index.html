@@ -72,15 +72,28 @@
               role="radiogroup"
               aria-label="Choose a song"
             ></div>
-            <a
-              id="spotify-link"
-              class="spotify-link"
-              href="https://open.spotify.com/search/60%27s%20Love%20Level%20Five"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open in Spotify
-            </a>
+            <div id="spotify-player" class="spotify-player">
+              <p class="spotify-player-label">Spotify controls</p>
+              <iframe
+                id="spotify-embed"
+                class="spotify-embed"
+                title="Spotify player"
+                src="https://open.spotify.com/embed/track/3h78AziF7cEXfm50J2TNcA?utm_source=generator&amp;theme=0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+              ></iframe>
+              <p id="spotify-fallback" class="spotify-fallback is-hidden">
+                Spotify embed unavailable for this track —
+                <a
+                  id="spotify-link"
+                  class="spotify-link"
+                  href="https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >open in Spotify</a
+                >
+              </p>
+            </div>
             <button type="button" id="play-song" class="play-song">
               Play song first
             </button>
@@ -141,14 +154,25 @@
     <div id="sound-dock" class="sound-dock">
       <button
         type="button"
+        id="journal-toggle"
+        class="journal-toggle is-hidden"
+        aria-label="Garden journal"
+        title="Journal"
+        aria-expanded="false"
+        aria-controls="journal"
+      >
+        Journal
+      </button>
+      <button
+        type="button"
         id="song-toggle"
         class="song-toggle is-hidden"
-        aria-label="Choose song"
-        title="Song"
+        aria-label="Music and Spotify"
+        title="Music"
         aria-expanded="false"
         aria-controls="song-panel"
       >
-        ♫
+        Music
       </button>
       <button
         type="button"
@@ -167,25 +191,68 @@
       role="dialog"
       aria-label="Choose a song"
     >
-      <p class="song-panel-title">Choose a song</p>
+      <p class="song-panel-title">Music</p>
       <div
         id="track-list-garden"
         class="track-list"
         role="radiogroup"
         aria-label="Garden song list"
       ></div>
-      <a
-        id="spotify-link-garden"
-        class="spotify-link"
-        href="https://open.spotify.com/search/60%27s%20Love%20Level%20Five"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open in Spotify
-      </a>
+      <div id="spotify-player-garden" class="spotify-player">
+        <p class="spotify-player-label">Spotify controls</p>
+        <iframe
+          id="spotify-embed-garden"
+          class="spotify-embed"
+          title="Spotify player"
+          src="https://open.spotify.com/embed/track/3h78AziF7cEXfm50J2TNcA?utm_source=generator&amp;theme=0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        ></iframe>
+        <p id="spotify-fallback-garden" class="spotify-fallback is-hidden">
+          Spotify embed unavailable for this track —
+          <a
+            id="spotify-link-garden"
+            class="spotify-link"
+            href="https://open.spotify.com/track/3h78AziF7cEXfm50J2TNcA"
+            target="_blank"
+            rel="noopener noreferrer"
+            >open in Spotify</a
+          >
+        </p>
+      </div>
+      <p class="spotify-hint">
+        Press play on Spotify to take over; mute still silences the garden bed.
+      </p>
       <button type="button" id="song-panel-close" class="note-close">
         Close
       </button>
+    </div>
+
+    <div
+      id="journal"
+      class="journal is-hidden"
+      role="dialog"
+      aria-label="Garden journal"
+    >
+      <p class="journal-title">Garden journal</p>
+      <p class="journal-kicker">Letters</p>
+      <div id="journal-letters" class="journal-list"></div>
+      <p class="journal-kicker">Poems &amp; faith</p>
+      <div id="journal-quotes" class="journal-list"></div>
+      <p class="journal-kicker">Quiet moments</p>
+      <div class="quiet-row">
+        <button type="button" id="quiet-path" class="quiet-btn" data-tier="path" disabled>
+          Path light · 3
+        </button>
+        <button type="button" id="quiet-moon" class="quiet-btn" data-tier="moon" disabled>
+          Moon beat · 6
+        </button>
+        <button type="button" id="quiet-sky" class="quiet-btn" data-tier="sky" disabled>
+          Soft sky · all
+        </button>
+      </div>
+      <p id="quiet-status" class="quiet-status"></p>
+      <button type="button" id="journal-close" class="note-close">Close</button>
     </div>
 
     <div id="hud" class="hud is-hidden" aria-live="polite">

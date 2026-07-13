@@ -336,10 +336,10 @@ body.is-garden #world {
 }
 
 .spotify-link {
-  display: inline-block;
-  margin-top: 0.55rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  display: inline;
+  margin-top: 0;
+  font-size: inherit;
+  letter-spacing: 0.02em;
   color: var(--sage);
   text-decoration: none;
   border-bottom: 1px solid transparent;
@@ -347,6 +347,46 @@ body.is-garden #world {
 
 .spotify-link:hover {
   border-bottom-color: currentColor;
+}
+
+.spotify-player {
+  margin-top: 0.75rem;
+  width: min(100%, 20rem);
+}
+
+.spotify-player-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.spotify-embed {
+  width: 100%;
+  height: 80px;
+  border: 0;
+  border-radius: 8px;
+  display: block;
+  background: rgba(40, 55, 50, 0.06);
+}
+
+.spotify-embed.is-hidden {
+  display: none;
+}
+
+.spotify-fallback {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.spotify-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  line-height: 1.35;
 }
 
 .play-song {
@@ -376,7 +416,142 @@ body.is-garden #world {
   gap: 0.45rem;
 }
 
-.song-toggle,
+.journal-toggle,
+.song-toggle {
+  position: static;
+  width: auto;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.journal-toggle.is-hidden,
+.song-toggle.is-hidden,
+.mute.is-hidden {
+  display: none;
+}
+
+.journal-toggle[aria-expanded="true"],
+.song-toggle[aria-expanded="true"] {
+  color: var(--sage);
+}
+
+.journal {
+  position: fixed;
+  top: 4rem;
+  right: 1rem;
+  z-index: 13;
+  width: min(20rem, calc(100vw - 2rem));
+  max-height: min(70vh, 32rem);
+  overflow-y: auto;
+  padding: 0.9rem 0.95rem 0.85rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 32px rgba(40, 55, 50, 0.12);
+}
+
+.journal-title {
+  margin: 0 0 0.55rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.05rem;
+}
+
+.journal-kicker {
+  margin: 0.7rem 0 0.3rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.journal-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0.35rem 0.4rem;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.journal-item:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.journal-item.is-found {
+  color: var(--ink);
+}
+
+.journal-item:not(:disabled):hover {
+  background: rgba(40, 55, 50, 0.06);
+}
+
+.journal-item-meta {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+}
+
+.quiet-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.quiet-btn {
+  appearance: none;
+  border: 1px solid rgba(28, 36, 48, 0.18);
+  background: transparent;
+  text-align: left;
+  padding: 0.4rem 0.55rem;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.quiet-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.quiet-btn.is-unlocked {
+  border-color: rgba(111, 154, 114, 0.45);
+  color: var(--sage);
+}
+
+.quiet-btn:not(:disabled):not(.is-unlocked):hover {
+  background: rgba(40, 55, 50, 0.06);
+}
+
+.quiet-status {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  min-height: 1.1em;
+}
+
 .mute {
   position: static;
   width: 2.5rem;
@@ -391,21 +566,12 @@ body.is-garden #world {
   line-height: 1;
 }
 
-.song-toggle.is-hidden,
-.mute.is-hidden {
-  display: none;
-}
-
-.song-toggle[aria-expanded="true"] {
-  color: var(--sage);
-}
-
 .song-panel {
   position: fixed;
   top: 4rem;
   right: 1rem;
   z-index: 13;
-  width: min(17.5rem, calc(100vw - 2rem));
+  width: min(20rem, calc(100vw - 2rem));
   padding: 0.9rem 0.95rem 0.85rem;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -422,12 +588,12 @@ body.is-garden #world {
 }
 
 .song-panel .track-list {
-  max-height: 14rem;
+  max-height: 11rem;
   width: 100%;
 }
 
-.song-panel .spotify-link {
-  margin-top: 0.65rem;
+.song-panel .spotify-player {
+  width: 100%;
 }
 
 .song-panel .note-close {
@@ -1273,7 +1439,10 @@ body.is-garden .atmos {
 .note-close,
 .mute,
 .song-toggle,
-.track-option {
+.journal-toggle,
+.track-option,
+.journal-item,
+.quiet-btn {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }

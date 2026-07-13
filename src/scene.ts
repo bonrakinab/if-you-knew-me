@@ -14,11 +14,33 @@ export type WorldCallbacks = {
   onHoverChange: (title: string | null) => void;
 };
 
+export type QuietTier = "path" | "moon" | "sky";
+
+export type WorldProgress = {
+  letters: string[];
+  quotes: string[];
+  foundCount: number;
+  faithCoins: number;
+  completed: boolean;
+  constellationDone: boolean;
+  unlocked: QuietTier[];
+};
+
 export type WorldApi = {
   enable: () => void;
   setHeld: (code: string, down: boolean) => void;
   setHour: (hour: number) => void;
   destroy: () => void;
+  getProgress: () => WorldProgress;
+  restoreProgress: (save: {
+    letters: string[];
+    quotes: string[];
+    unlocked?: QuietTier[];
+  }) => void;
+  reopenLetter: (id: string) => boolean;
+  reopenQuote: (id: string) => boolean;
+  unlockQuietMoment: (tier: QuietTier) => boolean;
+  lookAtConstellation: (ms?: number) => void;
 };
 
 function mulberry32(seed: number) {
@@ -234,6 +256,17 @@ export function createWorld(
   );
   moon.add(moonHalo);
 
+  const pathMat = path.material as THREE.MeshBasicMaterial;
+  const moonMat = moon.material as THREE.MeshStandardMaterial;
+  const moonHaloMat = moonHalo.material as THREE.MeshBasicMaterial;
+  const unlocked = new Set<QuietTier>();
+  let silentRestore = false;
+  let moonPulse = false;
+  let skySoft = false;
+  let camMode: "follow" | "sky" = "follow";
+  let skyCamUntil = 0;
+  let breadcrumbId: string | null = null;
+
   // Shared constellation — one star per faith coin
   const constellation = new THREE.Group();
   constellation.position.set(0, 14, -8);
@@ -241,6 +274,22 @@ export function createWorld(
   const starGeo = new THREE.SphereGeometry(0.12, 10, 10);
   const stars: THREE.Mesh[] = [];
   let constellationDone = false;
+
+  const applyQuietMoment = (tier: QuietTier) => {
+    unlocked.add(tier);
+    if (tier === "path") {
+      pathMat.opacity = 0.78;
+      pathMat.color.setHex(0xfff3d6);
+    } else if (tier === "moon") {
+      moonPulse = true;
+      moonMat.emissiveIntensity = 0.95;
+      moonHaloMat.opacity = 0.28;
+    } else if (tier === "sky") {
+      skySoft = true;
+      if (scene.fog instanceof THREE.FogExp2) scene.fog.density = 0.014;
+      constellation.scale.setScalar(1.25);
+    }
+  };
 
   const starSlot = (i: number, total: number) => {
     const a = (i / Math.max(total, 1)) * Math.PI * 1.6 - 0.8;
@@ -278,7 +327,7 @@ export function createWorld(
         twin.scale.setScalar(1.35);
         constellation.add(twin);
       }
-      callbacks.onConstellationComplete();
+      if (!silentRestore) callbacks.onConstellationComplete();
     }
   };
 
@@ -531,6 +580,17 @@ export function createWorld(
 
   // Pokémon-style overworld camera: high and tilted down
   const syncCamera = () => {
+    if (camMode === "sky") {
+      const desired = new THREE.Vector3(0, 9.2, 5.2);
+      const look = new THREE.Vector3(0, 14, -8);
+      const blend = reducedMotion ? 1 : 0.055;
+      camPos.lerp(desired, blend);
+      camLook.lerp(look, blend);
+      camera.position.copy(camPos);
+      camera.lookAt(camLook);
+      if (performance.now() > skyCamUntil) camMode = "follow";
+      return;
+    }
     const desired = new THREE.Vector3(player.x, 11.5, player.z + 10.5);
     camPos.lerp(desired, 0.12);
     camLook.set(player.x, 0.4, player.z);
@@ -542,16 +602,52 @@ export function createWorld(
 
   hero.group.position.set(player.x, 0, player.z);
 
+  const markLetterFoundVisual = (marker: Marker) => {
+    marker.group.traverse((obj) => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const mat = mesh.material as
+        | THREE.MeshStandardMaterial
+        | THREE.MeshBasicMaterial;
+      if ("emissiveIntensity" in mat) {
+        mat.emissiveIntensity = Math.min(mat.emissiveIntensity, 0.12);
+      }
+      if ("opacity" in mat && mat.transparent) {
+        mat.opacity = Math.min(mat.opacity, 0.12);
+      }
+    });
+  };
+
+  const setBreadcrumbGlow = (marker: Marker, active: boolean) => {
+    marker.group.traverse((obj) => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const mat = mesh.material as
+        | THREE.MeshStandardMaterial
+        | THREE.MeshBasicMaterial;
+      if ("emissiveIntensity" in mat && mat.emissiveIntensity > 0) {
+        mat.emissiveIntensity = active ? 0.85 : marker.found ? 0.12 : 0.35;
+      }
+      if ("opacity" in mat && mat.transparent) {
+        mat.opacity = active ? 0.42 : marker.found ? 0.12 : 0.22;
+      }
+    });
+    marker.group.scale.setScalar(active ? 1.18 : 1);
+  };
+
   const discover = (marker: Marker, forceShow = false) => {
     if (marker.found && !forceShow) return;
     if (!marker.found) {
       marker.found = true;
       foundCount += 1;
+      markLetterFoundVisual(marker);
     }
-    callbacks.onDiscover(marker.data, foundCount, discoveries.length);
+    if (!silentRestore) {
+      callbacks.onDiscover(marker.data, foundCount, discoveries.length);
+    }
     if (!completed && foundCount >= discoveries.length) {
       completed = true;
-      callbacks.onComplete();
+      if (!silentRestore) callbacks.onComplete();
     }
   };
 
@@ -571,11 +667,13 @@ export function createWorld(
       faithCoins += 1;
       addConstellationStar(faithCoins - 1);
     }
-    callbacks.onQuote(qm.data, {
-      isNew,
-      faithCoins,
-      totalQuotes: poetQuotes.length,
-    });
+    if (!silentRestore) {
+      callbacks.onQuote(qm.data, {
+        isNew,
+        faithCoins,
+        totalQuotes: poetQuotes.length,
+      });
+    }
   };
 
   const setWalkTo = (
@@ -860,6 +958,31 @@ export function createWorld(
       const bob = Math.sin(t * 1.5 + marker.group.position.x) * 0.04 * drift;
       marker.group.position.y = bob;
     }
+
+    // Soft breadcrumb toward nearest unread letter
+    let nearest: Marker | null = null;
+    let nearestDist = Infinity;
+    for (const marker of markers) {
+      if (marker.found) continue;
+      const d = Math.hypot(
+        marker.group.position.x - player.x,
+        marker.group.position.z - player.z,
+      );
+      if (d < nearestDist) {
+        nearestDist = d;
+        nearest = marker;
+      }
+    }
+    const nextBreadcrumb = nearest?.data.id ?? null;
+    if (nextBreadcrumb !== breadcrumbId) {
+      if (breadcrumbId) {
+        const prev = markerById.get(breadcrumbId);
+        if (prev && !prev.found) setBreadcrumbGlow(prev, false);
+      }
+      breadcrumbId = nextBreadcrumb;
+      if (nearest) setBreadcrumbGlow(nearest, true);
+    }
+
     for (const qm of quoteMarkers) {
       if (qm.data.kind === "flower") {
         qm.group.position.y =
@@ -868,6 +991,13 @@ export function createWorld(
     }
 
     moon.position.y = 10 + Math.sin(t * 0.2) * 0.15 * drift;
+    if (moonPulse) {
+      moonMat.emissiveIntensity = 0.75 + Math.sin(t * 1.6) * 0.35 * drift;
+      moonHaloMat.opacity = 0.2 + Math.sin(t * 1.2) * 0.12 * drift;
+    }
+    if (skySoft) {
+      constellation.rotation.y = Math.sin(t * 0.15) * 0.08 * drift;
+    }
 
     const pos = petalGeo.attributes.position as THREE.BufferAttribute;
     for (let i = 0; i < PETAL_COUNT; i++) {
@@ -924,6 +1054,65 @@ export function createWorld(
       if (hour >= 17 && hour < 20) dayBlend = 0.35 + (20 - hour) * 0.08;
       if (hour >= 20 || hour < 5) dayBlend = Math.min(dayBlend, 0.22);
       applyDayNight();
+      if (skySoft && scene.fog instanceof THREE.FogExp2) {
+        scene.fog.density = 0.014;
+      }
+    },
+    getProgress() {
+      return {
+        letters: markers.filter((m) => m.found).map((m) => m.data.id),
+        quotes: quoteMarkers.filter((q) => q.collected).map((q) => q.data.id),
+        foundCount,
+        faithCoins,
+        completed,
+        constellationDone,
+        unlocked: [...unlocked],
+      };
+    },
+    restoreProgress(save) {
+      silentRestore = true;
+      for (const id of save.letters) {
+        const marker = markerById.get(id);
+        if (!marker || marker.found) continue;
+        marker.found = true;
+        foundCount += 1;
+        markLetterFoundVisual(marker);
+      }
+      if (foundCount >= discoveries.length) completed = true;
+      for (const id of save.quotes) {
+        const qm = quoteById.get(id);
+        if (!qm || qm.collected) continue;
+        qm.collected = true;
+        faithCoins += 1;
+        addConstellationStar(faithCoins - 1);
+      }
+      for (const tier of save.unlocked ?? []) applyQuietMoment(tier);
+      silentRestore = false;
+    },
+    reopenLetter(id: string) {
+      const marker = markerById.get(id);
+      if (!marker?.found) return false;
+      discover(marker, true);
+      return true;
+    },
+    reopenQuote(id: string) {
+      const qm = quoteById.get(id);
+      if (!qm?.collected) return false;
+      revealQuote(qm, true);
+      return true;
+    },
+    unlockQuietMoment(tier: QuietTier) {
+      if (unlocked.has(tier)) return false;
+      if (tier === "path" && faithCoins < 3) return false;
+      if (tier === "moon" && faithCoins < 6) return false;
+      if (tier === "sky" && faithCoins < poetQuotes.length) return false;
+      applyQuietMoment(tier);
+      return true;
+    },
+    lookAtConstellation(ms = 4800) {
+      if (!constellationDone) return;
+      camMode = "sky";
+      skyCamUntil = performance.now() + (reducedMotion ? 1200 : ms);
     },
     destroy() {
       cancelAnimationFrame(raf);
