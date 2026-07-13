@@ -18,8 +18,8 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Noto+Serif+Bengali:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/if-you-knew-me/assets/index-B15JiBUX.js"></script>
-    <link rel="stylesheet" crossorigin href="/if-you-knew-me/assets/index-6SNn8dty.css">
+    <script type="module" crossorigin src="/if-you-knew-me/assets/index-DEZlaX_k.js"></script>
+    <link rel="stylesheet" crossorigin href="/if-you-knew-me/assets/index-Apr97G0-.css">
   </head>
   <body class="is-prologue">
     <canvas id="world"></canvas>
@@ -107,7 +107,7 @@
           Listen &amp; begin wandering
         </button>
         <p class="how">
-          Phone: on-screen pad · Desktop: WASD · Shift run · Space jump (dodge bees) · E dance · tap lights
+          Phone: move pad + Jump/Run · Desktop: WASD · Shift run · Space jump (dodge bees) · E dance
         </p>
       </section>
     </div>
@@ -335,6 +335,18 @@
       <button type="button" class="dpad-btn" data-key="KeyA" aria-label="Left">◀</button>
       <button type="button" class="dpad-btn" data-key="KeyS" aria-label="Down">▼</button>
       <button type="button" class="dpad-btn" data-key="KeyD" aria-label="Right">▶</button>
+    </div>
+
+    <div id="action-pad" class="action-pad is-hidden" aria-label="Actions">
+      <button type="button" class="action-btn" data-action="run" aria-label="Run">
+        Run
+      </button>
+      <button type="button" class="action-btn action-btn-jump" data-action="jump" aria-label="Jump">
+        Jump
+      </button>
+      <button type="button" class="action-btn" data-action="dance" aria-label="Dance">
+        Dance
+      </button>
     </div>
 
   </body>
