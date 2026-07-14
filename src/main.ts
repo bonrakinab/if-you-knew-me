@@ -417,6 +417,13 @@ const world = createWorld(canvas, {
     delete note.dataset.source;
     setIdleCompass();
   },
+  onShelterProtect() {
+    if (!note.classList.contains("is-hidden") && note.dataset.source === "quote") {
+      compass.textContent = "Shelter holds—the bee turns away.";
+      return;
+    }
+    compass.textContent = "Shelter holds—the bee turns away.";
+  },
   onConstellationComplete() {
     const saved = localStorage.getItem(NOTE_KEY);
     let name = "";

@@ -16,6 +16,8 @@ export type WorldCallbacks = {
   onDeath?: () => void;
   /** Fired when the player walks out of range of a quote plant/tree. */
   onQuoteAway?: () => void;
+  /** Bee was turned away by plant/tree shelter. */
+  onShelterProtect?: () => void;
 };
 
 export type QuietTier = "path" | "moon" | "sky";
@@ -475,6 +477,8 @@ export function createWorld(
     group: THREE.Group;
     hitObjects: THREE.Object3D[];
     collected: boolean;
+    shelter: boolean;
+    shelterRing: THREE.Mesh | null;
   };
 
   const markers: Marker[] = [];
@@ -543,7 +547,14 @@ export function createWorld(
     }
 
     scene.add(group);
-    const qm: QuoteMarker = { data, group, hitObjects, collected: false };
+    const qm: QuoteMarker = {
+      data,
+      group,
+      hitObjects,
+      collected: false,
+      shelter: false,
+      shelterRing: null,
+    };
     quoteMarkers.push(qm);
     quoteById.set(data.id, qm);
   }
@@ -725,6 +736,30 @@ export function createWorld(
 
   let faithCoins = 0;
   let nearbyQuoteId: string | null = null;
+  let lastShelterProtectAt = 0;
+
+  const markAsShelter = (qm: QuoteMarker) => {
+    if (qm.shelter) return;
+    qm.shelter = true;
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(
+        qm.data.kind === "sakura" ? 0.85 : 0.5,
+        qm.data.kind === "sakura" ? 1.05 : 0.68,
+        28,
+      ),
+      new THREE.MeshBasicMaterial({
+        color: 0x7cb389,
+        transparent: true,
+        opacity: 0.5,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.05;
+    qm.group.add(ring);
+    qm.shelterRing = ring;
+  };
 
   const revealQuote = (
     qm: QuoteMarker,
@@ -736,6 +771,7 @@ export function createWorld(
       faithCoins += 1;
       addConstellationStar(faithCoins - 1);
     }
+    markAsShelter(qm);
     if (opts.fromProximity) nearbyQuoteId = qm.data.id;
     if (!silentRestore) {
       callbacks.onQuote(qm.data, {
@@ -749,6 +785,47 @@ export function createWorld(
   const quoteReach = (qm: QuoteMarker, leaving: boolean) => {
     const base = qm.data.kind === "sakura" ? 2.3 : 1.65;
     return leaving ? base + 0.6 : base;
+  };
+
+  const findNearbyShelter = (): QuoteMarker | null => {
+    let nearest: QuoteMarker | null = null;
+    let nearestDist = Infinity;
+    for (const qm of quoteMarkers) {
+      if (!qm.shelter) continue;
+      const dist = Math.hypot(
+        qm.group.position.x - player.x,
+        qm.group.position.z - player.z,
+      );
+      const leaving = nearbyQuoteId === qm.data.id;
+      if (dist < quoteReach(qm, leaving) && dist < nearestDist) {
+        nearest = qm;
+        nearestDist = dist;
+      }
+    }
+    return nearest;
+  };
+
+  const fleeBeeFromPlayer = (bee: Bee) => {
+    let awayX = bee.x - player.x;
+    let awayZ = bee.z - player.z;
+    let len = Math.hypot(awayX, awayZ);
+    if (len < 0.05) {
+      const a = rand() * Math.PI * 2;
+      awayX = Math.cos(a);
+      awayZ = Math.sin(a);
+      len = 1;
+    }
+    const push = 5.5 + rand() * 2.5;
+    bee.tx = THREE.MathUtils.clamp(
+      bee.x + (awayX / len) * push,
+      -BEE_BOUND,
+      BEE_BOUND,
+    );
+    bee.tz = THREE.MathUtils.clamp(
+      bee.z + (awayZ / len) * push,
+      -BEE_BOUND,
+      BEE_BOUND,
+    );
   };
 
   const updateQuoteProximity = () => {
@@ -1051,7 +1128,14 @@ export function createWorld(
 
       tryRevealNear();
 
-      // Bees wander and sting on contact (jump over to dodge)
+      // Bees wander and sting on contact (jump / shelter protect)
+      const shelter = findNearbyShelter();
+      const protectedByShelter = Boolean(shelter);
+      if (shelter?.shelterRing) {
+        const mat = shelter.shelterRing.material as THREE.MeshBasicMaterial;
+        mat.opacity = 0.55 + Math.sin(t * 4) * 0.12;
+      }
+
       if (!stung) {
         for (const bee of bees) {
           const dx = bee.tx - bee.x;
@@ -1077,11 +1161,21 @@ export function createWorld(
           bee.group.position.set(bee.x, bee.y, bee.z);
           flapBee(bee, t);
 
+          const toPlayer = Math.hypot(bee.x - player.x, bee.z - player.z);
           const canDodge = player.jumping && player.y > 0.35;
-          if (
-            !canDodge &&
-            Math.hypot(bee.x - player.x, bee.z - player.z) < BEE_HIT
-          ) {
+
+          // Visited plant/tree shelter turns bees away
+          if (protectedByShelter && toPlayer < BEE_HIT * 1.7) {
+            fleeBeeFromPlayer(bee);
+            const now = performance.now();
+            if (now - lastShelterProtectAt > 1800) {
+              lastShelterProtectAt = now;
+              callbacks.onShelterProtect?.();
+            }
+            continue;
+          }
+
+          if (!canDodge && toPlayer < BEE_HIT) {
             stung = true;
             player.enabled = false;
             hasWalkTarget = false;
@@ -1323,6 +1417,7 @@ export function createWorld(
         qm.collected = true;
         faithCoins += 1;
         addConstellationStar(faithCoins - 1);
+        markAsShelter(qm);
       }
       for (const tier of save.unlocked ?? []) applyQuietMoment(tier);
       if (constellationDone) spawnPartner();
