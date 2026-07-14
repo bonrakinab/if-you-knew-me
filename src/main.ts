@@ -337,9 +337,14 @@ quietSky.addEventListener("click", () => {
 totalEl.textContent = String(discoveries.length);
 faithTotalEl.textContent = String(poetQuotes.length);
 
-const showNote = (title: string, text: string) => {
+const showNote = (
+  title: string,
+  text: string,
+  source: "letter" | "quote" = "letter",
+) => {
   noteTitle.textContent = title;
   noteText.textContent = text;
+  note.dataset.source = source;
   note.classList.remove("is-hidden");
 };
 
@@ -385,7 +390,7 @@ const openLetterbox = () => {
 const world = createWorld(canvas, {
   onDiscover(item, foundCount) {
     foundEl.textContent = String(foundCount);
-    showNote(item.title, item.text);
+    showNote(item.title, item.text, "letter");
     refreshJournal();
     compass.textContent =
       foundCount >= discoveries.length
@@ -393,7 +398,7 @@ const world = createWorld(canvas, {
         : "A letter noticed—another light may be near.";
   },
   onQuote(quote, info) {
-    showNote(quote.poet, quote.text);
+    showNote(quote.poet, quote.text, "quote");
     faithCoinsEl.textContent = String(info.faithCoins);
     refreshJournal();
     if (info.isNew) {
@@ -405,6 +410,12 @@ const world = createWorld(canvas, {
     } else {
       compass.textContent = "কবিতার ফুল ও চেরিগাছ ছুঁয়ে আরও পড়ো";
     }
+  },
+  onQuoteAway() {
+    if (note.dataset.source !== "quote") return;
+    note.classList.add("is-hidden");
+    delete note.dataset.source;
+    setIdleCompass();
   },
   onConstellationComplete() {
     const saved = localStorage.getItem(NOTE_KEY);
@@ -743,6 +754,7 @@ muteBtn.addEventListener("click", async () => {
 
 noteClose.addEventListener("click", () => {
   note.classList.add("is-hidden");
+  delete note.dataset.source;
   setIdleCompass();
 });
 

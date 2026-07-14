@@ -14,6 +14,8 @@ export type WorldCallbacks = {
   onComplete: () => void;
   onHoverChange: (title: string | null) => void;
   onDeath?: () => void;
+  /** Fired when the player walks out of range of a quote plant/tree. */
+  onQuoteAway?: () => void;
 };
 
 export type QuietTier = "path" | "moon" | "sky";
@@ -571,7 +573,7 @@ export function createWorld(
   scene.add(hero.group);
 
   const bees: Bee[] = [];
-  const BEE_COUNT = 8;
+  const BEE_COUNT = 4;
   const touchFriendly =
     typeof window !== "undefined" &&
     window.matchMedia("(pointer: coarse)").matches;
@@ -580,7 +582,7 @@ export function createWorld(
   let stung = false;
   for (let i = 0; i < BEE_COUNT; i++) {
     const a = (i / BEE_COUNT) * Math.PI * 2 + 0.4;
-    let r = 5.2 + (i % 3) * 2.6;
+    let r = 5.8 + (i % 2) * 3.2;
     let bx = Math.cos(a) * r;
     let bz = Math.sin(a) * r;
     // Nudge away from player spawn if needed
@@ -591,7 +593,7 @@ export function createWorld(
     }
     const bee = createBee(bx, bz, i * 1.7);
     if (touchFriendly) {
-      bee.speed *= 0.78;
+      bee.speed *= 0.88;
       bee.sprite.scale.set(0.7, 0.7, 1);
     }
     bee.tx = THREE.MathUtils.clamp(bx + (rand() - 0.5) * 5, -BEE_BOUND, BEE_BOUND);
@@ -721,22 +723,20 @@ export function createWorld(
     }
   };
 
-  let lastQuoteAt = 0;
-  let lastQuoteId: string | null = null;
   let faithCoins = 0;
+  let nearbyQuoteId: string | null = null;
 
-  const revealQuote = (qm: QuoteMarker, force = false) => {
-    const now = performance.now();
-    if (!force && lastQuoteId === qm.data.id && now - lastQuoteAt < 2500) return;
-    lastQuoteId = qm.data.id;
-    lastQuoteAt = now;
-
+  const revealQuote = (
+    qm: QuoteMarker,
+    opts: { fromProximity?: boolean } = {},
+  ) => {
     const isNew = !qm.collected;
     if (isNew) {
       qm.collected = true;
       faithCoins += 1;
       addConstellationStar(faithCoins - 1);
     }
+    if (opts.fromProximity) nearbyQuoteId = qm.data.id;
     if (!silentRestore) {
       callbacks.onQuote(qm.data, {
         isNew,
@@ -744,6 +744,38 @@ export function createWorld(
         totalQuotes: poetQuotes.length,
       });
     }
+  };
+
+  const quoteReach = (qm: QuoteMarker, leaving: boolean) => {
+    const base = qm.data.kind === "sakura" ? 2.3 : 1.65;
+    return leaving ? base + 0.6 : base;
+  };
+
+  const updateQuoteProximity = () => {
+    let nearest: QuoteMarker | null = null;
+    let nearestDist = Infinity;
+    for (const qm of quoteMarkers) {
+      const dist = Math.hypot(
+        qm.group.position.x - player.x,
+        qm.group.position.z - player.z,
+      );
+      const leaving = nearbyQuoteId === qm.data.id;
+      if (dist < quoteReach(qm, leaving) && dist < nearestDist) {
+        nearest = qm;
+        nearestDist = dist;
+      }
+    }
+
+    const nextId = nearest?.data.id ?? null;
+    if (nextId === nearbyQuoteId) return;
+
+    if (nearbyQuoteId && !nextId) {
+      nearbyQuoteId = null;
+      if (!silentRestore) callbacks.onQuoteAway?.();
+      return;
+    }
+
+    if (nearest) revealQuote(nearest, { fromProximity: true });
   };
 
   const setWalkTo = (
@@ -769,18 +801,10 @@ export function createWorld(
       const mz = marker.group.position.z - player.z;
       if (Math.hypot(mx, mz) < 1.7) {
         discover(marker);
-        return;
+        break;
       }
     }
-    for (const qm of quoteMarkers) {
-      const mx = qm.group.position.x - player.x;
-      const mz = qm.group.position.z - player.z;
-      const reach = qm.data.kind === "sakura" ? 2.3 : 1.65;
-      if (Math.hypot(mx, mz) < reach) {
-        revealQuote(qm);
-        return;
-      }
-    }
+    updateQuoteProximity();
   };
 
   const pickAt = (clientX: number, clientY: number) => {
@@ -820,7 +844,7 @@ export function createWorld(
           const dz = qm.group.position.z - player.z;
           if (Math.hypot(dx, dz) < reach) {
             hasWalkTarget = false;
-            revealQuote(qm, true);
+            revealQuote(qm, { fromProximity: true });
           }
           return;
         }
@@ -999,7 +1023,7 @@ export function createWorld(
             if (m) discover(m, true);
           } else if (walkKind === "quote" && walkId) {
             const q = quoteById.get(walkId);
-            if (q) revealQuote(q, true);
+            if (q) revealQuote(q, { fromProximity: true });
           } else {
             tryRevealNear();
           }
@@ -1313,7 +1337,7 @@ export function createWorld(
     reopenQuote(id: string) {
       const qm = quoteById.get(id);
       if (!qm?.collected) return false;
-      revealQuote(qm, true);
+      revealQuote(qm);
       return true;
     },
     unlockQuietMoment(tier: QuietTier) {

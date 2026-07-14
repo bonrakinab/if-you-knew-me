@@ -80,7 +80,7 @@ export function createBee(x: number, z: number, phase: number): Bee {
     y: 0.55,
     tx: x,
     tz: z,
-    speed: 1.55 + (phase % 5) * 0.18,
+    speed: 2.35 + (phase % 5) * 0.22,
     phase,
   };
 }
