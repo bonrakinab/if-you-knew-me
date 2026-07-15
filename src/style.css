@@ -452,7 +452,8 @@ body.is-garden #world {
 }
 
 .journal-toggle,
-.song-toggle {
+.song-toggle,
+.photo-toggle {
   position: static;
   width: auto;
   min-width: 2.5rem;
@@ -471,6 +472,7 @@ body.is-garden #world {
 
 .journal-toggle.is-hidden,
 .song-toggle.is-hidden,
+.photo-toggle.is-hidden,
 .mute.is-hidden {
   display: none;
 }
@@ -1622,6 +1624,7 @@ body.is-garden .atmos {
 .mute,
 .song-toggle,
 .journal-toggle,
+.photo-toggle,
 .track-option,
 .journal-item,
 .quiet-btn {
@@ -1785,6 +1788,78 @@ body.is-desert::after {
   }
 }
 
+/* ---------- Monsoon chapter: streaking rain sheets ---------- */
+
+body.is-monsoon::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      104deg,
+      rgba(188, 216, 224, 0) 0px,
+      rgba(188, 216, 224, 0) 7px,
+      rgba(188, 216, 224, 0.14) 8px,
+      rgba(188, 216, 224, 0) 9px
+    );
+  background-size: 100% 240%;
+  animation: rainSheet 0.9s linear infinite;
+}
+
+@keyframes rainSheet {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -1.4rem 6rem;
+  }
+}
+
+/* ---------- Rooftop chapter: warm sodium-lamp haze ---------- */
+
+body.is-rooftop::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(255, 184, 110, 0.14) 0%,
+      rgba(255, 184, 110, 0) 55%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(70, 52, 78, 0.12) 0%,
+      rgba(70, 52, 78, 0) 40%
+    );
+}
+
+/* ---------- Mountain chapter: cold breath at the edges ---------- */
+
+body.is-mountain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 50% 50%,
+      rgba(220, 232, 246, 0) 55%,
+      rgba(196, 214, 236, 0.2) 100%
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.is-monsoon::after {
+    animation: none;
+  }
+}
+
 /* ---------- Anime-episode cutscenes ---------- */
 
 .story-overlay {
@@ -1905,6 +1980,98 @@ body.is-desert::after {
     rgba(255, 233, 168, 0.95) 0%,
     rgba(255, 233, 168, 0) 70%
   );
+}
+
+.story-scene[data-bg="river"] {
+  background:
+    radial-gradient(
+      ellipse at 50% 88%,
+      rgba(150, 200, 200, 0.35) 0%,
+      rgba(150, 200, 200, 0) 55%
+    ),
+    linear-gradient(180deg, #2c3e48 0%, #3f5a64 45%, #4f7a84 78%, #3a5a60 100%);
+}
+
+.story-scene[data-bg="river"]::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 26%;
+  background: linear-gradient(
+    180deg,
+    rgba(120, 170, 178, 0.5) 0%,
+    rgba(60, 100, 110, 0.75) 100%
+  );
+}
+
+.story-scene[data-bg="rooftop"] {
+  background:
+    radial-gradient(1.5px 1.5px at 22% 18%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 66% 12%, rgba(255, 232, 200, 0.8), transparent 60%),
+    linear-gradient(180deg, #2b2440 0%, #5a3a52 42%, #b06a4e 78%, #d98a5c 100%);
+}
+
+.story-scene[data-bg="rooftop"]::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 30%;
+  background:
+    linear-gradient(
+      0deg,
+      rgba(30, 24, 40, 0.92) 0%,
+      rgba(30, 24, 40, 0.55) 70%,
+      rgba(30, 24, 40, 0) 100%
+    );
+}
+
+.story-scene[data-bg="rooftop"]::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  bottom: 24%;
+  width: 76%;
+  height: 3px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 214, 140, 0.9) 0 6px,
+      rgba(255, 214, 140, 0) 6px 26px
+    );
+  filter: blur(0.5px);
+}
+
+.story-scene[data-bg="mountain"] {
+  background:
+    radial-gradient(1.5px 1.5px at 30% 16%, rgba(255, 255, 255, 0.9), transparent 60%),
+    radial-gradient(1px 1px at 74% 24%, rgba(255, 255, 255, 0.7), transparent 60%),
+    linear-gradient(180deg, #1c2438 0%, #3a4a68 45%, #8fa4c4 80%, #cdd9ea 100%);
+}
+
+.story-scene[data-bg="mountain"]::before {
+  content: "";
+  position: absolute;
+  left: 48%;
+  bottom: 16%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: clamp(8rem, 26vw, 15rem) solid transparent;
+  border-right: clamp(8rem, 26vw, 15rem) solid transparent;
+  border-bottom: clamp(10rem, 34vw, 19rem) solid rgba(226, 236, 248, 0.85);
+}
+
+.story-scene[data-bg="mountain"]::after {
+  content: "";
+  position: absolute;
+  left: 70%;
+  bottom: 16%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: clamp(5rem, 15vw, 9rem) solid transparent;
+  border-right: clamp(5rem, 15vw, 9rem) solid transparent;
+  border-bottom: clamp(6rem, 20vw, 11rem) solid rgba(180, 198, 222, 0.75);
 }
 
 .story-scene[data-bg="void"] {
@@ -2170,4 +2337,92 @@ body.is-desert::after {
   .story-hint {
     animation: none;
   }
+}
+
+/* ---------- Seeds: HUD row under the faith coins ---------- */
+
+.seeds {
+  margin: 0.3rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 0.92rem;
+  color: #1c2430;
+  text-shadow: none;
+}
+
+.seed-glyph {
+  color: #c2578a;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.action-btn-plant {
+  background: rgba(140, 196, 152, 0.55);
+  border-color: rgba(40, 84, 52, 0.22);
+}
+
+.action-btn-plant.is-active {
+  background: rgba(40, 84, 52, 0.85);
+  color: #e4f4e8;
+}
+
+/* ---------- Photo mode: postcard overlay ---------- */
+
+.photo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.2rem;
+  background: rgba(16, 14, 22, 0.82);
+  backdrop-filter: blur(8px);
+}
+
+.photo-overlay.is-hidden {
+  display: none;
+}
+
+.photo-title {
+  margin: 0;
+  font-family: "Noto Serif Bengali", "Fraunces", Georgia, serif;
+  font-size: 1.15rem;
+  color: #f6e8ee;
+}
+
+.photo-image {
+  max-width: min(26rem, calc(100vw - 3rem));
+  max-height: 62vh;
+  border: 1px solid rgba(255, 214, 226, 0.4);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+.photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
+.photo-download {
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ---------- Time capsule ---------- */
+
+.capsule-open-btn {
+  width: 100%;
+  text-align: center;
+}
+
+.capsule-box {
+  z-index: 22;
 }

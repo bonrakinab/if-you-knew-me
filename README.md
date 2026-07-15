@@ -48,7 +48,7 @@ The garden is not entirely safe. Bees roam and sting on contact — **jump** to 
 <td width="33%" valign="top">
 
 ### 🎶 A Living Soundtrack
-Sixteen Bangla songs — **Tajwar** (*Shesh Bikele* plays by default) and **Habib Wahid** — stream via YouTube, with optional full-track playback through **Spotify Premium**. Procedural wind and birdsong underneath.
+Twenty-seven songs — **Tajwar** (*Shesh Bikele* plays by default), **Habib Wahid**, **Arnob**, plus Nepali songs by **Sajjan Raj Vaidya** and **Yabesh Thapa** — stream via YouTube, with optional full-track playback through **Spotify Premium**. Procedural wind and birdsong underneath.
 
 </td>
 <td width="33%" valign="top">
@@ -61,6 +61,26 @@ The garden asks (politely) where you are, then matches its rain, fog, snow, or c
 
 ### ⭐ The Constellation
 Collect all twenty faith coins and a constellation completes overhead. A companion appears in the garden, a dedication fades in, and a letterbox opens for a reply.
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+### 🗺️ Five Worlds
+The story now spans five chapters: the **night garden**, a **desert of pyramids**, a **monsoon river village**, an **autumn Dhaka rooftop** with kites and a tea stall, and a **snowy mountain shrine** with prayer flags.
+
+</td>
+<td width="33%" valign="top">
+
+### 🌱 Seeds & Time Capsules
+Every faith coin drops a **seed** — plant it anywhere and it grows into a sheltering plant that survives resets. **Bury a message** in the ground and it reopens on a future visit, exactly where you left it.
+
+</td>
+<td width="33%" valign="top">
+
+### 📸 Postcards & Fireflies
+A **photo mode** turns any moment into a postcard stamped with a poet's line and the date. **Guide fireflies** stream quietly from you toward the nearest unread letter.
 
 </td>
 </tr>
