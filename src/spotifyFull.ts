@@ -235,7 +235,7 @@ export async function ensureSpotifyPlayer(): Promise<boolean> {
   if (player && deviceId) return true;
 
   player = new window.Spotify!.Player({
-    name: "বহ্নি Garden",
+    name: "প্রেয়সীপাড় Garden",
     getOAuthToken: (cb) => {
       void ensureSpotifyToken().then((t) => cb(t || access));
     },

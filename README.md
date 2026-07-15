@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌸 বহ্নি — If You Knew Me
+# 🌸 প্রেয়সীপাড় — If You Knew Me
 
 **A slow, quiet 3D garden of letters — built to be wandered, not scrolled.**
 
@@ -19,7 +19,7 @@
 
 ## ✨ What is this?
 
-**বহ্নি (Banhi)** is a small hand-crafted world rendered in the browser. You walk through a night garden, and things notice you back: hidden **letters** written in Bangla light up as you approach, **flowers and cherry trees** whisper poetry from Tagore, Nazrul, Jibanananda, Rumi, Shakespeare, Hafiz, and Gibran, **bees** wander and sting the careless, and the sky above mirrors the **real weather outside your window**.
+**প্রেয়সীপাড় (Preyoshipar)** is a small hand-crafted world rendered in the browser, and **বহ্নি (Banhi)** is the girl it was made for — the one who walks its paths. You wander through a night garden, and things notice you back: hidden **letters** written in Bangla light up as you approach, **flowers and cherry trees** whisper poetry from Tagore, Nazrul, Jibanananda, Rumi, Shakespeare, Hafiz, and Gibran, **bees** wander and sting the careless, and the sky above mirrors the **real weather outside your window**.
 
 Find everything, and the stars themselves rearrange.
 
@@ -218,7 +218,7 @@ By default, songs play through a hidden YouTube player — no setup needed. For 
 1. Create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and copy its **Client ID**.
 2. Add the deployed URL (and/or `http://localhost:5173/if-you-knew-me/`) as a **Redirect URI**.
 3. Either set `VITE_SPOTIFY_CLIENT_ID` in a `.env` file, or paste the ID into the song panel in-app and press **Connect**.
-4. Log in with a **Spotify Premium** account. The garden becomes a Spotify Connect device named *"বহ্নি Garden"*.
+4. Log in with a **Spotify Premium** account. The garden becomes a Spotify Connect device named *"প্রেয়সীপাড় Garden"*.
 
 ---
 
