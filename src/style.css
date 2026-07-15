@@ -1749,6 +1749,42 @@ body.is-garden .atmos {
   }
 }
 
+/* ---------- Desert chapter: low dust storm haze ---------- */
+
+body.is-desert::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(214, 178, 130, 0) 0%,
+      rgba(214, 178, 130, 0.14) 30%,
+      rgba(214, 178, 130, 0) 55%,
+      rgba(214, 178, 130, 0.1) 80%,
+      rgba(214, 178, 130, 0) 100%
+    );
+  background-size: 220% 100%;
+  animation: dustDrift 14s linear infinite;
+}
+
+@keyframes dustDrift {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 220% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.is-desert::after {
+    animation: none;
+  }
+}
+
 /* ---------- Anime-episode cutscenes ---------- */
 
 .story-overlay {
@@ -1812,6 +1848,63 @@ body.is-garden .atmos {
     radial-gradient(1.5px 1.5px at 86% 30%, rgba(255, 255, 255, 0.85), transparent 60%),
     radial-gradient(1px 1px at 46% 8%, rgba(255, 255, 255, 0.7), transparent 60%),
     linear-gradient(180deg, #0c1226 0%, #1b2340 60%, #34355c 100%);
+}
+
+.story-scene[data-bg="desert"] {
+  background: linear-gradient(
+    180deg,
+    #d99a5b 0%,
+    #e0aa6c 40%,
+    #d6a468 65%,
+    #c08c52 100%
+  );
+}
+
+.story-scene[data-bg="pyramid"] {
+  background: linear-gradient(
+    180deg,
+    #6a4a63 0%,
+    #a56a58 45%,
+    #d59a5e 75%,
+    #c08c52 100%
+  );
+}
+
+.story-scene[data-bg="pyramid"]::before,
+.story-scene[data-bg="desert"]::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: clamp(7rem, 22vw, 13rem) solid transparent;
+  border-right: clamp(7rem, 22vw, 13rem) solid transparent;
+  border-bottom: clamp(9rem, 30vw, 17rem) solid rgba(90, 62, 40, 0.85);
+}
+
+.story-scene[data-bg="desert"]::before {
+  left: 78%;
+  opacity: 0.45;
+  border-left-width: clamp(4rem, 12vw, 7rem);
+  border-right-width: clamp(4rem, 12vw, 7rem);
+  border-bottom-width: clamp(5rem, 16vw, 9rem);
+}
+
+.story-scene[data-bg="pyramid"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(18% + clamp(9rem, 30vw, 17rem) - 1.2rem);
+  width: 1.4rem;
+  height: 1.4rem;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 233, 168, 0.95) 0%,
+    rgba(255, 233, 168, 0) 70%
+  );
 }
 
 .story-scene[data-bg="void"] {

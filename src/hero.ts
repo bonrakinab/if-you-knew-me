@@ -251,6 +251,145 @@ export function createOverworldHero(style: HeroStyle = "girl"): OverworldHero {
   return { group, setPose };
 }
 
+function drawCarCanvas(facing: Facing, frame: 0 | 1): HTMLCanvasElement {
+  const size = 32;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, size, size);
+
+  const body = "#c05a4d";
+  const bodyDark = "#8a3a32";
+  const window = "#bcd8e8";
+  const wheel = "#26201c";
+  const hub = "#8a8378";
+  const hair = "#3b241c";
+  const skin = "#d4a07a";
+  const light = "#ffe9a8";
+
+  const bounce = frame === 1 ? 1 : 0;
+
+  if (facing === "left" || facing === "right") {
+    ctx.save();
+    if (facing === "left") {
+      ctx.translate(size, 0);
+      ctx.scale(-1, 1);
+    }
+    // shadow
+    px(ctx, 5, 27, 22, 3, "rgba(40,40,30,0.3)");
+    // body
+    px(ctx, 4, 18 - bounce, 24, 7, body);
+    px(ctx, 4, 23 - bounce, 24, 2, bodyDark);
+    // cabin
+    px(ctx, 9, 12 - bounce, 13, 6, body);
+    px(ctx, 11, 13 - bounce, 9, 4, window);
+    // driver (the girl)
+    px(ctx, 13, 13 - bounce, 4, 2, hair);
+    px(ctx, 14, 15 - bounce, 2, 2, skin);
+    // headlight & taillight
+    px(ctx, 26, 19 - bounce, 2, 2, light);
+    px(ctx, 4, 19 - bounce, 1, 2, "#d98a6a");
+    // wheels (hub dot spins between frames)
+    px(ctx, 7, 24, 5, 5, wheel);
+    px(ctx, 20, 24, 5, 5, wheel);
+    px(ctx, frame === 0 ? 9 : 8, frame === 0 ? 26 : 25, 1, 1, hub);
+    px(ctx, frame === 0 ? 22 : 21, frame === 0 ? 26 : 25, 1, 1, hub);
+    ctx.restore();
+  } else {
+    // front (down) / back (up)
+    px(ctx, 9, 27, 14, 3, "rgba(40,40,30,0.3)");
+    px(ctx, 9, 14 - bounce, 14, 12, body);
+    px(ctx, 9, 24 - bounce, 14, 2, bodyDark);
+    px(ctx, 10, 10 - bounce, 12, 4, body);
+    if (facing === "down") {
+      px(ctx, 11, 11 - bounce, 10, 3, window);
+      px(ctx, 14, 11 - bounce, 4, 2, hair);
+      px(ctx, 15, 13 - bounce, 2, 1, skin);
+      px(ctx, 10, 20 - bounce, 3, 2, light);
+      px(ctx, 19, 20 - bounce, 3, 2, light);
+    } else {
+      px(ctx, 11, 11 - bounce, 10, 3, bodyDark);
+      px(ctx, 10, 20 - bounce, 3, 2, "#d98a6a");
+      px(ctx, 19, 20 - bounce, 3, 2, "#d98a6a");
+    }
+    const wheelShift = frame === 0 ? 0 : 1;
+    px(ctx, 7, 16 + wheelShift, 2, 6, wheel);
+    px(ctx, 23, 16 + wheelShift, 2, 6, wheel);
+  }
+
+  return canvas;
+}
+
+/** The girl's car for the desert chapter — same OverworldHero interface. */
+export function createCarHero(): OverworldHero {
+  const frames: Record<Facing, [THREE.CanvasTexture, THREE.CanvasTexture]> = {
+    down: [0, 1].map((f) => {
+      const t = new THREE.CanvasTexture(drawCarCanvas("down", f as 0 | 1));
+      t.magFilter = THREE.NearestFilter;
+      t.minFilter = THREE.NearestFilter;
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    }) as [THREE.CanvasTexture, THREE.CanvasTexture],
+    up: [0, 1].map((f) => {
+      const t = new THREE.CanvasTexture(drawCarCanvas("up", f as 0 | 1));
+      t.magFilter = THREE.NearestFilter;
+      t.minFilter = THREE.NearestFilter;
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    }) as [THREE.CanvasTexture, THREE.CanvasTexture],
+    left: [0, 1].map((f) => {
+      const t = new THREE.CanvasTexture(drawCarCanvas("left", f as 0 | 1));
+      t.magFilter = THREE.NearestFilter;
+      t.minFilter = THREE.NearestFilter;
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    }) as [THREE.CanvasTexture, THREE.CanvasTexture],
+    right: [0, 1].map((f) => {
+      const t = new THREE.CanvasTexture(drawCarCanvas("right", f as 0 | 1));
+      t.magFilter = THREE.NearestFilter;
+      t.minFilter = THREE.NearestFilter;
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    }) as [THREE.CanvasTexture, THREE.CanvasTexture],
+  };
+
+  const mat = new THREE.SpriteMaterial({
+    map: frames.down[0],
+    transparent: true,
+    depthWrite: false,
+  });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(1.5, 1.5, 1);
+  sprite.center.set(0.5, 0);
+
+  const group = new THREE.Group();
+  group.add(sprite);
+
+  const setPose = (
+    facing: Facing,
+    action: HeroAction,
+    t: number,
+    yOffset = 0,
+  ) => {
+    const moving =
+      action === "walk" || action === "run" || action === "dance";
+    const speed = action === "run" ? 14 : 9;
+    const frameIndex = moving ? Math.floor(t * speed) % 2 : 0;
+    mat.map = frames[facing][frameIndex as 0 | 1];
+    mat.needsUpdate = true;
+    sprite.position.y = yOffset;
+  };
+
+  return { group, setPose };
+}
+
+/** Data-URL portrait of the car, for DOM cutscenes. */
+export function carSpriteUrl(facing: Facing = "down"): string {
+  return drawCarCanvas(facing, 0).toDataURL();
+}
+
 export function facingFromDir(dx: number, dz: number): Facing {
   if (Math.abs(dx) > Math.abs(dz)) {
     return dx > 0 ? "right" : "left";

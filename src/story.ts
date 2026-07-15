@@ -4,7 +4,7 @@
  * typewriter dialogue, and tap-to-advance. Used for the boy (রংধনু) story arc.
  */
 
-import { heroSpriteUrl, type HeroAction, type Facing } from "./hero";
+import { carSpriteUrl, heroSpriteUrl, type HeroAction, type Facing } from "./hero";
 
 type ActorState = {
   /** 0..100 — percent across the stage */
@@ -17,7 +17,7 @@ type ActorState = {
 };
 
 type Shot = {
-  bg: "dusk" | "mist" | "stars" | "void";
+  bg: "dusk" | "mist" | "stars" | "void" | "desert" | "pyramid";
   girl?: ActorState | null;
   boy?: ActorState | null;
   speaker?: "girl" | "boy" | "narrator";
@@ -25,6 +25,10 @@ type Shot = {
   /** Optional smaller subtitle line (e.g. translation). */
   sub?: string;
   fx?: "petals" | "glow" | "none";
+  /** Girl appears as her car instead of on foot. */
+  car?: boolean;
+  /** Named cue fired when this shot is displayed (e.g. music change). */
+  cue?: string;
 };
 
 export type Episode = {
@@ -141,7 +145,7 @@ export const EPISODE_FINAL: Episode = {
       girl: { x: 42, facing: "right" },
       boy: { x: 64, facing: "left", opacity: 0 },
       speaker: "narrator",
-      text: "বাতাসে মিলিয়ে গেল সে—ফুলের পাপড়ির মতো, চিরদিনের জন্য।",
+      text: "বাতাসে মিলিয়ে গেল সে—ফুলের পাপড়ির মতো, যেন চিরদিনের জন্য।",
       fx: "petals",
     },
     {
@@ -167,6 +171,140 @@ export const EPISODE_FINAL: Episode = {
       bg: "stars",
       girl: { x: 50, facing: "up" },
       speaker: "narrator",
+      text: "…কিন্তু বাতাসে মিলিয়ে যাওয়া মানেই কি হারিয়ে যাওয়া? — চলবে",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_DESERT_MEET: Episode = {
+  kicker: "অধ্যায় ২ · পর্ব ১",
+  title: "পিরামিডের ছায়ায়",
+  shots: [
+    {
+      bg: "desert",
+      girl: { x: 30, facing: "right" },
+      car: true,
+      speaker: "narrator",
+      text: "সে হারায়নি—বহ্নি জানত। তাই গাড়ি নিয়ে সে পাড়ি দিল মরুভূমির পথে, ধুলোঝড় আর কাঁটাঝোপ পেরিয়ে।",
+    },
+    {
+      bg: "pyramid",
+      girl: { x: 28, facing: "right" },
+      car: true,
+      speaker: "narrator",
+      text: "তিনটি বিশ্বাসের তারা জ্বলে উঠতেই—পিরামিডের পাথর কেঁপে উঠল।",
+      fx: "glow",
+    },
+    {
+      bg: "pyramid",
+      girl: { x: 32, facing: "right", action: "dance" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "তুমি! আমি জানতাম—তুমি হারাওনি!",
+      fx: "glow",
+    },
+    {
+      bg: "pyramid",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left", opacity: 1 },
+      speaker: "boy",
+      text: "Follow the fate, not the destined.",
+      sub: "নিয়তির পিছু নয়—ভাগ্যের পথে চলো।",
+    },
+    {
+      bg: "pyramid",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left", opacity: 0.7 },
+      speaker: "boy",
+      text: "Destiny is warm and mellow, fate is taxing but rewarding…",
+      sub: "নিয়তি উষ্ণ আর কোমল; ভাগ্য কঠিন—কিন্তু তার প্রতিদান অনেক।",
+    },
+    {
+      bg: "mist",
+      girl: { x: 40, facing: "right" },
+      boy: { x: 74, facing: "left", opacity: 0.2 },
+      speaker: "girl",
+      text: "আবার?! আবার চলে যাচ্ছ—",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      boy: null,
+      speaker: "narrator",
+      text: "এবার সে কাঁদল। মরুভূমির বালিতে বসে, অনেকক্ষণ।",
+    },
+    {
+      bg: "desert",
+      girl: { x: 50, facing: "down" },
+      speaker: "girl",
+      text: "…কেঁদে নিলাম। ব্যস। এবার ওঠো বহ্নি—ভাগ্যের পথ ডাকছে।",
+      fx: "glow",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "অভিযান আবার শুরু — মরুর সব ফেইথ কয়েন জোগাড় করো।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_DESERT_FINAL: Episode = {
+  kicker: "অধ্যায় ২ · শেষ পর্ব",
+  title: "লাখৌ হাজারৌ",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 26, facing: "right" },
+      car: true,
+      speaker: "narrator",
+      text: "মরুর আকাশে সবগুলো তারা জ্বলে উঠল। পিরামিডের চূড়া থেকে নেমে এল একটা চেনা ছায়া।",
+      fx: "glow",
+    },
+    {
+      bg: "pyramid",
+      girl: { x: 34, facing: "right", action: "dance" },
+      boy: { x: 66, facing: "left", opacity: 0.9 },
+      speaker: "girl",
+      text: "এবার বলো—আর কোথায় পালাবে?",
+      fx: "glow",
+    },
+    {
+      bg: "pyramid",
+      girl: { x: 36, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0.85 },
+      speaker: "boy",
+      cue: "lakhau",
+      text: "Lakhau hajarau maddhye, timro muskaan le, kina ho malai, pagal banaucha?",
+      sub: "লাখো-হাজারের ভিড়ে, তোমার হাসিই কেন আমাকে পাগল করে দেয়?",
+    },
+    {
+      bg: "mist",
+      girl: { x: 40, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0.4 },
+      speaker: "narrator",
+      text: "সে হাসল—প্রথমবারের মতো। আর সেই হাসিটুকু রেখেই, আবার পাতলা হতে লাগল বাতাসে।",
+      fx: "petals",
+    },
+    {
+      bg: "void",
+      girl: { x: 46, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0 },
+      speaker: "narrator",
+      text: "মরুর হাওয়ায় মিলিয়ে গেল সে—আবারও।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      speaker: "girl",
+      text: "যাও। যতবার হারাবে, ততবার খুঁজে বের করব। এ আমার ভাগ্য—আর আমি ভাগ্যের পথেই চলি।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
       text: "শেষ — The End",
       fx: "glow",
     },
@@ -186,7 +324,10 @@ function makePetals(host: HTMLElement, count = 14) {
   }
 }
 
-export function playEpisode(episode: Episode): Promise<void> {
+export function playEpisode(
+  episode: Episode,
+  onCue?: (cue: string) => void,
+): Promise<void> {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "story-overlay";
@@ -238,17 +379,24 @@ export function playEpisode(episode: Episode): Promise<void> {
     let started = false;
     let done = false;
 
-    const applyActor = (el: HTMLImageElement, state?: ActorState | null) => {
+    const applyActor = (
+      el: HTMLImageElement,
+      state?: ActorState | null,
+      asCar = false,
+    ) => {
       if (!state) {
         el.style.opacity = "0";
         return;
       }
-      el.src = heroSpriteUrl(
-        el === boyEl ? "boy" : "girl",
-        state.facing ?? "down",
-        0,
-        state.action ?? "idle",
-      );
+      el.src =
+        asCar && el === girlEl
+          ? carSpriteUrl(state.facing ?? "down")
+          : heroSpriteUrl(
+              el === boyEl ? "boy" : "girl",
+              state.facing ?? "down",
+              0,
+              state.action ?? "idle",
+            );
       el.style.left = `${state.x}%`;
       el.style.opacity = String(state.opacity ?? 1);
       el.classList.toggle("is-low", Boolean(state.low));
@@ -265,8 +413,9 @@ export function playEpisode(episode: Episode): Promise<void> {
       scene.dataset.bg = shot.bg;
       glow.style.opacity = shot.fx === "glow" ? "1" : "0";
       petalHost.style.opacity = shot.fx === "petals" ? "1" : "0";
-      applyActor(girlEl, shot.girl);
+      applyActor(girlEl, shot.girl, shot.car);
       applyActor(boyEl, shot.boy);
+      if (shot.cue) onCue?.(shot.cue);
 
       dialogue.classList.remove("is-hidden");
       dialogue.dataset.speaker = shot.speaker ?? "narrator";

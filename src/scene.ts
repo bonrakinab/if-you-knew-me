@@ -1,8 +1,14 @@
 import * as THREE from "three";
 import { discoveries, type Discovery } from "./discoveries";
 import { poetQuotes, type PoetQuote } from "./quotes";
-import { createOverworldHero, facingFromDir, type Facing, type HeroAction } from "./hero";
-import { createBee, flapBee, type Bee } from "./bees";
+import {
+  createCarHero,
+  createOverworldHero,
+  facingFromDir,
+  type Facing,
+  type HeroAction,
+} from "./hero";
+import { createBee, createScorpion, flapBee, type Bee } from "./bees";
 
 export type WorldCallbacks = {
   onDiscover: (item: Discovery, foundCount: number, total: number) => void;
@@ -123,6 +129,135 @@ function makeFlower(
   return group;
 }
 
+function makeDesertShrub(scale: number, glow = false): THREE.Group {
+  const group = new THREE.Group();
+  const leafMat = new THREE.MeshStandardMaterial({
+    color: glow ? 0x9aab5c : 0x7a8a4e,
+    roughness: 0.92,
+    emissive: glow ? 0xd8e07a : 0x000000,
+    emissiveIntensity: glow ? 0.3 : 0,
+  });
+  for (let i = 0; i < 5; i++) {
+    const blade = new THREE.Mesh(
+      new THREE.ConeGeometry(0.06 * scale, 0.5 * scale, 5),
+      leafMat,
+    );
+    const a = (i / 5) * Math.PI * 2;
+    blade.position.set(
+      Math.cos(a) * 0.1 * scale,
+      0.22 * scale,
+      Math.sin(a) * 0.1 * scale,
+    );
+    blade.rotation.z = Math.cos(a) * 0.5;
+    blade.rotation.x = Math.sin(a) * 0.5;
+    group.add(blade);
+  }
+  const bloom = new THREE.Mesh(
+    new THREE.SphereGeometry(0.09 * scale, 8, 8),
+    new THREE.MeshStandardMaterial({
+      color: glow ? 0xffcf6e : 0xc9a05a,
+      emissive: glow ? 0xffe2a0 : 0x000000,
+      emissiveIntensity: glow ? 0.6 : 0,
+      roughness: 0.6,
+    }),
+  );
+  bloom.position.y = 0.42 * scale;
+  group.add(bloom);
+
+  if (glow) {
+    const aura = new THREE.Mesh(
+      new THREE.SphereGeometry(0.34 * scale, 14, 14),
+      new THREE.MeshBasicMaterial({
+        color: 0xffe9b8,
+        transparent: true,
+        opacity: 0.2,
+        depthWrite: false,
+      }),
+    );
+    aura.position.y = 0.4 * scale;
+    group.add(aura);
+  }
+  return group;
+}
+
+function makeCactus(scale: number): THREE.Group {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x6f8f5a,
+    roughness: 0.85,
+  });
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12 * scale, 0.14 * scale, 0.9 * scale, 8),
+    mat,
+  );
+  trunk.position.y = 0.45 * scale;
+  group.add(trunk);
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.08 * scale, 0.09 * scale, 0.4 * scale, 8),
+      mat,
+    );
+    arm.position.set(side * 0.2 * scale, 0.55 * scale, 0);
+    arm.rotation.z = side * -0.5;
+    group.add(arm);
+  }
+  return group;
+}
+
+function makePyramid(glowing: boolean): THREE.Group {
+  const pyr = new THREE.Group();
+  const stoneMat = new THREE.MeshStandardMaterial({
+    color: 0xcaa46a,
+    roughness: 0.95,
+    emissive: glowing ? 0xd9a75e : 0x000000,
+    emissiveIntensity: glowing ? 0.12 : 0,
+  });
+  const body = new THREE.Mesh(new THREE.ConeGeometry(1.7, 2.6, 4), stoneMat);
+  body.position.y = 1.3;
+  body.rotation.y = Math.PI / 4;
+  pyr.add(body);
+
+  const cap = new THREE.Mesh(
+    new THREE.ConeGeometry(0.34, 0.5, 4),
+    new THREE.MeshStandardMaterial({
+      color: 0xf2d38a,
+      emissive: glowing ? 0xffe9a8 : 0x000000,
+      emissiveIntensity: glowing ? 0.55 : 0,
+      roughness: 0.4,
+    }),
+  );
+  cap.position.y = 2.55;
+  cap.rotation.y = Math.PI / 4;
+  pyr.add(cap);
+
+  const hit = new THREE.Mesh(
+    new THREE.SphereGeometry(1.7, 16, 16),
+    new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    }),
+  );
+  hit.position.y = 1.4;
+  hit.name = "hit";
+  pyr.add(hit);
+
+  if (glowing) {
+    const glow = new THREE.Mesh(
+      new THREE.SphereGeometry(2.0, 20, 20),
+      new THREE.MeshBasicMaterial({
+        color: 0xffe0a0,
+        transparent: true,
+        opacity: 0.09,
+        depthWrite: false,
+      }),
+    );
+    glow.position.y = 1.5;
+    pyr.add(glow);
+  }
+  return pyr;
+}
+
 function makeSakuraTree(): THREE.Group {
   const tree = new THREE.Group();
   const trunk = new THREE.Mesh(
@@ -179,10 +314,18 @@ function makeSakuraTree(): THREE.Group {
   return tree;
 }
 
+export type WorldOptions = {
+  theme?: "garden" | "desert";
+  /** She rides a car instead of walking (Chapter 2). */
+  vehicle?: boolean;
+};
+
 export function createWorld(
   canvas: HTMLCanvasElement,
   callbacks: WorldCallbacks,
+  options: WorldOptions = {},
 ): WorldApi {
+  const desert = options.theme === "desert";
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -197,11 +340,15 @@ export function createWorld(
     Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.5 : 2),
   );
   renderer.setSize(window.innerWidth, window.innerHeight, false);
-  renderer.setClearColor(0x7fa888, 1);
+  renderer.setClearColor(desert ? 0xd8ae7e : 0x7fa888, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x8fb396, 0.022);
+  // Desert: denser sandy fog reads as a low dust storm
+  scene.fog = new THREE.FogExp2(
+    desert ? 0xd3a877 : 0x8fb396,
+    desert ? 0.03 : 0.022,
+  );
 
   const camera = new THREE.PerspectiveCamera(
     42,
@@ -220,7 +367,7 @@ export function createWorld(
   scene.add(ambient, key, fill, rim);
 
   const groundMat = new THREE.MeshStandardMaterial({
-    color: 0x6f9a72,
+    color: desert ? 0xd6b183 : 0x6f9a72,
     roughness: 0.96,
     metalness: 0.02,
   });
@@ -353,7 +500,7 @@ export function createWorld(
   const trail: TrailBit[] = [];
   const trailGeo = new THREE.CircleGeometry(0.08, 8);
   const trailMat = new THREE.MeshBasicMaterial({
-    color: 0xffc9d8,
+    color: desert ? 0xdec49a : 0xffc9d8,
     transparent: true,
     opacity: 0.7,
     depthWrite: false,
@@ -361,12 +508,12 @@ export function createWorld(
   let trailAcc = 0;
 
   let dayBlend = 0.55; // 0 night → 1 day
-  const dayColor = new THREE.Color(0x7fa888);
-  const duskColor = new THREE.Color(0xb08a6a);
-  const nightColor = new THREE.Color(0x2a3548);
-  const fogDay = new THREE.Color(0x8fb396);
-  const fogDusk = new THREE.Color(0xb89a7c);
-  const fogNight = new THREE.Color(0x243044);
+  const dayColor = new THREE.Color(desert ? 0xd8ae7e : 0x7fa888);
+  const duskColor = new THREE.Color(desert ? 0xc08a5c : 0xb08a6a);
+  const nightColor = new THREE.Color(desert ? 0x3a2f3c : 0x2a3548);
+  const fogDay = new THREE.Color(desert ? 0xd3a877 : 0x8fb396);
+  const fogDusk = new THREE.Color(desert ? 0xc59468 : 0xb89a7c);
+  const fogNight = new THREE.Color(desert ? 0x453648 : 0x243044);
   const tmpColor = new THREE.Color();
 
   const applyDayNight = () => {
@@ -382,11 +529,11 @@ export function createWorld(
       if (dayBlend > 0.55) {
         const t = (dayBlend - 0.55) / 0.45;
         scene.fog.color.copy(fogDusk).lerp(fogDay, t);
-        scene.fog.density = 0.02;
+        scene.fog.density = desert ? 0.028 : 0.02;
       } else {
         const t = dayBlend / 0.55;
         scene.fog.color.copy(fogNight).lerp(fogDusk, t);
-        scene.fog.density = 0.028;
+        scene.fog.density = desert ? 0.034 : 0.028;
       }
     }
     ambient.intensity = 0.35 + dayBlend * 0.7;
@@ -395,25 +542,43 @@ export function createWorld(
     moon.visible = dayBlend < 0.72;
     (moon.material as THREE.MeshStandardMaterial).emissiveIntensity =
       0.25 + (1 - dayBlend) * 0.55;
-    groundMat.color.set(dayBlend < 0.4 ? 0x3f5a48 : 0x6f9a72);
+    if (desert) {
+      groundMat.color.set(dayBlend < 0.4 ? 0x8a6f52 : 0xd6b183);
+    } else {
+      groundMat.color.set(dayBlend < 0.4 ? 0x3f5a48 : 0x6f9a72);
+    }
   };
 
   const rand = mulberry32(11);
 
-  // Decorative flowers everywhere (not interactive)
-  const flowerColors = [0xf2d6e0, 0xf7e2a8, 0xe8c4d4, 0xd9ecb8, 0xffd9c8, 0xe4d4f0, 0xf0c8b8, 0xc8e4f0];
-  for (let i = 0; i < 170; i++) {
-    const angle = rand() * Math.PI * 2;
-    const radius = 2.0 + rand() * 19;
-    const f = makeFlower(
-      0.5 + rand() * 0.85,
-      flowerColors[i % flowerColors.length],
-      0xf0d878,
-      false,
-    );
-    f.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-    f.rotation.y = rand() * Math.PI;
-    scene.add(f);
+  // Decorative vegetation everywhere (not interactive)
+  if (desert) {
+    for (let i = 0; i < 130; i++) {
+      const angle = rand() * Math.PI * 2;
+      const radius = 2.0 + rand() * 19;
+      const plant =
+        i % 6 === 0
+          ? makeCactus(0.7 + rand() * 0.8)
+          : makeDesertShrub(0.6 + rand() * 0.9, false);
+      plant.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+      plant.rotation.y = rand() * Math.PI;
+      scene.add(plant);
+    }
+  } else {
+    const flowerColors = [0xf2d6e0, 0xf7e2a8, 0xe8c4d4, 0xd9ecb8, 0xffd9c8, 0xe4d4f0, 0xf0c8b8, 0xc8e4f0];
+    for (let i = 0; i < 170; i++) {
+      const angle = rand() * Math.PI * 2;
+      const radius = 2.0 + rand() * 19;
+      const f = makeFlower(
+        0.5 + rand() * 0.85,
+        flowerColors[i % flowerColors.length],
+        0xf0d878,
+        false,
+      );
+      f.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+      f.rotation.y = rand() * Math.PI;
+      scene.add(f);
+    }
   }
 
   // Falling sakura petals
@@ -431,11 +596,12 @@ export function createWorld(
     "position",
     new THREE.BufferAttribute(petalPositions, 3),
   );
+  // Garden: falling sakura petals · Desert: low drifting dust
   const petalMat = new THREE.PointsMaterial({
-    color: 0xffc9d8,
-    size: 0.11,
+    color: desert ? 0xe0c290 : 0xffc9d8,
+    size: desert ? 0.09 : 0.11,
     transparent: true,
-    opacity: 0.85,
+    opacity: desert ? 0.55 : 0.85,
     depthWrite: false,
     sizeAttenuation: true,
   });
@@ -456,7 +622,7 @@ export function createWorld(
   const fireGeo = new THREE.BufferGeometry();
   fireGeo.setAttribute("position", new THREE.BufferAttribute(firePos, 3));
   const fireMat = new THREE.PointsMaterial({
-    color: 0xe8ff9a,
+    color: desert ? 0xffd9a0 : 0xe8ff9a,
     size: 0.14,
     transparent: true,
     opacity: 0.9,
@@ -525,7 +691,7 @@ export function createWorld(
     const hitObjects: THREE.Object3D[] = [];
 
     if (data.kind === "sakura") {
-      const tree = makeSakuraTree();
+      const tree = desert ? makePyramid(true) : makeSakuraTree();
       group.add(tree);
       tree.traverse((obj) => {
         if ((obj as THREE.Mesh).isMesh) {
@@ -536,7 +702,9 @@ export function createWorld(
         }
       });
     } else {
-      const flower = makeFlower(1.35, 0xffb7d0, 0xfff0a8, true);
+      const flower = desert
+        ? makeDesertShrub(1.5, true)
+        : makeFlower(1.35, 0xffb7d0, 0xfff0a8, true);
       group.add(flower);
       flower.traverse((obj) => {
         if ((obj as THREE.Mesh).isMesh) {
@@ -561,27 +729,49 @@ export function createWorld(
     quoteById.set(data.id, qm);
   }
 
-  // Extra decorative sakura (non-interactive)
-  for (let i = 0; i < 14; i++) {
-    const tree = makeSakuraTree();
-    const a = (i / 14) * Math.PI * 2 + 0.35;
-    const r = 12.5 + (i % 4) * 1.4;
-    tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
-    tree.scale.setScalar(0.75 + (i % 4) * 0.12);
-    tree.rotation.y = rand() * Math.PI;
-    scene.add(tree);
+  if (desert) {
+    // Grand distant pyramids on the horizon
+    for (let i = 0; i < 6; i++) {
+      const pyr = makePyramid(false);
+      const a = (i / 6) * Math.PI * 2 + 0.55;
+      const r = 14.5 + (i % 3) * 2.2;
+      pyr.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      pyr.scale.setScalar(1.6 + (i % 3) * 0.7);
+      pyr.rotation.y = rand() * Math.PI;
+      scene.add(pyr);
+    }
+    // Cactus ring near the path
+    for (let i = 0; i < 8; i++) {
+      const cactus = makeCactus(0.9 + (i % 3) * 0.25);
+      const a = (i / 8) * Math.PI * 2;
+      cactus.position.set(Math.cos(a) * 5.8, 0, Math.sin(a) * 5.8);
+      scene.add(cactus);
+    }
+  } else {
+    // Extra decorative sakura (non-interactive)
+    for (let i = 0; i < 14; i++) {
+      const tree = makeSakuraTree();
+      const a = (i / 14) * Math.PI * 2 + 0.35;
+      const r = 12.5 + (i % 4) * 1.4;
+      tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      tree.scale.setScalar(0.75 + (i % 4) * 0.12);
+      tree.rotation.y = rand() * Math.PI;
+      scene.add(tree);
+    }
+
+    // Meadow clusters of small trees near the ring
+    for (let i = 0; i < 8; i++) {
+      const tree = makeSakuraTree();
+      const a = (i / 8) * Math.PI * 2;
+      tree.position.set(Math.cos(a) * 5.8, 0, Math.sin(a) * 5.8);
+      tree.scale.setScalar(0.55 + (i % 3) * 0.08);
+      scene.add(tree);
+    }
   }
 
-  // Meadow clusters of small trees near the ring
-  for (let i = 0; i < 8; i++) {
-    const tree = makeSakuraTree();
-    const a = (i / 8) * Math.PI * 2;
-    tree.position.set(Math.cos(a) * 5.8, 0, Math.sin(a) * 5.8);
-    tree.scale.setScalar(0.55 + (i % 3) * 0.08);
-    scene.add(tree);
-  }
-
-  const hero = createOverworldHero("girl");
+  const hero = options.vehicle
+    ? createCarHero()
+    : createOverworldHero("girl");
   hero.group.position.set(0, 0, 6.5);
   scene.add(hero.group);
 
@@ -604,10 +794,10 @@ export function createWorld(
       bx = Math.cos(a) * r;
       bz = Math.sin(a) * r;
     }
-    const bee = createBee(bx, bz, i * 1.7);
+    const bee = desert ? createScorpion(bx, bz, i * 1.7) : createBee(bx, bz, i * 1.7);
     if (touchFriendly) {
       bee.speed *= 0.88;
-      bee.sprite.scale.set(0.7, 0.7, 1);
+      bee.sprite.scale.multiplyScalar(0.9);
     }
     bee.tx = THREE.MathUtils.clamp(bx + (rand() - 0.5) * 5, -BEE_BOUND, BEE_BOUND);
     bee.tz = THREE.MathUtils.clamp(bz + (rand() - 0.5) * 5, -BEE_BOUND, BEE_BOUND);
@@ -660,8 +850,8 @@ export function createWorld(
   const pointer = new THREE.Vector2();
 
   const BOUND = 20;
-  const WALK_SPEED = 3.2;
-  const RUN_SPEED = 5.4;
+  const WALK_SPEED = options.vehicle ? 4.4 : 3.2;
+  const RUN_SPEED = options.vehicle ? 7.2 : 5.4;
 
   // Pokémon-style overworld camera: high and tilted down
   const syncCamera = () => {
@@ -1159,7 +1349,9 @@ export function createWorld(
             bee.x += (dx / dist) * step;
             bee.z += (dz / dist) * step;
           }
-          bee.y = 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
+          bee.y = desert
+            ? 0.12 + Math.sin(t * 5 + bee.phase) * 0.02
+            : 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
           bee.group.position.set(bee.x, bee.y, bee.z);
           flapBee(bee, t);
 
@@ -1188,9 +1380,11 @@ export function createWorld(
         }
       }
     } else {
-      // Keep bees animated even when player is gated / after sting
+      // Keep creatures animated even when player is gated / after sting
       for (const bee of bees) {
-        bee.y = 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
+        bee.y = desert
+          ? 0.12 + Math.sin(t * 5 + bee.phase) * 0.02
+          : 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
         bee.group.position.set(bee.x, bee.y, bee.z);
         flapBee(bee, t);
       }
@@ -1328,13 +1522,25 @@ export function createWorld(
     }
 
     const pos = petalGeo.attributes.position as THREE.BufferAttribute;
-    for (let i = 0; i < PETAL_COUNT; i++) {
-      let y = pos.getY(i) + (0.35 + (i % 5) * 0.05) * dt * drift;
-      if (y > 9) y = 0.2;
-      const x =
-        petalPositions[i * 3] +
-        Math.sin(t * 0.35 + petalPhase[i]) * 0.02 * drift;
-      pos.setXYZ(i, x, y, petalPositions[i * 3 + 2]);
+    if (desert) {
+      // Low dust storm: particles hug the ground and stream sideways
+      for (let i = 0; i < PETAL_COUNT; i++) {
+        let x = pos.getX(i) + (0.9 + (i % 5) * 0.28) * dt * drift;
+        if (x > 20) x = -20;
+        const y =
+          0.15 +
+          Math.abs(Math.sin(t * 0.8 + petalPhase[i])) * (0.3 + (i % 4) * 0.22);
+        pos.setXYZ(i, x, y, petalPositions[i * 3 + 2]);
+      }
+    } else {
+      for (let i = 0; i < PETAL_COUNT; i++) {
+        let y = pos.getY(i) + (0.35 + (i % 5) * 0.05) * dt * drift;
+        if (y > 9) y = 0.2;
+        const x =
+          petalPositions[i * 3] +
+          Math.sin(t * 0.35 + petalPhase[i]) * 0.02 * drift;
+        pos.setXYZ(i, x, y, petalPositions[i * 3 + 2]);
+      }
     }
     pos.needsUpdate = true;
 

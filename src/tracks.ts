@@ -12,6 +12,56 @@ export type Track = {
 export const TRACK_STORAGE_KEY = "if-you-knew-me-track-v2";
 export const DEFAULT_TRACK_ID = "shesh-bikele";
 
+/** Nepali songs for Chapter 2 — the desert. */
+export const NEPALI_TRACKS: Track[] = [
+  {
+    id: "chithi-bhitra",
+    title: "Chitthi Bhitra",
+    artist: "Sajjan Raj Vaidya",
+    youtubeId: "GrlAInfP990",
+    spotifyUrl:
+      "https://open.spotify.com/search/Chitthi%20Bhitra%20Sajjan%20Raj%20Vaidya",
+  },
+  {
+    id: "lakhau-hajarau",
+    title: "Lakhau Hajarau",
+    artist: "Yabesh Thapa",
+    youtubeId: "TgchKIbo5uw",
+    spotifyUrl:
+      "https://open.spotify.com/search/Lakhau%20Hajarau%20Yabesh%20Thapa",
+  },
+  {
+    id: "parkhaai",
+    title: "Parkhaai",
+    artist: "Sajjan Raj Vaidya",
+    youtubeId: "Y3bDy6FTgMY",
+    spotifyUrl:
+      "https://open.spotify.com/search/Parkhaai%20Sajjan%20Raj%20Vaidya",
+  },
+  {
+    id: "firfirey",
+    title: "Firfirey",
+    artist: "Yabesh Thapa",
+    youtubeId: "9-KMqHAGlu0",
+    spotifyUrl: "https://open.spotify.com/search/Firfirey%20Yabesh%20Thapa",
+  },
+  {
+    id: "muskuraye",
+    title: "Muskuraye",
+    artist: "Yabesh Thapa",
+    youtubeId: "Ryk8iXMxJjc",
+    spotifyUrl: "https://open.spotify.com/search/Muskuraye%20Yabesh%20Thapa",
+  },
+  {
+    id: "hawaijahaj",
+    title: "Hawaijahaj",
+    artist: "Sajjan Raj Vaidya",
+    youtubeId: "Kni9OFsh8UM",
+    spotifyUrl:
+      "https://open.spotify.com/search/Hawaijahaj%20Sajjan%20Raj%20Vaidya",
+  },
+];
+
 export const TRACKS: Track[] = [
   {
     id: "shesh-bikele",
@@ -135,6 +185,7 @@ export const TRACKS: Track[] = [
     spotifyId: "4uqrDdawq9ZR7YCOSghfAx",
     spotifyUrl: "https://open.spotify.com/track/4uqrDdawq9ZR7YCOSghfAx",
   },
+  ...NEPALI_TRACKS,
 ];
 
 export function getTrackById(id: string | null | undefined): Track {

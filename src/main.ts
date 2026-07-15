@@ -5,6 +5,7 @@ import { poetQuotes } from "./quotes";
 import { createMusic } from "./audio";
 import { createAmbient } from "./ambient";
 import {
+  DEFAULT_TRACK_ID,
   TRACKS,
   getTrackById,
   loadSavedTrackId,
@@ -22,7 +23,14 @@ import {
 } from "./spotifyFull";
 import { clearGardenSave } from "./progress";
 import { pickQuote, sendMotivationEmail } from "./motivation";
-import { playEpisode, EPISODE_ONE, EPISODE_FINAL, BOY_NAME } from "./story";
+import {
+  playEpisode,
+  EPISODE_ONE,
+  EPISODE_FINAL,
+  EPISODE_DESERT_MEET,
+  EPISODE_DESERT_FINAL,
+  BOY_NAME,
+} from "./story";
 import {
   fetchWeather,
   formatLocalDate,
@@ -385,38 +393,48 @@ const openLetterbox = () => {
   window.setTimeout(() => herNote.focus(), 50);
 };
 
-// Boy (রংধনু) story arc — per-run flags; a sting restarts the whole tale.
-let episodeOnePlayed = false;
+// Boy (রংধনু) story arc — per-run flags; a sting restarts the chapter.
+const CHAPTER_KEY = "if-you-knew-me-chapter";
+let chapter: 1 | 2 = 1;
+let episodeMeetPlayed = false;
 let finalEpisodePlayed = false;
 let cutscenePlaying = false;
+let pendingChapter2 = false;
 
 const runEpisode = async (
   episode: typeof EPISODE_ONE,
   after: () => void,
+  onCue?: (cue: string) => void,
 ) => {
   if (cutscenePlaying) return;
   cutscenePlaying = true;
   note.classList.add("is-hidden");
   delete note.dataset.source;
   world.disable();
-  await playEpisode(episode);
+  await playEpisode(episode, onCue);
   cutscenePlaying = false;
   world.enable();
   after();
 };
 
 const maybeStartStory = (faithCoins: number, totalQuotes: number) => {
-  if (!episodeOnePlayed && faithCoins >= 3) {
-    episodeOnePlayed = true;
+  if (!episodeMeetPlayed && faithCoins >= 3) {
+    episodeMeetPlayed = true;
     window.setTimeout(() => {
-      void runEpisode(EPISODE_ONE, () => {
-        compass.textContent = `${BOY_NAME}কে খুঁজতে সব ফেইথ কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`;
-      });
+      void runEpisode(
+        chapter === 1 ? EPISODE_ONE : EPISODE_DESERT_MEET,
+        () => {
+          compass.textContent =
+            chapter === 1
+              ? `${BOY_NAME}কে খুঁজতে সব ফেইথ কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`
+              : `${BOY_NAME} পিরামিডে ফিরে গেছে — মরুর সব ফেইথ কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`;
+        },
+      );
     }, 1500);
   }
 };
 
-const world = createWorld(canvas, {
+const worldCallbacks: Parameters<typeof createWorld>[1] = {
   onDiscover(item, foundCount) {
     foundEl.textContent = String(foundCount);
     showNote(item.title, item.text, "letter");
@@ -425,6 +443,10 @@ const world = createWorld(canvas, {
       foundCount >= discoveries.length
         ? "চিঠিগুলো পড়া হয়েছে — ফুল ও চেরি গাছও ছুঁয়ে দেখো"
         : "A letter noticed—another light may be near.";
+    if (chapter === 2 && foundCount >= discoveries.length) {
+      compass.textContent =
+        "চিঠিগুলো পড়া হয়েছে — ঝোপ আর পিরামিডও ছুঁয়ে দেখো";
+    }
   },
   onQuote(quote, info) {
     showNote(quote.poet, quote.text, "quote");
@@ -440,6 +462,9 @@ const world = createWorld(canvas, {
     } else {
       compass.textContent = "কবিতার ফুল ও চেরিগাছ ছুঁয়ে আরও পড়ো";
     }
+    if (!info.isNew && chapter === 2) {
+      compass.textContent = "মরুর ঝোপ ও পিরামিড ছুঁয়ে আরও পড়ো";
+    }
   },
   onQuoteAway() {
     if (note.dataset.source !== "quote") return;
@@ -448,28 +473,53 @@ const world = createWorld(canvas, {
     setIdleCompass();
   },
   onShelterProtect() {
-    if (!note.classList.contains("is-hidden") && note.dataset.source === "quote") {
-      compass.textContent = "Shelter holds—the bee turns away.";
-      return;
-    }
-    compass.textContent = "Shelter holds—the bee turns away.";
+    compass.textContent =
+      chapter === 1
+        ? "Shelter holds—the bee turns away."
+        : "Shelter holds—the scorpion turns away.";
   },
   onConstellationComplete() {
     if (finalEpisodePlayed) return;
     finalEpisodePlayed = true;
     world.lookAtConstellation();
+    const finaleLines = finale.querySelectorAll("p");
     window.setTimeout(() => {
-      void runEpisode(EPISODE_FINAL, () => {
-        compass.textContent =
-          "সে নেই—তবু পথ থামে না। অভিমান সঙ্গে নিয়েই এগিয়ে চলো।";
-        const finaleLines = finale.querySelectorAll("p");
-        if (finaleLines[0])
-          finaleLines[0].textContent = "সে চলে গেছে—চিরদিনের মতো।";
-        if (finaleLines[1])
-          finaleLines[1].textContent =
-            "বহ্নি অভিমানটুকু বুকে নিয়েই এগিয়ে যাবে। — শেষ";
-        finale.classList.remove("is-hidden");
-      });
+      if (chapter === 1) {
+        void runEpisode(EPISODE_FINAL, () => {
+          compass.textContent =
+            "সে হারায়নি — মরুভূমির ওপারে তার ছায়া দেখা গেছে।";
+          if (finaleLines[0])
+            finaleLines[0].textContent = "সে বাতাসে মিলিয়ে গেছে…";
+          if (finaleLines[1])
+            finaleLines[1].textContent =
+              "কিন্তু বহ্নি জানে—সে হারায়নি। মরুভূমি ডাকছে।";
+          pendingChapter2 = true;
+          finaleContinue.textContent = "অধ্যায় ২ — মরুভূমিতে চলো ▸";
+          finale.classList.remove("is-hidden");
+        });
+      } else {
+        void runEpisode(
+          EPISODE_DESERT_FINAL,
+          () => {
+            compass.textContent =
+              "সে আবার হারিয়েছে—তবু বহ্নি ভাগ্যের পথেই চলবে।";
+            if (finaleLines[0])
+              finaleLines[0].textContent =
+                "লাখো-হাজারের ভিড়েও, সেই হাসিটুকুই থেকে গেল।";
+            if (finaleLines[1])
+              finaleLines[1].textContent =
+                "বহ্নি এগিয়ে যাবে—যতবার সে হারায়, ততবার খুঁজবে। — শেষ";
+            finaleContinue.textContent = "Leave a quiet line";
+            finale.classList.remove("is-hidden");
+            // Story complete — a fresh visit starts again from Chapter 1
+            sessionStorage.removeItem(CHAPTER_KEY);
+            saveTrackId(DEFAULT_TRACK_ID);
+          },
+          (cue) => {
+            if (cue === "lakhau") void selectTrack("lakhau-hajarau");
+          },
+        );
+      }
     }, 2600);
   },
   onComplete() {
@@ -484,14 +534,22 @@ const world = createWorld(canvas, {
     }
   },
   onDeath() {
-    compass.textContent = "A bee stung you—starting over…";
+    const sting =
+      chapter === 1
+        ? "A bee stung you—starting over…"
+        : "A scorpion stung you—starting the desert over…";
+    compass.textContent = sting;
+    deathToast.textContent = sting;
     deathToast.classList.remove("is-hidden");
     window.setTimeout(() => {
       clearGardenSave();
       window.location.reload();
     }, 1600);
   },
-});
+};
+
+let worldCanvas: HTMLCanvasElement = canvas;
+let world = createWorld(worldCanvas, worldCallbacks);
 
 const refreshQuietUi = () => {
   const progress = world.getProgress();
@@ -643,6 +701,10 @@ const openGarden = () => {
     hud.classList.remove("is-hidden");
     world.enable();
     showMotivation();
+    // A scorpion sting reloads the page mid-desert; resume Chapter 2 directly.
+    if (sessionStorage.getItem(CHAPTER_KEY) === "2") {
+      startChapter2();
+    }
   }, 1200);
 };
 
@@ -688,6 +750,38 @@ const selectTrack = async (trackId: string) => {
   } catch (err) {
     console.warn("Track switch failed:", err);
   }
+};
+
+/** Chapter 2 — the desert. She drives; scorpions crawl; pyramids hum. */
+const startChapter2 = () => {
+  chapter = 2;
+  sessionStorage.setItem(CHAPTER_KEY, "2");
+  pendingChapter2 = false;
+  episodeMeetPlayed = false;
+  finalEpisodePlayed = false;
+  finale.classList.add("is-hidden");
+  note.classList.add("is-hidden");
+  delete note.dataset.source;
+  document.body.classList.add("is-desert");
+
+  world.destroy();
+  clearGardenSave();
+  // Fresh canvas: safest way to boot a second WebGL world
+  const fresh = worldCanvas.cloneNode(false) as HTMLCanvasElement;
+  worldCanvas.replaceWith(fresh);
+  worldCanvas = fresh;
+  world = createWorld(worldCanvas, worldCallbacks, {
+    theme: "desert",
+    vehicle: true,
+  });
+  foundEl.textContent = "0";
+  faithCoinsEl.textContent = "0";
+  refreshJournal();
+  refreshQuietUi();
+  world.enable();
+  compass.textContent =
+    "অধ্যায় ২ — মরুভূমি: ঝোপ, ক্যাকটাস আর পিরামিড ছুঁয়ে দেখো";
+  void selectTrack("chithi-bhitra");
 };
 
 const onTrackListClick = (e: Event) => {
@@ -825,6 +919,10 @@ noteClose.addEventListener("click", () => {
 
 finaleContinue.addEventListener("click", (e) => {
   e.stopPropagation();
+  if (pendingChapter2) {
+    startChapter2();
+    return;
+  }
   openLetterbox();
 });
 
