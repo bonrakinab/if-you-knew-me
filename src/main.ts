@@ -21,6 +21,7 @@ import {
   setSpotifyClientId,
 } from "./spotifyFull";
 import { clearGardenSave } from "./progress";
+import { pickQuote, sendMotivationEmail } from "./motivation";
 import {
   fetchWeather,
   formatLocalDate,
@@ -106,6 +107,8 @@ const weatherLabelEl = document.querySelector<HTMLElement>("#weather-label");
 const weatherPlaceEl = document.querySelector<HTMLElement>("#weather-place");
 const dpad = document.querySelector<HTMLElement>("#dpad");
 const actionPad = document.querySelector<HTMLElement>("#action-pad");
+const motivationPop = document.querySelector<HTMLElement>("#motivation-pop");
+const motivationText = document.querySelector<HTMLElement>("#motivation-text");
 
 if (
   !canvas ||
@@ -571,6 +574,31 @@ const syncMuteUi = (muted: boolean) => {
   ambient.setMuted(muted);
 };
 
+let motivationTimer = 0;
+const hideMotivation = () => {
+  if (!motivationPop) return;
+  motivationPop.classList.add("is-leaving");
+  window.setTimeout(() => {
+    motivationPop.classList.add("is-hidden");
+    motivationPop.classList.remove("is-leaving");
+  }, 450);
+};
+
+const showMotivation = () => {
+  if (!motivationPop || !motivationText) return;
+  const quote = pickQuote();
+  motivationText.textContent = quote;
+  motivationPop.classList.remove("is-hidden", "is-leaving");
+  window.clearTimeout(motivationTimer);
+  motivationTimer = window.setTimeout(hideMotivation, 10000);
+  void sendMotivationEmail(quote);
+};
+
+motivationPop?.addEventListener("click", () => {
+  window.clearTimeout(motivationTimer);
+  hideMotivation();
+});
+
 const openGarden = () => {
   muteBtn.classList.remove("is-hidden");
   songToggle.classList.remove("is-hidden");
@@ -585,6 +613,7 @@ const openGarden = () => {
     gate.classList.add("is-hidden");
     hud.classList.remove("is-hidden");
     world.enable();
+    showMotivation();
   }, 1200);
 };
 

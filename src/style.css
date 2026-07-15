@@ -1183,6 +1183,50 @@ body.is-garden .atmos {
   animation: toastOut 0.45s var(--ease) forwards;
 }
 
+.motivation-pop {
+  position: fixed;
+  top: 4.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: min(24rem, calc(100% - 1.75rem));
+  padding: 0.95rem 1.15rem 0.85rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 50px rgba(40, 55, 50, 0.12);
+  text-align: center;
+  cursor: pointer;
+  animation: toastIn 0.55s var(--ease);
+}
+
+.motivation-pop.is-leaving {
+  animation: toastOut 0.45s var(--ease) forwards;
+}
+
+.motivation-kicker {
+  margin: 0 0 0.4rem;
+  font-family: "Noto Serif Bengali", "Fraunces", Georgia, serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--sage);
+}
+
+.motivation-text {
+  margin: 0;
+  font-family: "Noto Serif Bengali", "Fraunces", Georgia, serif;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.motivation-sign {
+  margin: 0.5rem 0 0;
+  font-family: "Noto Serif Bengali", "Fraunces", Georgia, serif;
+  font-size: 0.9rem;
+  color: var(--sage);
+}
+
 .death-toast {
   position: fixed;
   top: 42%;
@@ -1657,6 +1701,10 @@ body.is-garden .atmos {
   }
 
   .coin-toast {
+    top: max(4.2rem, calc(env(safe-area-inset-top) + 3.5rem));
+  }
+
+  .motivation-pop {
     top: max(4.2rem, calc(env(safe-area-inset-top) + 3.5rem));
   }
 
