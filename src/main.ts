@@ -191,7 +191,8 @@ if (
 }
 
 const NOTE_KEY = "if-you-knew-me-letter";
-const DEFAULT_COMPASS = "চিঠির আলো, জ্বলন্ত ফুল, চেরিগাছ — ঘুরে দেখো";
+const DEFAULT_COMPASS =
+  "সোনালি আলোর স্তম্ভ খোঁজো — ওখানেই ফেইথ কয়েন লুকিয়ে আছে";
 let weatherWhisper = DEFAULT_COMPASS;
 
 const whisperFor = (kind: WeatherKind, hour: number): string => {

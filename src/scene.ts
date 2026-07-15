@@ -647,6 +647,11 @@ export function createWorld(
     collected: boolean;
     shelter: boolean;
     shelterRing: THREE.Mesh | null;
+    /** Golden clue beacon shown until the coin is collected. */
+    beacon: THREE.Group | null;
+    beaconCoin: THREE.Mesh | null;
+    beaconBeamMat: THREE.MeshBasicMaterial | null;
+    beaconCoinY: number;
   };
 
   const markers: Marker[] = [];
@@ -717,6 +722,49 @@ export function createWorld(
     }
 
     scene.add(group);
+
+    // Golden clue beacon: a light pillar + floating coin, visible from afar
+    const coinY = data.kind === "sakura" ? 3.6 : 2.0;
+    const beacon = new THREE.Group();
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0xffd777,
+      transparent: true,
+      opacity: 0.3,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.055, 0.2, 7, 10, 1, true),
+      beamMat,
+    );
+    beam.position.y = coinY + 3.2;
+    beacon.add(beam);
+    const beaconCoin = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.2, 0.2, 0.05, 20),
+      new THREE.MeshStandardMaterial({
+        color: 0xffd35e,
+        emissive: 0xffbe3d,
+        emissiveIntensity: 0.85,
+        roughness: 0.3,
+        metalness: 0.4,
+      }),
+    );
+    beaconCoin.rotation.z = Math.PI / 2;
+    beaconCoin.position.y = coinY;
+    beacon.add(beaconCoin);
+    const coinHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(0.34, 14, 14),
+      new THREE.MeshBasicMaterial({
+        color: 0xffe9b0,
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+      }),
+    );
+    coinHalo.position.y = coinY;
+    beacon.add(coinHalo);
+    group.add(beacon);
+
     const qm: QuoteMarker = {
       data,
       group,
@@ -724,6 +772,10 @@ export function createWorld(
       collected: false,
       shelter: false,
       shelterRing: null,
+      beacon,
+      beaconCoin,
+      beaconBeamMat: beamMat,
+      beaconCoinY: coinY,
     };
     quoteMarkers.push(qm);
     quoteById.set(data.id, qm);
@@ -930,6 +982,36 @@ export function createWorld(
   let nearbyQuoteId: string | null = null;
   let lastShelterProtectAt = 0;
 
+  // Golden burst when a coin is collected
+  type Burst = { mesh: THREE.Mesh; life: number };
+  const bursts: Burst[] = [];
+  const burstGeo = new THREE.RingGeometry(0.3, 0.42, 32);
+
+  const spawnCoinBurst = (x: number, y: number, z: number) => {
+    const mesh = new THREE.Mesh(
+      burstGeo,
+      new THREE.MeshBasicMaterial({
+        color: 0xffd35e,
+        transparent: true,
+        opacity: 0.95,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      }),
+    );
+    mesh.position.set(x, y, z);
+    mesh.rotation.x = -Math.PI / 2;
+    scene.add(mesh);
+    bursts.push({ mesh, life: 1 });
+  };
+
+  const removeBeacon = (qm: QuoteMarker) => {
+    if (!qm.beacon) return;
+    qm.group.remove(qm.beacon);
+    qm.beacon = null;
+    qm.beaconCoin = null;
+    qm.beaconBeamMat = null;
+  };
+
   const markAsShelter = (qm: QuoteMarker) => {
     if (qm.shelter) return;
     qm.shelter = true;
@@ -962,6 +1044,14 @@ export function createWorld(
       qm.collected = true;
       faithCoins += 1;
       addConstellationStar(faithCoins - 1);
+      if (!silentRestore) {
+        spawnCoinBurst(
+          qm.group.position.x,
+          qm.beaconCoinY,
+          qm.group.position.z,
+        );
+      }
+      removeBeacon(qm);
     }
     markAsShelter(qm);
     if (opts.fromProximity) nearbyQuoteId = qm.data.id;
@@ -1510,6 +1600,32 @@ export function createWorld(
         qm.group.position.y =
           Math.sin(t * 1.4 + qm.group.position.z) * 0.05 * drift;
       }
+      // Spin and pulse the clue beacons
+      if (qm.beaconCoin) {
+        qm.beaconCoin.rotation.y = t * 2.4 + qm.group.position.x;
+        qm.beaconCoin.position.y =
+          qm.beaconCoinY + Math.sin(t * 2 + qm.group.position.z) * 0.09 * drift;
+      }
+      if (qm.beaconBeamMat) {
+        qm.beaconBeamMat.opacity =
+          0.2 + (Math.sin(t * 2.1 + qm.group.position.x) * 0.5 + 0.5) * 0.16;
+      }
+    }
+
+    // Coin-collect bursts: expand and fade
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const b = bursts[i];
+      b.life -= dt * 1.4;
+      b.mesh.scale.setScalar(1 + (1 - b.life) * 5);
+      (b.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(
+        0,
+        b.life,
+      );
+      if (b.life <= 0) {
+        scene.remove(b.mesh);
+        (b.mesh.material as THREE.Material).dispose();
+        bursts.splice(i, 1);
+      }
     }
 
     moon.position.y = 10 + Math.sin(t * 0.2) * 0.15 * drift;
@@ -1630,6 +1746,7 @@ export function createWorld(
         qm.collected = true;
         faithCoins += 1;
         addConstellationStar(faithCoins - 1);
+        removeBeacon(qm);
         markAsShelter(qm);
       }
       for (const tier of save.unlocked ?? []) applyQuietMoment(tier);
