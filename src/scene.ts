@@ -34,6 +34,8 @@ export type WorldProgress = {
 
 export type WorldApi = {
   enable: () => void;
+  /** Freeze player input and bee stings (used during cutscenes). */
+  disable: () => void;
   setHeld: (code: string, down: boolean) => void;
   jump: () => void;
   dance: () => void;
@@ -1362,6 +1364,11 @@ export function createWorld(
   return {
     enable() {
       player.enabled = true;
+    },
+    disable() {
+      player.enabled = false;
+      hasWalkTarget = false;
+      keys.clear();
     },
     setHeld(code: string, down: boolean) {
       if (down) {

@@ -54,12 +54,12 @@ const BOY: Palette = {
   lip: "#a56b5a",
 };
 
-function drawSprite(
+function drawHeroCanvas(
   style: HeroStyle,
   facing: Facing,
   frame: 0 | 1,
   action: HeroAction,
-): THREE.CanvasTexture {
+): HTMLCanvasElement {
   const size = 32;
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -163,12 +163,33 @@ function drawSprite(
     px(ctx, 16, 14 + bob, 1, 1, "#6ec4b8");
   }
 
-  const tex = new THREE.CanvasTexture(canvas);
+  return canvas;
+}
+
+function drawSprite(
+  style: HeroStyle,
+  facing: Facing,
+  frame: 0 | 1,
+  action: HeroAction,
+): THREE.CanvasTexture {
+  const tex = new THREE.CanvasTexture(
+    drawHeroCanvas(style, facing, frame, action),
+  );
   tex.magFilter = THREE.NearestFilter;
   tex.minFilter = THREE.NearestFilter;
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.needsUpdate = true;
   return tex;
+}
+
+/** Data-URL portrait of a hero sprite, for DOM cutscenes. */
+export function heroSpriteUrl(
+  style: HeroStyle,
+  facing: Facing = "down",
+  frame: 0 | 1 = 0,
+  action: HeroAction = "idle",
+): string {
+  return drawHeroCanvas(style, facing, frame, action).toDataURL();
 }
 
 function buildFrames(style: HeroStyle, action: HeroAction): FrameSet {

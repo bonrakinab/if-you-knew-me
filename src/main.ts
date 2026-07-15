@@ -22,6 +22,7 @@ import {
 } from "./spotifyFull";
 import { clearGardenSave } from "./progress";
 import { pickQuote, sendMotivationEmail } from "./motivation";
+import { playEpisode, EPISODE_ONE, EPISODE_FINAL, BOY_NAME } from "./story";
 import {
   fetchWeather,
   formatLocalDate,
@@ -364,12 +365,6 @@ const showFaithCoinToast = () => {
   }, 1600);
 };
 
-const showDedication = (name?: string) => {
-  dedicationOther.textContent = name?.trim() || "তুমি";
-  dedication.classList.remove("is-hidden");
-  window.setTimeout(() => dedication.classList.add("is-hidden"), 4200);
-};
-
 const openLetterbox = () => {
   finale.classList.add("is-hidden");
   letterbox.classList.remove("is-hidden");
@@ -388,6 +383,37 @@ const openLetterbox = () => {
     }
   }
   window.setTimeout(() => herNote.focus(), 50);
+};
+
+// Boy (রংধনু) story arc — per-run flags; a sting restarts the whole tale.
+let episodeOnePlayed = false;
+let finalEpisodePlayed = false;
+let cutscenePlaying = false;
+
+const runEpisode = async (
+  episode: typeof EPISODE_ONE,
+  after: () => void,
+) => {
+  if (cutscenePlaying) return;
+  cutscenePlaying = true;
+  note.classList.add("is-hidden");
+  delete note.dataset.source;
+  world.disable();
+  await playEpisode(episode);
+  cutscenePlaying = false;
+  world.enable();
+  after();
+};
+
+const maybeStartStory = (faithCoins: number, totalQuotes: number) => {
+  if (!episodeOnePlayed && faithCoins >= 3) {
+    episodeOnePlayed = true;
+    window.setTimeout(() => {
+      void runEpisode(EPISODE_ONE, () => {
+        compass.textContent = `${BOY_NAME}কে খুঁজতে সব ফেইথ কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`;
+      });
+    }, 1500);
+  }
 };
 
 const world = createWorld(canvas, {
@@ -410,6 +436,7 @@ const world = createWorld(canvas, {
       coinsRow.classList.add("is-pulse");
       showFaithCoinToast();
       compass.textContent = `Faith coin · star ${info.faithCoins}/${info.totalQuotes}`;
+      maybeStartStory(info.faithCoins, info.totalQuotes);
     } else {
       compass.textContent = "কবিতার ফুল ও চেরিগাছ ছুঁয়ে আরও পড়ো";
     }
@@ -428,20 +455,22 @@ const world = createWorld(canvas, {
     compass.textContent = "Shelter holds—the bee turns away.";
   },
   onConstellationComplete() {
-    const saved = localStorage.getItem(NOTE_KEY);
-    let name = "";
-    if (saved) {
-      try {
-        name = (JSON.parse(saved) as { name?: string }).name || "";
-      } catch {
-        /* ignore */
-      }
-    }
-    world.spawnPartner();
-    showDedication(name);
-    compass.textContent =
-      "He found you—together, notice what remains.";
+    if (finalEpisodePlayed) return;
+    finalEpisodePlayed = true;
     world.lookAtConstellation();
+    window.setTimeout(() => {
+      void runEpisode(EPISODE_FINAL, () => {
+        compass.textContent =
+          "সে নেই—তবু পথ থামে না। অভিমান সঙ্গে নিয়েই এগিয়ে চলো।";
+        const finaleLines = finale.querySelectorAll("p");
+        if (finaleLines[0])
+          finaleLines[0].textContent = "সে চলে গেছে—চিরদিনের মতো।";
+        if (finaleLines[1])
+          finaleLines[1].textContent =
+            "বহ্নি অভিমানটুকু বুকে নিয়েই এগিয়ে যাবে। — শেষ";
+        finale.classList.remove("is-hidden");
+      });
+    }, 2600);
   },
   onComplete() {
     window.setTimeout(() => {
