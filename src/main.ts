@@ -35,7 +35,12 @@ import {
   playFullSpotifyTrack,
   setSpotifyClientId,
 } from "./spotifyFull";
-import { clearGardenSave } from "./progress";
+import {
+  clearChapterReached,
+  clearGardenSave,
+  loadChapterReached,
+  saveChapterReached,
+} from "./progress";
 import { pickQuote, sendMotivationEmail } from "./motivation";
 import {
   playEpisode,
@@ -74,6 +79,7 @@ const noteClose = document.querySelector<HTMLButtonElement>("#note-close");
 const finale = document.querySelector<HTMLElement>("#finale");
 const finaleContinue =
   document.querySelector<HTMLButtonElement>("#finale-continue");
+const finaleSave = document.querySelector<HTMLElement>("#finale-save");
 const dedication = document.querySelector<HTMLElement>("#dedication");
 const dedicationOther = document.querySelector<HTMLElement>("#dedication-other");
 const letterbox = document.querySelector<HTMLElement>("#letterbox");
@@ -231,7 +237,8 @@ if (
   !capsuleBury ||
   !capsuleClose ||
   !capsuleOpenBtn ||
-  !seedCountEl
+  !seedCountEl ||
+  !finaleSave
 ) {
   throw new Error("Missing required UI elements");
 }
@@ -353,6 +360,9 @@ journalToggle.addEventListener("click", () => {
 journalClose.addEventListener("click", () => setJournalOpen(false));
 gardenReset.addEventListener("click", () => {
   clearGardenSave();
+  // Start over means the whole journey — drop the chapter checkpoint too.
+  clearChapterReached();
+  sessionStorage.removeItem(CHAPTER_KEY);
   window.location.reload();
 });
 
@@ -575,10 +585,10 @@ const CHAPTERS: Record<ChapterNum, ChapterSpec> = {
     quoteAgainCompass: "পাথরের লণ্ঠন ও স্তূপ ছুঁয়ে আরও পড়ো",
     shelterText: "Shelter holds—the frost wisp turns away.",
     stingText: "The frost caught you—starting the mountain over…",
-    finalCompass: "গল্প শেষ—তবু এই পৃথিবীগুলো খোলা থাকবে, যতদিন ইচ্ছে।",
+    finalCompass: "স্বপ্নটা ভেঙে গেছে—তবু বহ্নি খুঁজে চলেছে।",
     finaleLines: [
-      "পাঁচ পৃথিবী পেরিয়ে, গল্পটা এবার তোমার।",
-      "বহ্নি জানে—যতবার হারায়, ততবার পাওয়া যায়। — শেষ",
+      "সে ছিল একটা স্বপ্ন—তবু সবচেয়ে সত্যি।",
+      "একটাই সুযোগ—দেরি কখনো হয় না, কিন্তু তা ঘটবে শীঘ্রই। — শেষ",
     ],
     nextLabel: null,
     next: null,
@@ -684,10 +694,15 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
           if (spec.next) {
             pendingNextChapter = spec.next;
             finaleContinue.textContent = spec.nextLabel;
+            // Checkpoint: a future visit resumes at the next chapter
+            saveChapterReached(spec.next);
+            finaleSave.classList.remove("is-hidden");
           } else {
             pendingNextChapter = null;
             finaleContinue.textContent = "Leave a quiet line";
+            finaleSave.classList.add("is-hidden");
             // Story complete — a fresh visit starts again from Chapter 1
+            clearChapterReached();
             sessionStorage.removeItem(CHAPTER_KEY);
             saveTrackId(DEFAULT_TRACK_ID);
           }
@@ -1003,8 +1018,11 @@ const openGarden = () => {
     hud.classList.remove("is-hidden");
     world.enable();
     showMotivation();
-    // A sting reloads the page mid-chapter; resume that chapter directly.
-    const savedChapter = Number(sessionStorage.getItem(CHAPTER_KEY));
+    // Resume: a sting reload continues this chapter (session), and a
+    // fresh visit continues from the last completed chapter (checkpoint).
+    const fromSession = Number(sessionStorage.getItem(CHAPTER_KEY));
+    const savedChapter =
+      fromSession >= 2 && fromSession <= 5 ? fromSession : loadChapterReached();
     if (savedChapter >= 2 && savedChapter <= 5) {
       startChapter(savedChapter as ChapterNum);
     }
@@ -1060,10 +1078,12 @@ const startChapter = (n: ChapterNum) => {
   const spec = CHAPTERS[n];
   chapter = n;
   sessionStorage.setItem(CHAPTER_KEY, String(n));
+  saveChapterReached(n);
   pendingNextChapter = null;
   episodeMeetPlayed = false;
   finalEpisodePlayed = false;
   finale.classList.add("is-hidden");
+  finaleSave.classList.add("is-hidden");
   note.classList.add("is-hidden");
   delete note.dataset.source;
   document.body.classList.remove(

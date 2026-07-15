@@ -2426,3 +2426,14 @@ body.is-mountain::after {
 .capsule-box {
   z-index: 22;
 }
+
+.finale-save {
+  margin: 0.4rem 0 0;
+  font-family: "Noto Serif Bengali", "Newsreader", Georgia, serif;
+  font-size: 0.88rem;
+  color: var(--sage, #6f9a72);
+}
+
+.finale-save.is-hidden {
+  display: none;
+}
