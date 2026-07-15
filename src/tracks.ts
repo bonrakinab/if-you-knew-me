@@ -9,10 +9,55 @@ export type Track = {
   localSrc?: string;
 };
 
-export const TRACK_STORAGE_KEY = "if-you-knew-me-track";
-export const DEFAULT_TRACK_ID = "ami-tomar-moner-vitor";
+export const TRACK_STORAGE_KEY = "if-you-knew-me-track-v2";
+export const DEFAULT_TRACK_ID = "shesh-bikele";
 
 export const TRACKS: Track[] = [
+  {
+    id: "shesh-bikele",
+    title: "Shesh Bikele",
+    artist: "Tajwar",
+    youtubeId: "Qnkfp1vUoVI",
+    spotifyId: "0AynhD61CWFlwEPxrVQqFD",
+    spotifyUrl: "https://open.spotify.com/track/0AynhD61CWFlwEPxrVQqFD",
+  },
+  {
+    id: "mawlana",
+    title: "Mawlana",
+    artist: "Tajwar",
+    youtubeId: "_TZnd9VkeqM",
+    spotifyId: "202Hj8fLIlTRTuPPQNPjt6",
+    spotifyUrl: "https://open.spotify.com/track/202Hj8fLIlTRTuPPQNPjt6",
+  },
+  {
+    id: "ayhay",
+    title: "Ayhay",
+    artist: "Tajwar",
+    youtubeId: "m9jS2_PUAjw",
+    spotifyUrl: "https://open.spotify.com/search/Ayhay%20Tajwar",
+  },
+  {
+    id: "mashallah",
+    title: "Mashallah",
+    artist: "Tajwar",
+    youtubeId: "BHWVQ_jBTGU",
+    spotifyUrl: "https://open.spotify.com/search/Mashallah%20Tajwar",
+  },
+  {
+    id: "dhaka-on-my-mind",
+    title: "Dhaka On My Mind",
+    artist: "Tajwar",
+    youtubeId: "g3Qn4HOVpJQ",
+    spotifyUrl:
+      "https://open.spotify.com/search/Dhaka%20On%20My%20Mind%20Tajwar",
+  },
+  {
+    id: "shojoni",
+    title: "Shojoni",
+    artist: "Shibu & Tajwar",
+    youtubeId: "CGFuvhaaINo",
+    spotifyUrl: "https://open.spotify.com/search/SHOJONI%20Shibu%20Tajwar",
+  },
   {
     id: "ami-tomar-moner-vitor",
     title: "Ami Tomar Moner Vitor",
