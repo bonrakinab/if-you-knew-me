@@ -54,6 +54,8 @@ import {
   EPISODE_ROOFTOP_FINAL,
   EPISODE_MOUNTAIN_MEET,
   EPISODE_MOUNTAIN_FINAL,
+  EPISODE_DREAM_WAKE,
+  EPISODE_BALCONY_END,
   BOY_NAME,
   type Episode,
 } from "./story";
@@ -685,28 +687,39 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
     const spec = chapterSpec();
     const finaleLines = finale.querySelectorAll("p");
     window.setTimeout(() => {
+      const showFinale = () => {
+        compass.textContent = spec.finalCompass;
+        if (finaleLines[0]) finaleLines[0].textContent = spec.finaleLines[0];
+        if (finaleLines[1]) finaleLines[1].textContent = spec.finaleLines[1];
+        if (spec.next) {
+          pendingNextChapter = spec.next;
+          finaleContinue.textContent = spec.nextLabel;
+          // Checkpoint: a future visit resumes at the next chapter
+          saveChapterReached(spec.next);
+          finaleSave.classList.remove("is-hidden");
+        } else {
+          pendingNextChapter = null;
+          finaleContinue.textContent = "Leave a quiet line";
+          finaleSave.classList.add("is-hidden");
+          // Story complete — a fresh visit starts again from Chapter 1
+          clearChapterReached();
+          sessionStorage.removeItem(CHAPTER_KEY);
+          saveTrackId(DEFAULT_TRACK_ID);
+        }
+        finale.classList.remove("is-hidden");
+      };
       void runEpisode(
         spec.final,
         () => {
-          compass.textContent = spec.finalCompass;
-          if (finaleLines[0]) finaleLines[0].textContent = spec.finaleLines[0];
-          if (finaleLines[1]) finaleLines[1].textContent = spec.finaleLines[1];
           if (spec.next) {
-            pendingNextChapter = spec.next;
-            finaleContinue.textContent = spec.nextLabel;
-            // Checkpoint: a future visit resumes at the next chapter
-            saveChapterReached(spec.next);
-            finaleSave.classList.remove("is-hidden");
+            showFinale();
           } else {
-            pendingNextChapter = null;
-            finaleContinue.textContent = "Leave a quiet line";
-            finaleSave.classList.add("is-hidden");
-            // Story complete — a fresh visit starts again from Chapter 1
-            clearChapterReached();
-            sessionStorage.removeItem(CHAPTER_KEY);
-            saveTrackId(DEFAULT_TRACK_ID);
+            // Chapter 5 epilogue: she wakes from the dream, then the
+            // balcony rainbow gives her one last chance before he's gone.
+            void runEpisode(EPISODE_DREAM_WAKE, () => {
+              void runEpisode(EPISODE_BALCONY_END, showFinale);
+            });
           }
-          finale.classList.remove("is-hidden");
         },
         (cue) => {
           if (cue === "lakhau") void selectTrack("lakhau-hajarau");

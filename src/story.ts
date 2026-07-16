@@ -26,16 +26,22 @@ type Shot = {
     | "pyramid"
     | "river"
     | "rooftop"
-    | "mountain";
+    | "mountain"
+    | "bedroom"
+    | "balcony";
   girl?: ActorState | null;
   boy?: ActorState | null;
   speaker?: "girl" | "boy" | "narrator";
   text: string;
   /** Optional smaller subtitle line (e.g. translation). */
   sub?: string;
-  fx?: "petals" | "glow" | "none";
+  fx?: "petals" | "glow" | "none" | "rainbow";
   /** Girl appears as her car instead of on foot. */
   car?: boolean;
+  /** Girl sits up in bed (bedroom frame only). */
+  inBed?: boolean;
+  /** Boy floats / flies in the sky (balcony ending). */
+  flying?: boolean;
   /** Named cue fired when this shot is displayed (e.g. music change). */
   cue?: string;
 };
@@ -442,6 +448,69 @@ export const EPISODE_MONSOON_FINAL: Episode = {
   ],
 };
 
+/**
+ * Chapter 5 epilogue, frame 1: she wakes in bed. The boy was a dream —
+ * she remembers him, but not a word of what he said.
+ */
+export const EPISODE_DREAM_WAKE: Episode = {
+  kicker: "জেগে ওঠা",
+  title: "স্বপ্ন ভাঙার পরে",
+  shots: [
+    {
+      bg: "bedroom",
+      speaker: "narrator",
+      text: "চোখ খুলল—কিন্তু প্রথমে আলো আসেনি। শুধু অন্ধকার আর একটা ভারী শ্বাস।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down", opacity: 0.35 },
+      inBed: true,
+      speaker: "narrator",
+      text: "বিছানা। বালিশ। জানালার ফাঁক দিয়ে সকালের হালকা আভাস।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down", opacity: 0.85 },
+      inBed: true,
+      speaker: "girl",
+      text: "…সে। সে ছিল। এইমাত্র—আমার সামনে দাঁড়িয়ে—কী যেন বলছিল—",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down", opacity: 1 },
+      inBed: true,
+      speaker: "narrator",
+      text: "সব ভুলে গেছে সে। শুধু ছেলেটাকে মনে আছে—তার মুখ, তার চোখ। সে কী বলেছিল, তার একটা শব্দও নয়।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down" },
+      inBed: true,
+      speaker: "girl",
+      text: "শেকল… বিষ… কী যেন—কী বলেছিলে তুমি? মনে করতে পারছি না কেন?",
+    },
+    {
+      bg: "bedroom",
+      speaker: "narrator",
+      text: "বাগান নেই। মরু নেই। নদীগ্রাম, ছাদ, পাহাড়—কিছুই নেই। শুধু এই ঘর, এই বিছানা।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down" },
+      inBed: true,
+      speaker: "narrator",
+      text: "সে খুঁজল—দরজায়, রাস্তায়, প্রতিটি চেনা মুখের ভিড়ে। কোথাও নেই।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "right" },
+      inBed: true,
+      speaker: "narrator",
+      text: "তারপর, জানালার ফাঁকে একটা রঙের আভাস দেখে—সে বারান্দার দিকে পা বাড়াল।",
+    },
+  ],
+};
+
 export const EPISODE_ROOFTOP_MEET: Episode = {
   kicker: "অধ্যায় ৪ · পর্ব ১",
   title: "ঢাকার ছাদে",
@@ -671,24 +740,97 @@ export const EPISODE_MOUNTAIN_FINAL: Episode = {
       text: "কিন্তু সে বাতাসে মিলিয়ে গেল না। মিলিয়ে যাওয়ার কিছু ছিলই না—ছেলেটার অস্তিত্ব বহ্নির একটা স্বপ্ন মাত্র।",
     },
     {
-      bg: "dusk",
-      girl: { x: 50, facing: "down", low: true },
+      bg: "void",
+      speaker: "narrator",
+      text: "আর তারপর—চোখ খুলল।",
+    },
+  ],
+};
+
+/**
+ * Chapter 5 epilogue, frame 2: the balcony. One chance — a familiar
+ * shadow in the sky — and then the boy disappears for good.
+ */
+export const EPISODE_BALCONY_END: Episode = {
+  kicker: "বারান্দায়",
+  title: "একটাই সুযোগ",
+  shots: [
+    {
+      bg: "balcony",
+      girl: { x: 28, facing: "right" },
+      fx: "rainbow",
+      speaker: "narrator",
+      text: "বারান্দায় দাঁড়িয়ে সে আকাশের দিকে তাকাল। বৃষ্টির পর—একটা রংধনু।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 30, facing: "up" },
+      fx: "rainbow",
+      speaker: "girl",
+      text: "রংধনু… তোমার নামটার মতোই।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 28, facing: "up" },
+      boy: { x: 62, facing: "left", opacity: 0.2 },
+      flying: true,
+      fx: "rainbow",
+      speaker: "narrator",
+      text: "আকাশের ওপরে—একটা পরিচিত ছায়া ভাসছে। একটাই সুযোগ—শেষবারের মতো।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 28, facing: "up" },
+      boy: { x: 60, facing: "left", opacity: 0.95 },
+      flying: true,
+      fx: "rainbow",
+      speaker: "girl",
+      text: "তুমি! দাঁড়াও—এবার বলো, সেদিন কী বলেছিলে—",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 30, facing: "up" },
+      boy: { x: 58, facing: "left", opacity: 1 },
+      flying: true,
+      fx: "rainbow",
+      speaker: "boy",
+      text: "That is the end.",
+      sub: "এখানেই শেষ।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 30, facing: "up" },
+      boy: { x: 58, facing: "left", opacity: 0.9 },
+      flying: true,
+      fx: "rainbow",
+      speaker: "boy",
+      text: "If fate wants, we will meet again.",
+      sub: "ভাগ্য চাইলে, আমরা আবার দেখা করব।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 32, facing: "up" },
+      boy: { x: 62, facing: "left", opacity: 0.55 },
+      flying: true,
+      fx: "rainbow",
+      speaker: "boy",
+      text: "Till then…",
+      sub: "ততদিন…",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 34, facing: "up" },
       boy: null,
+      fx: "rainbow",
       speaker: "narrator",
-      text: "ঘুম ভাঙল বহ্নির। সব ভুলে গেছে সে—শুধু ছেলেটাকে মনে আছে; সে কী বলেছিল, তা আর মনে নেই।",
+      text: "একটাই সুযোগ ছিল—আর ছেলেটা হারিয়ে গেল। রংধনু মিলিয়ে গেল আকাশের আলোয়।",
     },
     {
-      bg: "dusk",
-      girl: { x: 50, facing: "up" },
+      bg: "balcony",
+      girl: { x: 34, facing: "up" },
+      fx: "rainbow",
       speaker: "narrator",
-      text: "বাগানে, মরুতে, নদীগ্রামে, ছাদে, পাহাড়ে—সব জায়গায় খুঁজল সে। কোথাও নেই।",
-    },
-    {
-      bg: "stars",
-      girl: { x: 50, facing: "up" },
-      speaker: "narrator",
-      text: "একটাই সুযোগ—তারপর ছেলেটা হারিয়ে যায়। কখনোই খুব দেরি হয় না… কিন্তু সেটা ঘটবে শীঘ্রই। — শেষ",
-      fx: "glow",
+      text: "কখনোই খুব দেরি হয় না… কিন্তু সেটা ঘটবে শীঘ্রই। — শেষ",
     },
   ],
 };
@@ -718,6 +860,18 @@ export function playEpisode(
         <div class="story-fx-petals" aria-hidden="true"></div>
         <div class="story-glow" aria-hidden="true"></div>
         <div class="story-ground" aria-hidden="true"></div>
+        <div class="story-bedroom is-hidden" aria-hidden="true">
+          <div class="story-window"></div>
+          <div class="story-bed">
+            <div class="story-pillow"></div>
+            <div class="story-blanket"></div>
+          </div>
+        </div>
+        <div class="story-balcony is-hidden" aria-hidden="true">
+          <div class="story-rainbow" aria-hidden="true"></div>
+          <div class="story-rail"></div>
+          <div class="story-city"></div>
+        </div>
         <img class="story-actor story-girl" alt="${GIRL_NAME}" />
         <img class="story-actor story-boy" alt="${BOY_NAME}" />
       </div>
@@ -740,8 +894,14 @@ export function playEpisode(
     const scene = overlay.querySelector<HTMLElement>(".story-scene")!;
     const petalHost = overlay.querySelector<HTMLElement>(".story-fx-petals")!;
     const glow = overlay.querySelector<HTMLElement>(".story-glow")!;
+    const ground = overlay.querySelector<HTMLElement>(".story-ground")!;
+    const bedroom = overlay.querySelector<HTMLElement>(".story-bedroom")!;
+    const balcony = overlay.querySelector<HTMLElement>(".story-balcony")!;
+    const rainbow = overlay.querySelector<HTMLElement>(".story-rainbow")!;
     const girlEl = overlay.querySelector<HTMLImageElement>(".story-girl")!;
     const boyEl = overlay.querySelector<HTMLImageElement>(".story-boy")!;
+    const barTop = overlay.querySelector<HTMLElement>(".story-bar-top")!;
+    const barBottom = overlay.querySelector<HTMLElement>(".story-bar-bottom")!;
     const titleCard = overlay.querySelector<HTMLElement>(".story-title-card")!;
     const kickerEl = overlay.querySelector<HTMLElement>(".story-kicker")!;
     const titleEl = overlay.querySelector<HTMLElement>(".story-title")!;
@@ -765,9 +925,14 @@ export function playEpisode(
       el: HTMLImageElement,
       state?: ActorState | null,
       asCar = false,
+      inBed = false,
+      flying = false,
     ) => {
+      el.classList.toggle("is-in-bed", inBed);
+      el.classList.toggle("is-flying", flying && el === boyEl);
       if (!state) {
         el.style.opacity = "0";
+        el.classList.remove("is-flying");
         return;
       }
       el.src =
@@ -781,7 +946,7 @@ export function playEpisode(
             );
       el.style.left = `${state.x}%`;
       el.style.opacity = String(state.opacity ?? 1);
-      el.classList.toggle("is-low", Boolean(state.low));
+      el.classList.toggle("is-low", Boolean(state.low) && !inBed && !flying);
     };
 
     const finishTyping = () => {
@@ -792,11 +957,33 @@ export function playEpisode(
     };
 
     const showShot = (shot: Shot) => {
+      const isBedroom = shot.bg === "bedroom";
+      const isBalcony = shot.bg === "balcony";
+      const realFrame = isBedroom || isBalcony;
       scene.dataset.bg = shot.bg;
-      glow.style.opacity = shot.fx === "glow" ? "1" : "0";
-      petalHost.style.opacity = shot.fx === "petals" ? "1" : "0";
-      applyActor(girlEl, shot.girl, shot.car);
-      applyActor(boyEl, shot.boy);
+      overlay.classList.toggle("is-bedroom-frame", isBedroom);
+      overlay.classList.toggle("is-balcony-frame", isBalcony);
+      bedroom.classList.toggle("is-hidden", !isBedroom);
+      balcony.classList.toggle("is-hidden", !isBalcony);
+      ground.classList.toggle("is-hidden", realFrame);
+      barTop.classList.toggle("is-hidden", realFrame);
+      barBottom.classList.toggle("is-hidden", realFrame);
+      glow.style.opacity =
+        !realFrame && shot.fx === "glow" ? "1" : "0";
+      petalHost.style.opacity =
+        !realFrame && shot.fx === "petals" ? "1" : "0";
+      rainbow.classList.toggle(
+        "is-visible",
+        isBalcony && (shot.fx === "rainbow" || shot.fx === undefined),
+      );
+      applyActor(girlEl, shot.girl, shot.car, shot.inBed, false);
+      applyActor(
+        boyEl,
+        isBedroom ? null : shot.boy,
+        false,
+        false,
+        Boolean(shot.flying),
+      );
       if (shot.cue) onCue?.(shot.cue);
 
       dialogue.classList.remove("is-hidden");

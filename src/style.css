@@ -2083,6 +2083,321 @@ body.is-mountain::after {
   );
 }
 
+/* Bedroom frame — waking from the dream (no letterbox bars) */
+.story-overlay.is-bedroom-frame {
+  background: #1a1520;
+  cursor: pointer;
+}
+
+.story-scene[data-bg="bedroom"] {
+  background: linear-gradient(
+    180deg,
+    #2a2438 0%,
+    #3d3548 35%,
+    #5c4f62 70%,
+    #6b5d72 100%
+  );
+}
+
+.story-bedroom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.story-window {
+  position: absolute;
+  top: 12%;
+  right: 10%;
+  width: min(9rem, 28vw);
+  height: min(7rem, 22vw);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 244, 210, 0.92) 0%,
+    rgba(255, 220, 160, 0.75) 45%,
+    rgba(200, 220, 255, 0.55) 100%
+  );
+  border: 3px solid rgba(60, 50, 70, 0.85);
+  box-shadow:
+    inset 0 0 24px rgba(255, 240, 200, 0.5),
+    0 0 40px rgba(255, 230, 180, 0.25);
+  animation: morningGlow 6s ease-in-out infinite;
+}
+
+.story-window::before,
+.story-window::after {
+  content: "";
+  position: absolute;
+  background: rgba(60, 50, 70, 0.85);
+}
+
+.story-window::before {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  transform: translateX(-50%);
+}
+
+.story-window::after {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform: translateY(-50%);
+}
+
+@keyframes morningGlow {
+  0%,
+  100% {
+    filter: brightness(0.92);
+  }
+  50% {
+    filter: brightness(1.08);
+  }
+}
+
+.story-bed {
+  position: absolute;
+  left: 50%;
+  bottom: 14%;
+  transform: translateX(-50%);
+  width: min(22rem, 78vw);
+  height: min(9rem, 28vw);
+}
+
+.story-pillow {
+  position: absolute;
+  left: 8%;
+  top: 18%;
+  width: 32%;
+  height: 38%;
+  background: linear-gradient(180deg, #f8f0e8 0%, #e8ddd0 100%);
+  border-radius: 40% 40% 20% 20%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.story-blanket {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72%;
+  background: linear-gradient(
+    180deg,
+    #e8a0bd 0%,
+    #d484a8 35%,
+    #c06a94 100%
+  );
+  border-radius: 12px 12px 4px 4px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+.story-blanket::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 18%;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px 12px 0 0;
+}
+
+.story-actor.is-in-bed {
+  bottom: 28% !important;
+  width: clamp(4.5rem, 14vw, 7rem) !important;
+  z-index: 2;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.story-overlay.is-bedroom-frame .story-dialogue {
+  border-color: rgba(232, 160, 189, 0.35);
+  background: rgba(26, 21, 32, 0.88);
+}
+
+/* Balcony ending — rainbow sky, no letterbox bars */
+.story-overlay.is-balcony-frame {
+  background: #7eb8e8;
+  cursor: pointer;
+}
+
+.story-scene[data-bg="balcony"] {
+  background: linear-gradient(
+    180deg,
+    #9fd0f5 0%,
+    #c8e4f8 35%,
+    #e8f2fa 60%,
+    #d4e8c8 85%,
+    #b8d4a0 100%
+  );
+}
+
+.story-balcony {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.story-rainbow {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: min(42rem, 120vw);
+  height: min(22rem, 55vw);
+  transform: translateX(-42%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  background: conic-gradient(
+    from 200deg at 50% 100%,
+    transparent 0deg,
+    transparent 40deg,
+    #e85d5d 48deg,
+    #f0a040 62deg,
+    #f0e050 76deg,
+    #5ecf6a 90deg,
+    #4a9fe0 104deg,
+    #7a5fd4 118deg,
+    transparent 130deg,
+    transparent 360deg
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 90% at 50% 100%,
+    transparent 42%,
+    black 48%,
+    black 58%,
+    transparent 64%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 90% at 50% 100%,
+    transparent 42%,
+    black 48%,
+    black 58%,
+    transparent 64%
+  );
+  filter: saturate(1.15) brightness(1.05);
+}
+
+.story-rainbow.is-visible {
+  opacity: 0.85;
+}
+
+.story-city {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  height: 22%;
+  background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(90, 110, 130, 0.35) 8%,
+      rgba(90, 110, 130, 0.35) 14%,
+      transparent 15%,
+      rgba(70, 95, 115, 0.4) 28%,
+      rgba(70, 95, 115, 0.4) 36%,
+      transparent 37%,
+      rgba(85, 105, 125, 0.3) 55%,
+      rgba(85, 105, 125, 0.3) 62%,
+      transparent 63%,
+      rgba(75, 100, 120, 0.35) 78%,
+      rgba(75, 100, 120, 0.35) 88%,
+      transparent 100%
+    ),
+    linear-gradient(180deg, transparent 40%, rgba(120, 150, 100, 0.45) 100%);
+  clip-path: polygon(
+    0% 100%,
+    0% 55%,
+    6% 55%,
+    6% 30%,
+    12% 30%,
+    12% 55%,
+    22% 55%,
+    22% 20%,
+    30% 20%,
+    30% 55%,
+    42% 55%,
+    42% 40%,
+    50% 40%,
+    50% 55%,
+    60% 55%,
+    60% 25%,
+    70% 25%,
+    70% 55%,
+    82% 55%,
+    82% 35%,
+    92% 35%,
+    92% 55%,
+    100% 55%,
+    100% 100%
+  );
+  opacity: 0.55;
+}
+
+.story-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+  background: linear-gradient(
+    180deg,
+    rgba(180, 160, 140, 0.95) 0%,
+    rgba(140, 120, 100, 1) 40%,
+    rgba(110, 95, 80, 1) 100%
+  );
+  border-top: 4px solid rgba(90, 75, 60, 0.9);
+  box-shadow: inset 0 8px 0 rgba(255, 255, 255, 0.12);
+}
+
+.story-rail::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1.4rem;
+  height: 1.4rem;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(90, 75, 60, 0.85) 0 0.35rem,
+    transparent 0.35rem 3.2rem
+  );
+  border-top: 3px solid rgba(90, 75, 60, 0.9);
+}
+
+.story-actor.is-flying {
+  bottom: 48% !important;
+  width: clamp(4.2rem, 13vw, 6.5rem) !important;
+  z-index: 3;
+  filter: drop-shadow(0 0 18px rgba(180, 214, 255, 0.75))
+    drop-shadow(0 12px 20px rgba(0, 0, 0, 0.25));
+  animation: boyFloat 2.8s ease-in-out infinite;
+}
+
+@keyframes boyFloat {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-0.65rem);
+  }
+}
+
+.story-overlay.is-balcony-frame .story-girl:not(.is-flying) {
+  bottom: 14% !important;
+  z-index: 4;
+}
+
+.story-overlay.is-balcony-frame .story-dialogue {
+  border-color: rgba(120, 180, 220, 0.4);
+  background: rgba(30, 50, 70, 0.78);
+}
+
 .story-ground {
   position: absolute;
   left: 0;
