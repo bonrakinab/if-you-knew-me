@@ -8,7 +8,15 @@ import {
   type Facing,
   type HeroAction,
 } from "./hero";
-import { createBee, createScorpion, flapBee, type Bee } from "./bees";
+import {
+  createArcticFox,
+  createBee,
+  createCrow,
+  createScorpion,
+  createSnake,
+  flapBee,
+  type Bee,
+} from "./bees";
 
 export type WorldCallbacks = {
   onDiscover: (item: Discovery, foundCount: number, total: number) => void;
@@ -314,10 +322,276 @@ function makeSakuraTree(): THREE.Group {
   return tree;
 }
 
+function makeJungleTree(glowing = false): THREE.Group {
+  const tree = new THREE.Group();
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.14, 0.22, 2.8, 8),
+    new THREE.MeshStandardMaterial({ color: 0x4a3428, roughness: 0.95 }),
+  );
+  trunk.position.y = 1.4;
+  tree.add(trunk);
+  const greens = [0x1f6b3a, 0x2d8a4e, 0x165c32, 0x3a9a58];
+  for (let i = 0; i < 10; i++) {
+    const blob = new THREE.Mesh(
+      new THREE.SphereGeometry(0.55 + (i % 3) * 0.1, 12, 12),
+      new THREE.MeshStandardMaterial({
+        color: greens[i % greens.length],
+        roughness: 0.9,
+        emissive: glowing ? 0x3dff8a : 0x000000,
+        emissiveIntensity: glowing ? 0.18 : 0,
+      }),
+    );
+    const a = (i / 10) * Math.PI * 2;
+    const r = 0.4 + (i % 4) * 0.12;
+    blob.position.set(Math.cos(a) * r, 2.4 + (i % 3) * 0.2, Math.sin(a) * r);
+    tree.add(blob);
+  }
+  const hit = new THREE.Mesh(
+    new THREE.SphereGeometry(1.7, 14, 14),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
+  );
+  hit.position.y = 2.3;
+  tree.add(hit);
+  return tree;
+}
+
+function makeFern(scale: number, glow = false): THREE.Group {
+  const g = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({
+    color: glow ? 0x5ecf7a : 0x3a8f52,
+    roughness: 0.9,
+    emissive: glow ? 0x7dff9a : 0x000000,
+    emissiveIntensity: glow ? 0.35 : 0,
+  });
+  for (let i = 0; i < 6; i++) {
+    const leaf = new THREE.Mesh(
+      new THREE.ConeGeometry(0.08 * scale, 0.7 * scale, 5),
+      mat,
+    );
+    const a = (i / 6) * Math.PI * 2;
+    leaf.position.set(Math.cos(a) * 0.12 * scale, 0.3 * scale, Math.sin(a) * 0.12 * scale);
+    leaf.rotation.z = Math.cos(a) * 0.7;
+    leaf.rotation.x = Math.sin(a) * 0.7;
+    g.add(leaf);
+  }
+  return g;
+}
+
+function makeBuilding(h: number, color: number): THREE.Group {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1.2 + Math.random() * 0.6, h, 1.1 + Math.random() * 0.5),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.88 }),
+  );
+  body.position.y = h / 2;
+  g.add(body);
+  return g;
+}
+
+function makeStreetLamp(glowing = false): THREE.Group {
+  const g = new THREE.Group();
+  const pole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.05, 0.07, 2.2, 8),
+    new THREE.MeshStandardMaterial({ color: 0x4a4a52, roughness: 0.7 }),
+  );
+  pole.position.y = 1.1;
+  g.add(pole);
+  const lamp = new THREE.Mesh(
+    new THREE.SphereGeometry(0.22, 12, 12),
+    new THREE.MeshStandardMaterial({
+      color: 0xffe9a8,
+      emissive: glowing ? 0xffd070 : 0x886622,
+      emissiveIntensity: glowing ? 0.85 : 0.25,
+      roughness: 0.4,
+    }),
+  );
+  lamp.position.y = 2.25;
+  g.add(lamp);
+  const hit = new THREE.Mesh(
+    new THREE.SphereGeometry(1.2, 12, 12),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
+  );
+  hit.position.y = 1.5;
+  g.add(hit);
+  return g;
+}
+
+function makeIceSpire(glowing = false): THREE.Group {
+  const g = new THREE.Group();
+  const ice = new THREE.Mesh(
+    new THREE.ConeGeometry(0.9, 2.8, 5),
+    new THREE.MeshStandardMaterial({
+      color: 0xd8eef8,
+      roughness: 0.35,
+      metalness: 0.15,
+      emissive: glowing ? 0xa8d8ff : 0x000000,
+      emissiveIntensity: glowing ? 0.35 : 0,
+      transparent: true,
+      opacity: 0.92,
+    }),
+  );
+  ice.position.y = 1.4;
+  g.add(ice);
+  const hit = new THREE.Mesh(
+    new THREE.SphereGeometry(1.5, 12, 12),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
+  );
+  hit.position.y = 1.3;
+  g.add(hit);
+  return g;
+}
+
+function makeIceBloom(scale: number, glow = false): THREE.Group {
+  const g = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({
+    color: glow ? 0xe8f6ff : 0xc8e0f0,
+    emissive: glow ? 0xb0d8ff : 0x000000,
+    emissiveIntensity: glow ? 0.55 : 0,
+    roughness: 0.4,
+  });
+  for (let i = 0; i < 5; i++) {
+    const shard = new THREE.Mesh(
+      new THREE.ConeGeometry(0.07 * scale, 0.45 * scale, 4),
+      mat,
+    );
+    const a = (i / 5) * Math.PI * 2;
+    shard.position.set(Math.cos(a) * 0.12 * scale, 0.22 * scale, Math.sin(a) * 0.12 * scale);
+    shard.rotation.z = Math.cos(a) * 0.4;
+    g.add(shard);
+  }
+  return g;
+}
+
+export type WorldTheme = "garden" | "desert" | "rainforest" | "city" | "arctic";
+
 export type WorldOptions = {
-  theme?: "garden" | "desert";
-  /** She rides a car instead of walking (Chapter 2). */
+  theme?: WorldTheme;
+  /** She rides a car instead of walking (desert chapter). */
   vehicle?: boolean;
+};
+
+type ThemeLook = {
+  clear: number;
+  ground: number;
+  groundNight: number;
+  day: number;
+  dusk: number;
+  night: number;
+  fogDay: number;
+  fogDusk: number;
+  fogNight: number;
+  fogDayD: number;
+  fogNightD: number;
+  trail: number;
+  petal: number;
+  petalSize: number;
+  petalOpacity: number;
+  fire: number;
+  sidewaysDust: boolean;
+  crawlY: boolean;
+};
+
+const THEME_LOOK: Record<WorldTheme, ThemeLook> = {
+  garden: {
+    clear: 0x7fa888,
+    ground: 0x6f9a72,
+    groundNight: 0x3f5a48,
+    day: 0x7fa888,
+    dusk: 0xb08a6a,
+    night: 0x2a3548,
+    fogDay: 0x8fb396,
+    fogDusk: 0xb89a7c,
+    fogNight: 0x243044,
+    fogDayD: 0.02,
+    fogNightD: 0.028,
+    trail: 0xffc9d8,
+    petal: 0xffc9d8,
+    petalSize: 0.11,
+    petalOpacity: 0.85,
+    fire: 0xe8ff9a,
+    sidewaysDust: false,
+    crawlY: false,
+  },
+  desert: {
+    clear: 0xd8ae7e,
+    ground: 0xd6b183,
+    groundNight: 0x8a6f52,
+    day: 0xd8ae7e,
+    dusk: 0xc08a5c,
+    night: 0x3a2f3c,
+    fogDay: 0xd3a877,
+    fogDusk: 0xc59468,
+    fogNight: 0x453648,
+    fogDayD: 0.028,
+    fogNightD: 0.034,
+    trail: 0xdec49a,
+    petal: 0xe0c290,
+    petalSize: 0.09,
+    petalOpacity: 0.55,
+    fire: 0xffd9a0,
+    sidewaysDust: true,
+    crawlY: true,
+  },
+  rainforest: {
+    clear: 0x3d6b4a,
+    ground: 0x2f5a38,
+    groundNight: 0x1a3320,
+    day: 0x4a7a58,
+    dusk: 0x3a5a40,
+    night: 0x152818,
+    fogDay: 0x4a7a58,
+    fogDusk: 0x3a6048,
+    fogNight: 0x1a3020,
+    fogDayD: 0.032,
+    fogNightD: 0.04,
+    trail: 0x7dff9a,
+    petal: 0x8fd4a0,
+    petalSize: 0.1,
+    petalOpacity: 0.5,
+    fire: 0xa8ffb0,
+    sidewaysDust: false,
+    crawlY: true,
+  },
+  city: {
+    clear: 0x8a96a4,
+    ground: 0x5a6068,
+    groundNight: 0x2e3238,
+    day: 0x9aa6b4,
+    dusk: 0x7a6a70,
+    night: 0x1e2430,
+    fogDay: 0x9aa6b4,
+    fogDusk: 0x7a8088,
+    fogNight: 0x2a3040,
+    fogDayD: 0.024,
+    fogNightD: 0.032,
+    trail: 0xffd070,
+    petal: 0xc8d0d8,
+    petalSize: 0.07,
+    petalOpacity: 0.4,
+    fire: 0xffe080,
+    sidewaysDust: false,
+    crawlY: false,
+  },
+  arctic: {
+    clear: 0xc8dff0,
+    ground: 0xe8f2fa,
+    groundNight: 0x8aa0b8,
+    day: 0xd0e8f8,
+    dusk: 0xb0c4d8,
+    night: 0x2a3850,
+    fogDay: 0xd8ecf8,
+    fogDusk: 0xb8cce0,
+    fogNight: 0x304058,
+    fogDayD: 0.026,
+    fogNightD: 0.036,
+    trail: 0xffffff,
+    petal: 0xffffff,
+    petalSize: 0.12,
+    petalOpacity: 0.75,
+    fire: 0xd0e8ff,
+    sidewaysDust: true,
+    crawlY: true,
+  },
 };
 
 export function createWorld(
@@ -325,7 +599,12 @@ export function createWorld(
   callbacks: WorldCallbacks,
   options: WorldOptions = {},
 ): WorldApi {
-  const desert = options.theme === "desert";
+  const theme: WorldTheme = options.theme ?? "garden";
+  const look = THEME_LOOK[theme];
+  const desert = theme === "desert";
+  const rainforest = theme === "rainforest";
+  const city = theme === "city";
+  const arctic = theme === "arctic";
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -340,15 +619,11 @@ export function createWorld(
     Math.min(window.devicePixelRatio, window.innerWidth < 768 ? 1.5 : 2),
   );
   renderer.setSize(window.innerWidth, window.innerHeight, false);
-  renderer.setClearColor(desert ? 0xd8ae7e : 0x7fa888, 1);
+  renderer.setClearColor(look.clear, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  // Desert: denser sandy fog reads as a low dust storm
-  scene.fog = new THREE.FogExp2(
-    desert ? 0xd3a877 : 0x8fb396,
-    desert ? 0.03 : 0.022,
-  );
+  scene.fog = new THREE.FogExp2(look.fogDay, look.fogDayD);
 
   const camera = new THREE.PerspectiveCamera(
     42,
@@ -367,7 +642,7 @@ export function createWorld(
   scene.add(ambient, key, fill, rim);
 
   const groundMat = new THREE.MeshStandardMaterial({
-    color: desert ? 0xd6b183 : 0x6f9a72,
+    color: look.ground,
     roughness: 0.96,
     metalness: 0.02,
   });
@@ -500,7 +775,7 @@ export function createWorld(
   const trail: TrailBit[] = [];
   const trailGeo = new THREE.CircleGeometry(0.08, 8);
   const trailMat = new THREE.MeshBasicMaterial({
-    color: desert ? 0xdec49a : 0xffc9d8,
+    color: look.trail,
     transparent: true,
     opacity: 0.7,
     depthWrite: false,
@@ -508,12 +783,12 @@ export function createWorld(
   let trailAcc = 0;
 
   let dayBlend = 0.55; // 0 night → 1 day
-  const dayColor = new THREE.Color(desert ? 0xd8ae7e : 0x7fa888);
-  const duskColor = new THREE.Color(desert ? 0xc08a5c : 0xb08a6a);
-  const nightColor = new THREE.Color(desert ? 0x3a2f3c : 0x2a3548);
-  const fogDay = new THREE.Color(desert ? 0xd3a877 : 0x8fb396);
-  const fogDusk = new THREE.Color(desert ? 0xc59468 : 0xb89a7c);
-  const fogNight = new THREE.Color(desert ? 0x453648 : 0x243044);
+  const dayColor = new THREE.Color(look.day);
+  const duskColor = new THREE.Color(look.dusk);
+  const nightColor = new THREE.Color(look.night);
+  const fogDay = new THREE.Color(look.fogDay);
+  const fogDusk = new THREE.Color(look.fogDusk);
+  const fogNight = new THREE.Color(look.fogNight);
   const tmpColor = new THREE.Color();
 
   const applyDayNight = () => {
@@ -529,11 +804,11 @@ export function createWorld(
       if (dayBlend > 0.55) {
         const t = (dayBlend - 0.55) / 0.45;
         scene.fog.color.copy(fogDusk).lerp(fogDay, t);
-        scene.fog.density = desert ? 0.028 : 0.02;
+        scene.fog.density = look.fogDayD;
       } else {
         const t = dayBlend / 0.55;
         scene.fog.color.copy(fogNight).lerp(fogDusk, t);
-        scene.fog.density = desert ? 0.034 : 0.028;
+        scene.fog.density = look.fogNightD;
       }
     }
     ambient.intensity = 0.35 + dayBlend * 0.7;
@@ -542,11 +817,7 @@ export function createWorld(
     moon.visible = dayBlend < 0.72;
     (moon.material as THREE.MeshStandardMaterial).emissiveIntensity =
       0.25 + (1 - dayBlend) * 0.55;
-    if (desert) {
-      groundMat.color.set(dayBlend < 0.4 ? 0x8a6f52 : 0xd6b183);
-    } else {
-      groundMat.color.set(dayBlend < 0.4 ? 0x3f5a48 : 0x6f9a72);
-    }
+    groundMat.color.set(dayBlend < 0.4 ? look.groundNight : look.ground);
   };
 
   const rand = mulberry32(11);
@@ -562,6 +833,35 @@ export function createWorld(
           : makeDesertShrub(0.6 + rand() * 0.9, false);
       plant.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
       plant.rotation.y = rand() * Math.PI;
+      scene.add(plant);
+    }
+  } else if (rainforest) {
+    for (let i = 0; i < 120; i++) {
+      const angle = rand() * Math.PI * 2;
+      const radius = 2.0 + rand() * 19;
+      const plant = makeFern(0.7 + rand() * 1.1, false);
+      plant.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+      plant.rotation.y = rand() * Math.PI;
+      scene.add(plant);
+    }
+  } else if (city) {
+    for (let i = 0; i < 40; i++) {
+      const angle = rand() * Math.PI * 2;
+      const radius = 8 + rand() * 14;
+      const b = makeBuilding(
+        1.8 + rand() * 4.5,
+        [0x6a7078, 0x8a9098, 0x5a6068, 0x9a8880][i % 4]!,
+      );
+      b.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+      b.rotation.y = rand() * Math.PI;
+      scene.add(b);
+    }
+  } else if (arctic) {
+    for (let i = 0; i < 90; i++) {
+      const angle = rand() * Math.PI * 2;
+      const radius = 2.0 + rand() * 19;
+      const plant = makeIceBloom(0.6 + rand() * 0.9, false);
+      plant.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
       scene.add(plant);
     }
   } else {
@@ -581,7 +881,7 @@ export function createWorld(
     }
   }
 
-  // Falling sakura petals
+  // Atmospheric particles (petals / dust / mist / snow)
   const PETAL_COUNT = 220;
   const petalPositions = new Float32Array(PETAL_COUNT * 3);
   const petalPhase = new Float32Array(PETAL_COUNT);
@@ -596,18 +896,17 @@ export function createWorld(
     "position",
     new THREE.BufferAttribute(petalPositions, 3),
   );
-  // Garden: falling sakura petals · Desert: low drifting dust
   const petalMat = new THREE.PointsMaterial({
-    color: desert ? 0xe0c290 : 0xffc9d8,
-    size: desert ? 0.09 : 0.11,
+    color: look.petal,
+    size: look.petalSize,
     transparent: true,
-    opacity: desert ? 0.55 : 0.85,
+    opacity: look.petalOpacity,
     depthWrite: false,
     sizeAttenuation: true,
   });
   scene.add(new THREE.Points(petalGeo, petalMat));
 
-  // Fireflies
+  // Fireflies / sparks / snow glitter
   const FIREFLY_COUNT = 80;
   const firePos = new Float32Array(FIREFLY_COUNT * 3);
   const firePhase = new Float32Array(FIREFLY_COUNT);
@@ -622,7 +921,7 @@ export function createWorld(
   const fireGeo = new THREE.BufferGeometry();
   fireGeo.setAttribute("position", new THREE.BufferAttribute(firePos, 3));
   const fireMat = new THREE.PointsMaterial({
-    color: desert ? 0xffd9a0 : 0xe8ff9a,
+    color: look.fire,
     size: 0.14,
     transparent: true,
     opacity: 0.9,
@@ -696,7 +995,15 @@ export function createWorld(
     const hitObjects: THREE.Object3D[] = [];
 
     if (data.kind === "sakura") {
-      const tree = desert ? makePyramid(true) : makeSakuraTree();
+      const tree = desert
+        ? makePyramid(true)
+        : rainforest
+          ? makeJungleTree(true)
+          : city
+            ? makeStreetLamp(true)
+            : arctic
+              ? makeIceSpire(true)
+              : makeSakuraTree();
       group.add(tree);
       tree.traverse((obj) => {
         if ((obj as THREE.Mesh).isMesh) {
@@ -709,7 +1016,13 @@ export function createWorld(
     } else {
       const flower = desert
         ? makeDesertShrub(1.5, true)
-        : makeFlower(1.35, 0xffb7d0, 0xfff0a8, true);
+        : rainforest
+          ? makeFern(1.6, true)
+          : city
+            ? makeFlower(1.35, 0xffd070, 0xfff0a8, true)
+            : arctic
+              ? makeIceBloom(1.5, true)
+              : makeFlower(1.35, 0xffb7d0, 0xfff0a8, true);
       group.add(flower);
       flower.traverse((obj) => {
         if ((obj as THREE.Mesh).isMesh) {
@@ -782,7 +1095,6 @@ export function createWorld(
   }
 
   if (desert) {
-    // Grand distant pyramids on the horizon
     for (let i = 0; i < 6; i++) {
       const pyr = makePyramid(false);
       const a = (i / 6) * Math.PI * 2 + 0.55;
@@ -792,15 +1104,39 @@ export function createWorld(
       pyr.rotation.y = rand() * Math.PI;
       scene.add(pyr);
     }
-    // Cactus ring near the path
     for (let i = 0; i < 8; i++) {
       const cactus = makeCactus(0.9 + (i % 3) * 0.25);
       const a = (i / 8) * Math.PI * 2;
       cactus.position.set(Math.cos(a) * 5.8, 0, Math.sin(a) * 5.8);
       scene.add(cactus);
     }
+  } else if (rainforest) {
+    for (let i = 0; i < 14; i++) {
+      const tree = makeJungleTree(false);
+      const a = (i / 14) * Math.PI * 2 + 0.35;
+      const r = 12.5 + (i % 4) * 1.4;
+      tree.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      tree.scale.setScalar(0.85 + (i % 4) * 0.15);
+      tree.rotation.y = rand() * Math.PI;
+      scene.add(tree);
+    }
+  } else if (city) {
+    for (let i = 0; i < 10; i++) {
+      const lamp = makeStreetLamp(false);
+      const a = (i / 10) * Math.PI * 2;
+      lamp.position.set(Math.cos(a) * 6.2, 0, Math.sin(a) * 6.2);
+      scene.add(lamp);
+    }
+  } else if (arctic) {
+    for (let i = 0; i < 10; i++) {
+      const spire = makeIceSpire(false);
+      const a = (i / 10) * Math.PI * 2 + 0.4;
+      const r = 13 + (i % 3) * 1.8;
+      spire.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      spire.scale.setScalar(1.1 + (i % 3) * 0.4);
+      scene.add(spire);
+    }
   } else {
-    // Extra decorative sakura (non-interactive)
     for (let i = 0; i < 14; i++) {
       const tree = makeSakuraTree();
       const a = (i / 14) * Math.PI * 2 + 0.35;
@@ -810,8 +1146,6 @@ export function createWorld(
       tree.rotation.y = rand() * Math.PI;
       scene.add(tree);
     }
-
-    // Meadow clusters of small trees near the ring
     for (let i = 0; i < 8; i++) {
       const tree = makeSakuraTree();
       const a = (i / 8) * Math.PI * 2;
@@ -835,18 +1169,24 @@ export function createWorld(
   const BEE_HIT = touchFriendly ? 0.7 : 0.78;
   const BEE_BOUND = 16;
   let stung = false;
+  const spawnHazard = (bx: number, bz: number, phase: number): Bee => {
+    if (desert) return createScorpion(bx, bz, phase);
+    if (rainforest) return createSnake(bx, bz, phase);
+    if (city) return createCrow(bx, bz, phase);
+    if (arctic) return createArcticFox(bx, bz, phase);
+    return createBee(bx, bz, phase);
+  };
   for (let i = 0; i < BEE_COUNT; i++) {
     const a = (i / BEE_COUNT) * Math.PI * 2 + 0.4;
     let r = 5.8 + (i % 2) * 3.2;
     let bx = Math.cos(a) * r;
     let bz = Math.sin(a) * r;
-    // Nudge away from player spawn if needed
     if (Math.hypot(bx - 0, bz - 6.5) < 3.2) {
       r += 2.5;
       bx = Math.cos(a) * r;
       bz = Math.sin(a) * r;
     }
-    const bee = desert ? createScorpion(bx, bz, i * 1.7) : createBee(bx, bz, i * 1.7);
+    const bee = spawnHazard(bx, bz, i * 1.7);
     if (touchFriendly) {
       bee.speed *= 0.88;
       bee.sprite.scale.multiplyScalar(0.9);
@@ -1439,7 +1779,7 @@ export function createWorld(
             bee.x += (dx / dist) * step;
             bee.z += (dz / dist) * step;
           }
-          bee.y = desert
+          bee.y = look.crawlY
             ? 0.12 + Math.sin(t * 5 + bee.phase) * 0.02
             : 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
           bee.group.position.set(bee.x, bee.y, bee.z);
@@ -1472,7 +1812,7 @@ export function createWorld(
     } else {
       // Keep creatures animated even when player is gated / after sting
       for (const bee of bees) {
-        bee.y = desert
+        bee.y = look.crawlY
           ? 0.12 + Math.sin(t * 5 + bee.phase) * 0.02
           : 0.45 + Math.sin(t * 3.2 + bee.phase) * 0.18;
         bee.group.position.set(bee.x, bee.y, bee.z);
@@ -1638,8 +1978,8 @@ export function createWorld(
     }
 
     const pos = petalGeo.attributes.position as THREE.BufferAttribute;
-    if (desert) {
-      // Low dust storm: particles hug the ground and stream sideways
+    if (look.sidewaysDust) {
+      // Dust / snow: particles hug the ground and stream sideways
       for (let i = 0; i < PETAL_COUNT; i++) {
         let x = pos.getX(i) + (0.9 + (i % 5) * 0.28) * dt * drift;
         if (x > 20) x = -20;

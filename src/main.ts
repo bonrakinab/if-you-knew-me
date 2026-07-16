@@ -24,11 +24,16 @@ import {
 import { clearGardenSave } from "./progress";
 import { pickQuote, sendMotivationEmail } from "./motivation";
 import {
+  CHAPTER_META,
+  HAZARD_SHELTER,
+  HAZARD_STING,
+  BIOME_BODY_CLASSES,
+  parseChapter,
+  type ChapterNum,
+} from "./chapters";
+import {
   playEpisode,
   EPISODE_ONE,
-  EPISODE_FINAL,
-  EPISODE_DESERT_MEET,
-  EPISODE_DESERT_FINAL,
   EPISODE_DREAM_WAKE,
   EPISODE_BALCONY_END,
   BOY_NAME,
@@ -396,13 +401,13 @@ const openLetterbox = () => {
   window.setTimeout(() => herNote.focus(), 50);
 };
 
-// Boy (রংধনু) story arc — per-run flags; a sting restarts the chapter.
+// Five biomes: garden → desert → rainforest → Dhaka → north pole, then epilogue.
 const CHAPTER_KEY = "if-you-knew-me-chapter";
-let chapter: 1 | 2 = 1;
+let chapter: ChapterNum = 1;
 let episodeMeetPlayed = false;
 let finalEpisodePlayed = false;
 let cutscenePlaying = false;
-let pendingChapter3 = false;
+let pendingNext: ChapterNum | null = null;
 
 const runEpisode = async (
   episode: typeof EPISODE_ONE,
@@ -423,17 +428,90 @@ const runEpisode = async (
 const maybeStartStory = (faithCoins: number, totalQuotes: number) => {
   if (!episodeMeetPlayed && faithCoins >= 3) {
     episodeMeetPlayed = true;
+    const meta = CHAPTER_META[chapter];
     window.setTimeout(() => {
-      void runEpisode(
-        chapter === 1 ? EPISODE_ONE : EPISODE_DESERT_MEET,
-        () => {
-          compass.textContent =
-            chapter === 1
-              ? `${BOY_NAME}কে খুঁজতে সব ফেইথ কয়েন জোগাড় করো — অধ্যায় ২ (${faithCoins}/${totalQuotes})`
-              : `${BOY_NAME} পিরামিডে ফিরে গেছে — অধ্যায় ৪ এর জন্য সব কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`;
-        },
-      );
+      void runEpisode(meta.meet, () => {
+        compass.textContent = `${BOY_NAME}কে খুঁজতে সব ফেইথ কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`;
+      });
     }, 1500);
+  }
+};
+
+const clearBiomeClasses = () => {
+  for (const c of BIOME_BODY_CLASSES) document.body.classList.remove(c);
+};
+
+const startChapter = (n: ChapterNum) => {
+  chapter = n;
+  sessionStorage.setItem(CHAPTER_KEY, String(n));
+  pendingNext = null;
+  episodeMeetPlayed = false;
+  finalEpisodePlayed = false;
+  finale.classList.add("is-hidden");
+  note.classList.add("is-hidden");
+  delete note.dataset.source;
+  clearBiomeClasses();
+  const meta = CHAPTER_META[n];
+  if (meta.bodyClass) document.body.classList.add(meta.bodyClass);
+
+  world.destroy();
+  clearGardenSave();
+  const fresh = worldCanvas.cloneNode(false) as HTMLCanvasElement;
+  worldCanvas.replaceWith(fresh);
+  worldCanvas = fresh;
+  world = createWorld(worldCanvas, worldCallbacks, {
+    theme: meta.theme,
+    vehicle: meta.vehicle,
+  });
+  foundEl.textContent = "0";
+  faithCoinsEl.textContent = "0";
+  refreshJournal();
+  refreshQuietUi();
+  world.enable();
+  compass.textContent = meta.label;
+  if (meta.trackId) void selectTrack(meta.trackId);
+};
+
+const playChapterFinale = () => {
+  const meta = CHAPTER_META[chapter];
+  const finaleLines = finale.querySelectorAll("p");
+  const afterFinale = () => {
+    if (chapter === 5) {
+      void runEpisode(EPISODE_DREAM_WAKE, () => {
+        void runEpisode(EPISODE_BALCONY_END, () => {
+          compass.textContent =
+            "পাঁচ অধ্যায় শেষ — ভাগ্য চাইলে আবার দেখা হবে।";
+          if (finaleLines[0])
+            finaleLines[0].textContent =
+              "বাগান, মরুভূমি, জঙ্গল, ঢাকা, উত্তর মেরু—সব স্বপ্ন।";
+          if (finaleLines[1])
+            finaleLines[1].textContent =
+              "If fate wants, we will meet again. Till then… — শেষ";
+          finaleContinue.textContent = "Leave a quiet line";
+          finale.classList.remove("is-hidden");
+          sessionStorage.removeItem(CHAPTER_KEY);
+          saveTrackId(DEFAULT_TRACK_ID);
+        });
+      });
+      return;
+    }
+    const next = (chapter + 1) as ChapterNum;
+    pendingNext = next;
+    const nextMeta = CHAPTER_META[next];
+    compass.textContent = `${meta.label} শেষ — ${nextMeta.label} অপেক্ষা করছে।`;
+    if (finaleLines[0]) finaleLines[0].textContent = "সে আবার হারিয়েছে…";
+    if (finaleLines[1])
+      finaleLines[1].textContent = `বহ্নি থামবে না। পরের অধ্যায়: ${nextMeta.label}।`;
+    finaleContinue.textContent = meta.nextBtn ?? "Next ▸";
+    finale.classList.remove("is-hidden");
+  };
+
+  if (chapter === 2) {
+    void runEpisode(meta.fin, afterFinale, (cue) => {
+      if (cue === "lakhau") void selectTrack("lakhau-hajarau");
+    });
+  } else {
+    void runEpisode(meta.fin, afterFinale);
   }
 };
 
@@ -444,12 +522,8 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
     refreshJournal();
     compass.textContent =
       foundCount >= discoveries.length
-        ? "চিঠিগুলো পড়া হয়েছে — ফুল ও চেরি গাছও ছুঁয়ে দেখো"
+        ? "চিঠিগুলো পড়া হয়েছে — সোনালি আলোর স্তম্ভগুলোও ছুঁয়ে দেখো"
         : "A letter noticed—another light may be near.";
-    if (chapter === 2 && foundCount >= discoveries.length) {
-      compass.textContent =
-        "চিঠিগুলো পড়া হয়েছে — ঝোপ আর পিরামিডও ছুঁয়ে দেখো";
-    }
   },
   onQuote(quote, info) {
     showNote(quote.poet, quote.text, "quote");
@@ -463,10 +537,7 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
       compass.textContent = `Faith coin · star ${info.faithCoins}/${info.totalQuotes}`;
       maybeStartStory(info.faithCoins, info.totalQuotes);
     } else {
-      compass.textContent = "কবিতার ফুল ও চেরিগাছ ছুঁয়ে আরও পড়ো";
-    }
-    if (!info.isNew && chapter === 2) {
-      compass.textContent = "মরুর ঝোপ ও পিরামিড ছুঁয়ে আরও পড়ো";
+      compass.textContent = "সোনালি আলোর স্তম্ভ খোঁজো — ওখানেই ফেইথ কয়েন";
     }
   },
   onQuoteAway() {
@@ -477,57 +548,14 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
   },
   onShelterProtect() {
     compass.textContent =
-      chapter === 1
-        ? "Shelter holds—the bee turns away."
-        : "Shelter holds—the scorpion turns away.";
+      HAZARD_SHELTER[CHAPTER_META[chapter].hazard] ??
+      "Shelter holds—the danger turns away.";
   },
   onConstellationComplete() {
     if (finalEpisodePlayed) return;
     finalEpisodePlayed = true;
     world.lookAtConstellation();
-    const finaleLines = finale.querySelectorAll("p");
-    window.setTimeout(() => {
-      if (chapter === 1) {
-        void runEpisode(EPISODE_FINAL, () => {
-          compass.textContent =
-            "অধ্যায় ২ শেষ — মরুভূমির ওপারে অধ্যায় ৩ অপেক্ষা করছে।";
-          if (finaleLines[0])
-            finaleLines[0].textContent = "সে বাতাসে মিলিয়ে গেছে…";
-          if (finaleLines[1])
-            finaleLines[1].textContent =
-              "বহ্নি জানে—সে হারায়নি। অধ্যায় ৩: মরুভূমি ডাকছে।";
-          pendingChapter3 = true;
-          finaleContinue.textContent = "অধ্যায় ৩ — মরুভূমিতে চলো ▸";
-          finale.classList.remove("is-hidden");
-        });
-      } else {
-        void runEpisode(
-          EPISODE_DESERT_FINAL,
-          () => {
-            // Chapter 5 is the ending: wake-up + balcony farewell
-            void runEpisode(EPISODE_DREAM_WAKE, () => {
-              void runEpisode(EPISODE_BALCONY_END, () => {
-                compass.textContent =
-                  "অধ্যায় ৫ শেষ — ভাগ্য চাইলে আবার দেখা হবে।";
-                if (finaleLines[0])
-                  finaleLines[0].textContent =
-                    "পাঁচ অধ্যায় শেষ — বারান্দায় রংধনু, আর সেই উড়ন্ত বিদায়।";
-                if (finaleLines[1])
-                  finaleLines[1].textContent =
-                    "If fate wants, we will meet again. Till then… — শেষ";
-                finaleContinue.textContent = "Leave a quiet line";
-                finale.classList.remove("is-hidden");
-                sessionStorage.removeItem(CHAPTER_KEY);
-                saveTrackId(DEFAULT_TRACK_ID);
-              });
-            });
-          },
-          (cue) => {
-            if (cue === "lakhau") void selectTrack("lakhau-hajarau");
-          },
-        );
-      }
-    }, 2600);
+    window.setTimeout(() => playChapterFinale(), 2600);
   },
   onComplete() {
     window.setTimeout(() => {
@@ -542,9 +570,8 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
   },
   onDeath() {
     const sting =
-      chapter === 1
-        ? "A bee stung you—starting over…"
-        : "A scorpion stung you—starting the desert over…";
+      HAZARD_STING[CHAPTER_META[chapter].hazard] ??
+      "You were caught—starting over…";
     compass.textContent = sting;
     deathToast.textContent = sting;
     deathToast.classList.remove("is-hidden");
@@ -708,12 +735,9 @@ const openGarden = () => {
     hud.classList.remove("is-hidden");
     world.enable();
     showMotivation();
-    // A scorpion sting reloads the page mid-desert; resume Chapter 3–4 (desert).
-    if (
-      sessionStorage.getItem(CHAPTER_KEY) === "3" ||
-      sessionStorage.getItem(CHAPTER_KEY) === "2"
-    ) {
-      startChapter3();
+    const resume = parseChapter(sessionStorage.getItem(CHAPTER_KEY));
+    if (resume && resume > 1) {
+      startChapter(resume);
     }
   }, 1200);
 };
@@ -760,38 +784,6 @@ const selectTrack = async (trackId: string) => {
   } catch (err) {
     console.warn("Track switch failed:", err);
   }
-};
-
-/** Chapters 3–4 — the desert. She drives; scorpions crawl; pyramids hum. */
-const startChapter3 = () => {
-  chapter = 2;
-  sessionStorage.setItem(CHAPTER_KEY, "3");
-  pendingChapter3 = false;
-  episodeMeetPlayed = false;
-  finalEpisodePlayed = false;
-  finale.classList.add("is-hidden");
-  note.classList.add("is-hidden");
-  delete note.dataset.source;
-  document.body.classList.add("is-desert");
-
-  world.destroy();
-  clearGardenSave();
-  // Fresh canvas: safest way to boot a second WebGL world
-  const fresh = worldCanvas.cloneNode(false) as HTMLCanvasElement;
-  worldCanvas.replaceWith(fresh);
-  worldCanvas = fresh;
-  world = createWorld(worldCanvas, worldCallbacks, {
-    theme: "desert",
-    vehicle: true,
-  });
-  foundEl.textContent = "0";
-  faithCoinsEl.textContent = "0";
-  refreshJournal();
-  refreshQuietUi();
-  world.enable();
-  compass.textContent =
-    "অধ্যায় ৩ — মরুভূমি: ঝোপ, ক্যাকটাস আর পিরামিড ছুঁয়ে দেখো";
-  void selectTrack("chithi-bhitra");
 };
 
 const onTrackListClick = (e: Event) => {
@@ -929,8 +921,8 @@ noteClose.addEventListener("click", () => {
 
 finaleContinue.addEventListener("click", (e) => {
   e.stopPropagation();
-  if (pendingChapter3) {
-    startChapter3();
+  if (pendingNext) {
+    startChapter(pendingNext);
     return;
   }
   openLetterbox();

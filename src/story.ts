@@ -53,7 +53,7 @@ export const GIRL_NAME = "বহ্নি";
 export const BOY_NAME = "রংধনু";
 
 export const EPISODE_ONE: Episode = {
-  kicker: "অধ্যায় ১",
+  kicker: "অধ্যায় ১ · বাগান",
   title: "প্রথম দেখা",
   shots: [
     {
@@ -112,14 +112,14 @@ export const EPISODE_ONE: Episode = {
       bg: "stars",
       girl: { x: 50, facing: "up" },
       speaker: "narrator",
-      text: "অধ্যায় ১ শেষ নয় — সবগুলো ফেইথ কয়েন জোগাড় করো। অধ্যায় ২ অপেক্ষা করছে।",
+      text: "অধ্যায় ১ চলছে — সবগুলো ফেইথ কয়েন জোগাড় করো, তার কাছে পৌঁছাও।",
       fx: "glow",
     },
   ],
 };
 
 export const EPISODE_FINAL: Episode = {
-  kicker: "অধ্যায় ২",
+  kicker: "অধ্যায় ১ · শেষ",
   title: "শেষ বিকেলে",
   shots: [
     {
@@ -183,14 +183,14 @@ export const EPISODE_FINAL: Episode = {
       bg: "stars",
       girl: { x: 50, facing: "up" },
       speaker: "narrator",
-      text: "…কিন্তু বাতাসে মিলিয়ে যাওয়া মানেই কি হারিয়ে যাওয়া? — অধ্যায় ৩ চলবে",
+      text: "…কিন্তু বাতাসে মিলিয়ে যাওয়া মানেই কি হারিয়ে যাওয়া? — অধ্যায় ২ চলবে",
       fx: "glow",
     },
   ],
 };
 
 export const EPISODE_DESERT_MEET: Episode = {
-  kicker: "অধ্যায় ৩",
+  kicker: "অধ্যায় ২ · মরুভূমি",
   title: "পিরামিডের ছায়ায়",
   shots: [
     {
@@ -257,14 +257,14 @@ export const EPISODE_DESERT_MEET: Episode = {
       bg: "stars",
       girl: { x: 50, facing: "up" },
       speaker: "narrator",
-      text: "অধ্যায় ৩ চলছে — মরুর সব ফেইথ কয়েন জোগাড় করো। অধ্যায় ৪ অপেক্ষা করছে।",
+      text: "অধ্যায় ২ চলছে — মরুর সব ফেইথ কয়েন জোগাড় করো।",
       fx: "glow",
     },
   ],
 };
 
 export const EPISODE_DESERT_FINAL: Episode = {
-  kicker: "অধ্যায় ৪",
+  kicker: "অধ্যায় ২ · শেষ",
   title: "লাখৌ হাজারৌ",
   shots: [
     {
@@ -316,14 +316,239 @@ export const EPISODE_DESERT_FINAL: Episode = {
     {
       bg: "void",
       speaker: "narrator",
-      text: "আর তারপর—চোখ খুলল। অধ্যায় ৫ শুরু।",
+      text: "আর তারপর—জঙ্গলের পথ খুলে গেল। অধ্যায় ৩ চলবে।",
     },
   ],
 };
 
-/** Chapter 5 — ending: she wakes and realizes it was a dream. */
+export const EPISODE_RAIN_MEET: Episode = {
+  kicker: "অধ্যায় ৩ · রেইনফরেস্ট",
+  title: "সবুজের ভেতর",
+  shots: [
+    {
+      bg: "dusk",
+      girl: { x: 28, facing: "right" },
+      speaker: "narrator",
+      text: "বৃষ্টিভেজা পাতার নিচে বহ্নি হেঁটে চলল। বাতাসে ভারী সবুজ গন্ধ।",
+      fx: "petals",
+    },
+    {
+      bg: "mist",
+      girl: { x: 32, facing: "right", action: "dance" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "এখানেও তুমি? গাছের ছায়ায় লুকিয়ে?",
+      fx: "glow",
+    },
+    {
+      bg: "mist",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left" },
+      speaker: "boy",
+      text: "The forest keeps every secret it is given.",
+      sub: "জঙ্গল যা গোপনীয়তা পায়, তা ধরে রাখে।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      boy: null,
+      speaker: "narrator",
+      text: "সে আবার মিলিয়ে গেল পাতার আড়ালে। সাপের ফোঁস শোনা গেল দূরে।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "অধ্যায় ৩ — জঙ্গলের সব ফেইথ কয়েন জোগাড় করো।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_RAIN_FINAL: Episode = {
+  kicker: "অধ্যায় ৩ · শেষ",
+  title: "বৃষ্টির নিচে",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 30, facing: "right" },
+      boy: { x: 65, facing: "left", opacity: 0.9 },
+      speaker: "boy",
+      text: "You found every green star. Still I cannot stay.",
+      sub: "সব সবুজ তারা পেয়েছ—তবু আমি থাকতে পারি না।",
+      fx: "glow",
+    },
+    {
+      bg: "void",
+      girl: { x: 48, facing: "down", low: true },
+      boy: null,
+      speaker: "girl",
+      text: "তবু খুঁজব। পরের শহরেও।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "ঢাকার আলো দূরে জ্বলছে। অধ্যায় ৪ চলবে।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_CITY_MEET: Episode = {
+  kicker: "অধ্যায় ৪ · ঢাকা",
+  title: "শহরের রাত",
+  shots: [
+    {
+      bg: "mist",
+      girl: { x: 28, facing: "right" },
+      speaker: "narrator",
+      text: "হর্নের শব্দ, চা দোকানের ধোঁয়া, রাস্তার আলো—বহ্নি ঢাকার রাস্তায়।",
+    },
+    {
+      bg: "mist",
+      girl: { x: 32, facing: "right" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "এত লোকের ভিড়েও তোমাকে চিনতে পারি।",
+      fx: "glow",
+    },
+    {
+      bg: "mist",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left" },
+      speaker: "boy",
+      text: "In this crowd of lakhs, your smile still finds me.",
+      sub: "লাখো ভিড়েও তোমার হাসি আমাকে খুঁজে পায়।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down" },
+      boy: null,
+      speaker: "narrator",
+      text: "কাকের ডাকে সে মিলিয়ে গেল গলির মোড়ে।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "অধ্যায় ৪ — শহরের সব ফেইথ কয়েন জোগাড় করো।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_CITY_FINAL: Episode = {
+  kicker: "অধ্যায় ৪ · শেষ",
+  title: "শেষ বাস",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 30, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0.85 },
+      speaker: "boy",
+      text: "North wind is calling. The last chapter is cold.",
+      sub: "উত্তরের হাওয়া ডাকছে। শেষ অধ্যায় ঠান্ডা।",
+      fx: "glow",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      speaker: "girl",
+      text: "ঠান্ডা হোক—যাব।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "উত্তর মেরুর তুষার পড়ছে। অধ্যায় ৫ চলবে।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_ARCTIC_MEET: Episode = {
+  kicker: "অধ্যায় ৫ · উত্তর মেরু",
+  title: "তুষারের শেষ",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 28, facing: "right" },
+      speaker: "narrator",
+      text: "সাদা দিগন্ত। বাতাস কাঁটে। বহ্নি তুষারে পা রাখল।",
+      fx: "glow",
+    },
+    {
+      bg: "stars",
+      girl: { x: 32, facing: "right" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "এবার আর পালাবে না। এখানে শেষ।",
+      fx: "petals",
+    },
+    {
+      bg: "mist",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left" },
+      speaker: "boy",
+      text: "Collect the ice-stars. Then we speak the last truth.",
+      sub: "বরফের তারাগুলো জোগাড় করো। তারপর শেষ সত্যি।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down" },
+      boy: null,
+      speaker: "narrator",
+      text: "সে বরফের আড়ালে মিলিয়ে গেল—আর শেয়ালের পায়ের ছাপ রেখে।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "অধ্যায় ৫ — সব ফেইথ কয়েন জোগাড় করো। এটাই শেষ অধ্যায়।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_ARCTIC_FINAL: Episode = {
+  kicker: "অধ্যায় ৫ · শেষ",
+  title: "বরফ ভাঙে",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 30, facing: "right", action: "dance" },
+      boy: { x: 64, facing: "left", opacity: 0.95 },
+      speaker: "girl",
+      text: "পেয়েছি সব তারা। এবার বলো—",
+      fx: "glow",
+    },
+    {
+      bg: "mist",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 62, facing: "left", opacity: 0.7 },
+      speaker: "boy",
+      text: "That is the end of the road… for now.",
+      sub: "এতদূরই পথের শেষ… আপাতত।",
+    },
+    {
+      bg: "void",
+      girl: { x: 46, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0 },
+      speaker: "narrator",
+      text: "তুষারে মিলিয়ে গেল সে। আর বহ্নির চোখ—বন্ধ হয়ে এল।",
+    },
+    {
+      bg: "void",
+      speaker: "narrator",
+      text: "আর তারপর—চোখ খুলল।",
+    },
+  ],
+};
+
+/** Epilogue after Chapter 5 — she wakes and realizes it was a dream. */
 export const EPISODE_DREAM_WAKE: Episode = {
-  kicker: "অধ্যায় ৫",
+  kicker: "উপসংহার",
   title: "জেগে ওঠা",
   shots: [
     {
@@ -350,7 +575,7 @@ export const EPISODE_DREAM_WAKE: Episode = {
       girl: { x: 38, facing: "down", opacity: 1 },
       inBed: true,
       speaker: "girl",
-      text: "রংধনু… মরুভূমি… পিরামিড… লাখো-হাজারের সেই কথাটা—",
+      text: "রংধনু… বাগান… মরু… জঙ্গল… ঢাকা… উত্তর মেরু—সব…",
     },
     {
       bg: "bedroom",
@@ -395,9 +620,9 @@ export const EPISODE_DREAM_WAKE: Episode = {
   ],
 };
 
-/** Chapter 5 continued — balcony, rainbow, boy's last goodbye. */
+/** Epilogue continued — balcony, rainbow, boy's last goodbye. */
 export const EPISODE_BALCONY_END: Episode = {
-  kicker: "অধ্যায় ৫ · শেষ",
+  kicker: "উপসংহার · শেষ",
   title: "রংধনু",
   shots: [
     {
