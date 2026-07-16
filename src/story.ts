@@ -464,16 +464,6 @@ export const EPISODE_BALCONY_END: Episode = {
     },
     {
       bg: "balcony",
-      girl: { x: 32, facing: "up", low: true },
-      boy: { x: 68, facing: "left", opacity: 0.15, action: "jump" },
-      flying: true,
-      fx: "rainbow",
-      speaker: "boy",
-      text: "…dream of me, as I dream of you.",
-      sub: "…আমাকে স্বপ্নে দেখো, যেমন আমি তোমাকে দেখি।",
-    },
-    {
-      bg: "balcony",
       girl: { x: 34, facing: "up" },
       boy: null,
       fx: "rainbow",
