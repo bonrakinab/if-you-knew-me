@@ -417,7 +417,7 @@ export const EPISODE_BALCONY_END: Episode = {
     {
       bg: "balcony",
       girl: { x: 28, facing: "up" },
-      boy: { x: 62, facing: "left", opacity: 0.2, action: "jump" },
+      boy: { x: 62, facing: "left", opacity: 0.2 },
       flying: true,
       fx: "rainbow",
       speaker: "narrator",
@@ -425,8 +425,8 @@ export const EPISODE_BALCONY_END: Episode = {
     },
     {
       bg: "balcony",
-      girl: { x: 28, facing: "up", action: "dance" },
-      boy: { x: 60, facing: "left", opacity: 0.95, action: "jump" },
+      girl: { x: 28, facing: "up" },
+      boy: { x: 60, facing: "left", opacity: 0.95 },
       flying: true,
       fx: "rainbow",
       speaker: "girl",
@@ -435,7 +435,7 @@ export const EPISODE_BALCONY_END: Episode = {
     {
       bg: "balcony",
       girl: { x: 30, facing: "up" },
-      boy: { x: 58, facing: "left", opacity: 1, action: "jump" },
+      boy: { x: 58, facing: "left", opacity: 1 },
       flying: true,
       fx: "rainbow",
       speaker: "boy",
@@ -445,7 +445,7 @@ export const EPISODE_BALCONY_END: Episode = {
     {
       bg: "balcony",
       girl: { x: 30, facing: "up" },
-      boy: { x: 58, facing: "left", opacity: 0.9, action: "jump" },
+      boy: { x: 58, facing: "left", opacity: 0.9 },
       flying: true,
       fx: "rainbow",
       speaker: "boy",
@@ -455,7 +455,7 @@ export const EPISODE_BALCONY_END: Episode = {
     {
       bg: "balcony",
       girl: { x: 32, facing: "up" },
-      boy: { x: 62, facing: "left", opacity: 0.55, action: "jump" },
+      boy: { x: 62, facing: "left", opacity: 0.55 },
       flying: true,
       fx: "rainbow",
       speaker: "boy",
@@ -468,11 +468,11 @@ export const EPISODE_BALCONY_END: Episode = {
       boy: null,
       fx: "rainbow",
       speaker: "narrator",
-      text: "সে মিলিয়ে গেল রংধনুর আলোয়। বহ্নি হাসল—চোখে জল নিয়ে।",
+      text: "রংধনু মিলিয়ে গেল আকাশের আলোয়। বহ্নি বারান্দায় দাঁড়িয়েই হাসল—চোখে জল নিয়ে।",
     },
     {
       bg: "balcony",
-      girl: { x: 50, facing: "up" },
+      girl: { x: 34, facing: "up" },
       fx: "rainbow",
       speaker: "narrator",
       text: "শেষ — If fate wants, we will meet again.",

@@ -2222,7 +2222,7 @@ body.is-desert::after {
 }
 
 .story-overlay.is-balcony-frame .story-girl:not(.is-flying) {
-  bottom: 20% !important;
+  bottom: 14% !important;
   z-index: 4;
 }
 
