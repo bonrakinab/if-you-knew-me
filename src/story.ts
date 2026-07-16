@@ -17,7 +17,7 @@ type ActorState = {
 };
 
 type Shot = {
-  bg: "dusk" | "mist" | "stars" | "void" | "desert" | "pyramid";
+  bg: "dusk" | "mist" | "stars" | "void" | "desert" | "pyramid" | "bedroom";
   girl?: ActorState | null;
   boy?: ActorState | null;
   speaker?: "girl" | "boy" | "narrator";
@@ -27,6 +27,8 @@ type Shot = {
   fx?: "petals" | "glow" | "none";
   /** Girl appears as her car instead of on foot. */
   car?: boolean;
+  /** Girl sits up in bed (bedroom frame only). */
+  inBed?: boolean;
   /** Named cue fired when this shot is displayed (e.g. music change). */
   cue?: string;
 };
@@ -302,11 +304,81 @@ export const EPISODE_DESERT_FINAL: Episode = {
       text: "যাও। যতবার হারাবে, ততবার খুঁজে বের করব। এ আমার ভাগ্য—আর আমি ভাগ্যের পথেই চলি।",
     },
     {
-      bg: "stars",
-      girl: { x: 50, facing: "up" },
+      bg: "void",
       speaker: "narrator",
-      text: "শেষ — The End",
-      fx: "glow",
+      text: "আর তারপর—চোখ খুলল।",
+    },
+  ],
+};
+
+/** Separate frame: she wakes in bed and realizes it was all a dream. */
+export const EPISODE_DREAM_WAKE: Episode = {
+  kicker: "জেগে ওঠা",
+  title: "স্বপ্ন নাকি সত্যি",
+  shots: [
+    {
+      bg: "bedroom",
+      speaker: "narrator",
+      text: "চোখ খুলল—কিন্তু প্রথমে আলো আসেনি। শুধু অন্ধকার আর একটা ভারী শ্বাস।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down", opacity: 0.35 },
+      inBed: true,
+      speaker: "narrator",
+      text: "বিছানা। বালিশ। জানালার ফাঁক দিয়ে সকালের হালকা আভাস।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down", opacity: 0.85 },
+      inBed: true,
+      speaker: "girl",
+      text: "…প্রেয়সীপাড়? বাগান? সেই চিঠিগুলো—",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down", opacity: 1 },
+      inBed: true,
+      speaker: "girl",
+      text: "রংধনু… মরুভূমি… পিরামিড… লাখো-হাজারের সেই কথাটা—",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down" },
+      inBed: true,
+      speaker: "girl",
+      text: "এত কিছু… এত কাঁদা, এত দৌড়… সব কি স্বপ্ন ছিল?",
+    },
+    {
+      bg: "bedroom",
+      speaker: "narrator",
+      text: "তারা আর নেই। বাগান নেই। সোনালি স্তম্ভ নেই। শুধু এই ঘর, এই বিছানা।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down" },
+      inBed: true,
+      speaker: "girl",
+      text: "কিন্তু বুকে যে গভীরটা ছিল—সেটা কি স্বপ্ন? হাসি কাঁদা, অভিমান—সব?",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down" },
+      inBed: true,
+      speaker: "girl",
+      text: "হয়তো স্বপ্নেই সত্যি থাকে। হয়তো একদিন জেগে উঠব—আর সে সত্যিই পাশে থাকবে।",
+    },
+    {
+      bg: "bedroom",
+      girl: { x: 38, facing: "down" },
+      inBed: true,
+      speaker: "girl",
+      text: "আজকের জন্য… স্বপ্নটুকু ধরে রাখি। ভাগ্যের পথে চলতে চলতে, একদিন তো দেখব।",
+    },
+    {
+      bg: "bedroom",
+      speaker: "narrator",
+      text: "সকাল আসছে। স্বপ্ন শেষ—তবে অনুভূতি রয়ে গেল। — শেষ",
     },
   ],
 };
@@ -336,6 +408,13 @@ export function playEpisode(
         <div class="story-fx-petals" aria-hidden="true"></div>
         <div class="story-glow" aria-hidden="true"></div>
         <div class="story-ground" aria-hidden="true"></div>
+        <div class="story-bedroom is-hidden" aria-hidden="true">
+          <div class="story-window"></div>
+          <div class="story-bed">
+            <div class="story-pillow"></div>
+            <div class="story-blanket"></div>
+          </div>
+        </div>
         <img class="story-actor story-girl" alt="${GIRL_NAME}" />
         <img class="story-actor story-boy" alt="${BOY_NAME}" />
       </div>
@@ -358,8 +437,12 @@ export function playEpisode(
     const scene = overlay.querySelector<HTMLElement>(".story-scene")!;
     const petalHost = overlay.querySelector<HTMLElement>(".story-fx-petals")!;
     const glow = overlay.querySelector<HTMLElement>(".story-glow")!;
+    const ground = overlay.querySelector<HTMLElement>(".story-ground")!;
+    const bedroom = overlay.querySelector<HTMLElement>(".story-bedroom")!;
     const girlEl = overlay.querySelector<HTMLImageElement>(".story-girl")!;
     const boyEl = overlay.querySelector<HTMLImageElement>(".story-boy")!;
+    const barTop = overlay.querySelector<HTMLElement>(".story-bar-top")!;
+    const barBottom = overlay.querySelector<HTMLElement>(".story-bar-bottom")!;
     const titleCard = overlay.querySelector<HTMLElement>(".story-title-card")!;
     const kickerEl = overlay.querySelector<HTMLElement>(".story-kicker")!;
     const titleEl = overlay.querySelector<HTMLElement>(".story-title")!;
@@ -383,7 +466,9 @@ export function playEpisode(
       el: HTMLImageElement,
       state?: ActorState | null,
       asCar = false,
+      inBed = false,
     ) => {
+      el.classList.toggle("is-in-bed", inBed);
       if (!state) {
         el.style.opacity = "0";
         return;
@@ -397,9 +482,9 @@ export function playEpisode(
               0,
               state.action ?? "idle",
             );
-      el.style.left = `${state.x}%`;
+      el.style.left = inBed ? `${state.x}%` : `${state.x}%`;
       el.style.opacity = String(state.opacity ?? 1);
-      el.classList.toggle("is-low", Boolean(state.low));
+      el.classList.toggle("is-low", Boolean(state.low) && !inBed);
     };
 
     const finishTyping = () => {
@@ -410,11 +495,19 @@ export function playEpisode(
     };
 
     const showShot = (shot: Shot) => {
+      const isBedroom = shot.bg === "bedroom";
       scene.dataset.bg = shot.bg;
-      glow.style.opacity = shot.fx === "glow" ? "1" : "0";
-      petalHost.style.opacity = shot.fx === "petals" ? "1" : "0";
-      applyActor(girlEl, shot.girl, shot.car);
-      applyActor(boyEl, shot.boy);
+      overlay.classList.toggle("is-bedroom-frame", isBedroom);
+      bedroom.classList.toggle("is-hidden", !isBedroom);
+      ground.classList.toggle("is-hidden", isBedroom);
+      barTop.classList.toggle("is-hidden", isBedroom);
+      barBottom.classList.toggle("is-hidden", isBedroom);
+      glow.style.opacity =
+        !isBedroom && shot.fx === "glow" ? "1" : "0";
+      petalHost.style.opacity =
+        !isBedroom && shot.fx === "petals" ? "1" : "0";
+      applyActor(girlEl, shot.girl, shot.car, shot.inBed);
+      applyActor(boyEl, isBedroom ? null : shot.boy);
       if (shot.cue) onCue?.(shot.cue);
 
       dialogue.classList.remove("is-hidden");

@@ -29,6 +29,7 @@ import {
   EPISODE_FINAL,
   EPISODE_DESERT_MEET,
   EPISODE_DESERT_FINAL,
+  EPISODE_DREAM_WAKE,
   BOY_NAME,
 } from "./story";
 import {
@@ -502,19 +503,20 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
         void runEpisode(
           EPISODE_DESERT_FINAL,
           () => {
-            compass.textContent =
-              "সে আবার হারিয়েছে—তবু বহ্নি ভাগ্যের পথেই চলবে।";
-            if (finaleLines[0])
-              finaleLines[0].textContent =
-                "লাখো-হাজারের ভিড়েও, সেই হাসিটুকুই থেকে গেল।";
-            if (finaleLines[1])
-              finaleLines[1].textContent =
-                "বহ্নি এগিয়ে যাবে—যতবার সে হারায়, ততবার খুঁজবে। — শেষ";
-            finaleContinue.textContent = "Leave a quiet line";
-            finale.classList.remove("is-hidden");
-            // Story complete — a fresh visit starts again from Chapter 1
-            sessionStorage.removeItem(CHAPTER_KEY);
-            saveTrackId(DEFAULT_TRACK_ID);
+            void runEpisode(EPISODE_DREAM_WAKE, () => {
+              compass.textContent =
+                "স্বপ্ন শেষ—তবে অনুভূতি বুকে রয়ে গেল।";
+              if (finaleLines[0])
+                finaleLines[0].textContent =
+                  "সবটুকু স্বপ্ন ছিল—বাগান, মরুভূমি, রংধনু।";
+              if (finaleLines[1])
+                finaleLines[1].textContent =
+                  "বহ্নি জেগে উঠল। কিন্তু যা অনুভব করেছে, সেটা সত্যিই তার। — শেষ";
+              finaleContinue.textContent = "Leave a quiet line";
+              finale.classList.remove("is-hidden");
+              sessionStorage.removeItem(CHAPTER_KEY);
+              saveTrackId(DEFAULT_TRACK_ID);
+            });
           },
           (cue) => {
             if (cue === "lakhau") void selectTrack("lakhau-hajarau");

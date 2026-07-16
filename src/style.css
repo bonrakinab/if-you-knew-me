@@ -1916,6 +1916,141 @@ body.is-desert::after {
   );
 }
 
+/* Bedroom frame — waking from the dream (no letterbox bars) */
+.story-overlay.is-bedroom-frame {
+  background: #1a1520;
+  cursor: pointer;
+}
+
+.story-scene[data-bg="bedroom"] {
+  background: linear-gradient(
+    180deg,
+    #2a2438 0%,
+    #3d3548 35%,
+    #5c4f62 70%,
+    #6b5d72 100%
+  );
+}
+
+.story-bedroom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.story-window {
+  position: absolute;
+  top: 12%;
+  right: 10%;
+  width: min(9rem, 28vw);
+  height: min(7rem, 22vw);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 244, 210, 0.92) 0%,
+    rgba(255, 220, 160, 0.75) 45%,
+    rgba(200, 220, 255, 0.55) 100%
+  );
+  border: 3px solid rgba(60, 50, 70, 0.85);
+  box-shadow:
+    inset 0 0 24px rgba(255, 240, 200, 0.5),
+    0 0 40px rgba(255, 230, 180, 0.25);
+  animation: morningGlow 6s ease-in-out infinite;
+}
+
+.story-window::before,
+.story-window::after {
+  content: "";
+  position: absolute;
+  background: rgba(60, 50, 70, 0.85);
+}
+
+.story-window::before {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  transform: translateX(-50%);
+}
+
+.story-window::after {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform: translateY(-50%);
+}
+
+@keyframes morningGlow {
+  0%,
+  100% {
+    filter: brightness(0.92);
+  }
+  50% {
+    filter: brightness(1.08);
+  }
+}
+
+.story-bed {
+  position: absolute;
+  left: 50%;
+  bottom: 14%;
+  transform: translateX(-50%);
+  width: min(22rem, 78vw);
+  height: min(9rem, 28vw);
+}
+
+.story-pillow {
+  position: absolute;
+  left: 8%;
+  top: 18%;
+  width: 32%;
+  height: 38%;
+  background: linear-gradient(180deg, #f8f0e8 0%, #e8ddd0 100%);
+  border-radius: 40% 40% 20% 20%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.story-blanket {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72%;
+  background: linear-gradient(
+    180deg,
+    #e8a0bd 0%,
+    #d484a8 35%,
+    #c06a94 100%
+  );
+  border-radius: 12px 12px 4px 4px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+.story-blanket::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 18%;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px 12px 0 0;
+}
+
+.story-actor.is-in-bed {
+  bottom: 28% !important;
+  width: clamp(4.5rem, 14vw, 7rem) !important;
+  z-index: 2;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.story-overlay.is-bedroom-frame .story-dialogue {
+  border-color: rgba(232, 160, 189, 0.35);
+  background: rgba(26, 21, 32, 0.88);
+}
+
 .story-ground {
   position: absolute;
   left: 0;
