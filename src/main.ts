@@ -30,6 +30,7 @@ import {
   EPISODE_DESERT_MEET,
   EPISODE_DESERT_FINAL,
   EPISODE_DREAM_WAKE,
+  EPISODE_BALCONY_END,
   BOY_NAME,
 } from "./story";
 import {
@@ -504,18 +505,20 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
           EPISODE_DESERT_FINAL,
           () => {
             void runEpisode(EPISODE_DREAM_WAKE, () => {
-              compass.textContent =
-                "স্বপ্ন শেষ—তবে অনুভূতি বুকে রয়ে গেল।";
-              if (finaleLines[0])
-                finaleLines[0].textContent =
-                  "সবটুকু স্বপ্ন ছিল—বাগান, মরুভূমি, রংধনু।";
-              if (finaleLines[1])
-                finaleLines[1].textContent =
-                  "বহ্নি জেগে উঠল। কিন্তু যা অনুভব করেছে, সেটা সত্যিই তার। — শেষ";
-              finaleContinue.textContent = "Leave a quiet line";
-              finale.classList.remove("is-hidden");
-              sessionStorage.removeItem(CHAPTER_KEY);
-              saveTrackId(DEFAULT_TRACK_ID);
+              void runEpisode(EPISODE_BALCONY_END, () => {
+                compass.textContent =
+                  "ভাগ্য চাইলে আবার দেখা হবে—ততদিন স্বপ্নে।";
+                if (finaleLines[0])
+                  finaleLines[0].textContent =
+                    "বারান্দায় রংধনু—আর সেই উড়ন্ত বিদায়।";
+                if (finaleLines[1])
+                  finaleLines[1].textContent =
+                    "If fate wants, we will meet again. Till then… — শেষ";
+                finaleContinue.textContent = "Leave a quiet line";
+                finale.classList.remove("is-hidden");
+                sessionStorage.removeItem(CHAPTER_KEY);
+                saveTrackId(DEFAULT_TRACK_ID);
+              });
             });
           },
           (cue) => {

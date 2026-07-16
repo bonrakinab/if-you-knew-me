@@ -17,18 +17,28 @@ type ActorState = {
 };
 
 type Shot = {
-  bg: "dusk" | "mist" | "stars" | "void" | "desert" | "pyramid" | "bedroom";
+  bg:
+    | "dusk"
+    | "mist"
+    | "stars"
+    | "void"
+    | "desert"
+    | "pyramid"
+    | "bedroom"
+    | "balcony";
   girl?: ActorState | null;
   boy?: ActorState | null;
   speaker?: "girl" | "boy" | "narrator";
   text: string;
   /** Optional smaller subtitle line (e.g. translation). */
   sub?: string;
-  fx?: "petals" | "glow" | "none";
+  fx?: "petals" | "glow" | "none" | "rainbow";
   /** Girl appears as her car instead of on foot. */
   car?: boolean;
   /** Girl sits up in bed (bedroom frame only). */
   inBed?: boolean;
+  /** Boy floats / flies in the sky (balcony ending). */
+  flying?: boolean;
   /** Named cue fired when this shot is displayed (e.g. music change). */
   cue?: string;
 };
@@ -377,8 +387,105 @@ export const EPISODE_DREAM_WAKE: Episode = {
     },
     {
       bg: "bedroom",
+      girl: { x: 38, facing: "right" },
+      inBed: true,
       speaker: "narrator",
-      text: "সকাল আসছে। স্বপ্ন শেষ—তবে অনুভূতি রয়ে গেল। — শেষ",
+      text: "সে বিছানা থেকে উঠল। বারান্দার দিকে পা বাড়াল—",
+    },
+  ],
+};
+
+/** Final frame: balcony, rainbow, and the boy flying a last goodbye. */
+export const EPISODE_BALCONY_END: Episode = {
+  kicker: "বারান্দায়",
+  title: "রংধনু",
+  shots: [
+    {
+      bg: "balcony",
+      girl: { x: 28, facing: "right" },
+      fx: "rainbow",
+      speaker: "narrator",
+      text: "বারান্দায় দাঁড়িয়ে সে আকাশের দিকে তাকাল। বৃষ্টির পর—একটা রংধনু।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 30, facing: "up" },
+      fx: "rainbow",
+      speaker: "girl",
+      text: "রংধনু… তোমার নামটার মতোই।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 28, facing: "up" },
+      boy: { x: 62, facing: "left", opacity: 0.2, action: "jump" },
+      flying: true,
+      fx: "rainbow",
+      speaker: "narrator",
+      text: "আকাশের ওপরে—একটা পরিচিত ছায়া ভাসছে।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 28, facing: "up", action: "dance" },
+      boy: { x: 60, facing: "left", opacity: 0.95, action: "jump" },
+      flying: true,
+      fx: "rainbow",
+      speaker: "girl",
+      text: "তুমি… তুমি সত্যিই আছ?",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 30, facing: "up" },
+      boy: { x: 58, facing: "left", opacity: 1, action: "jump" },
+      flying: true,
+      fx: "rainbow",
+      speaker: "boy",
+      text: "That is the end.",
+      sub: "এখানেই শেষ।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 30, facing: "up" },
+      boy: { x: 58, facing: "left", opacity: 0.9, action: "jump" },
+      flying: true,
+      fx: "rainbow",
+      speaker: "boy",
+      text: "If fate wants, we will meet again.",
+      sub: "ভাগ্য চাইলে, আমরা আবার দেখা করব।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 32, facing: "up" },
+      boy: { x: 62, facing: "left", opacity: 0.55, action: "jump" },
+      flying: true,
+      fx: "rainbow",
+      speaker: "boy",
+      text: "Till then…",
+      sub: "ততদিন…",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 32, facing: "up", low: true },
+      boy: { x: 68, facing: "left", opacity: 0.15, action: "jump" },
+      flying: true,
+      fx: "rainbow",
+      speaker: "boy",
+      text: "…dream of me, as I dream of you.",
+      sub: "…আমাকে স্বপ্নে দেখো, যেমন আমি তোমাকে দেখি।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 34, facing: "up" },
+      boy: null,
+      fx: "rainbow",
+      speaker: "narrator",
+      text: "সে মিলিয়ে গেল রংধনুর আলোয়। বহ্নি হাসল—চোখে জল নিয়ে।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 50, facing: "up" },
+      fx: "rainbow",
+      speaker: "narrator",
+      text: "শেষ — If fate wants, we will meet again.",
     },
   ],
 };
@@ -415,6 +522,11 @@ export function playEpisode(
             <div class="story-blanket"></div>
           </div>
         </div>
+        <div class="story-balcony is-hidden" aria-hidden="true">
+          <div class="story-rainbow" aria-hidden="true"></div>
+          <div class="story-rail"></div>
+          <div class="story-city"></div>
+        </div>
         <img class="story-actor story-girl" alt="${GIRL_NAME}" />
         <img class="story-actor story-boy" alt="${BOY_NAME}" />
       </div>
@@ -439,6 +551,8 @@ export function playEpisode(
     const glow = overlay.querySelector<HTMLElement>(".story-glow")!;
     const ground = overlay.querySelector<HTMLElement>(".story-ground")!;
     const bedroom = overlay.querySelector<HTMLElement>(".story-bedroom")!;
+    const balcony = overlay.querySelector<HTMLElement>(".story-balcony")!;
+    const rainbow = overlay.querySelector<HTMLElement>(".story-rainbow")!;
     const girlEl = overlay.querySelector<HTMLImageElement>(".story-girl")!;
     const boyEl = overlay.querySelector<HTMLImageElement>(".story-boy")!;
     const barTop = overlay.querySelector<HTMLElement>(".story-bar-top")!;
@@ -467,10 +581,13 @@ export function playEpisode(
       state?: ActorState | null,
       asCar = false,
       inBed = false,
+      flying = false,
     ) => {
       el.classList.toggle("is-in-bed", inBed);
+      el.classList.toggle("is-flying", flying && el === boyEl);
       if (!state) {
         el.style.opacity = "0";
+        el.classList.remove("is-flying");
         return;
       }
       el.src =
@@ -482,9 +599,9 @@ export function playEpisode(
               0,
               state.action ?? "idle",
             );
-      el.style.left = inBed ? `${state.x}%` : `${state.x}%`;
+      el.style.left = `${state.x}%`;
       el.style.opacity = String(state.opacity ?? 1);
-      el.classList.toggle("is-low", Boolean(state.low) && !inBed);
+      el.classList.toggle("is-low", Boolean(state.low) && !inBed && !flying);
     };
 
     const finishTyping = () => {
@@ -496,18 +613,32 @@ export function playEpisode(
 
     const showShot = (shot: Shot) => {
       const isBedroom = shot.bg === "bedroom";
+      const isBalcony = shot.bg === "balcony";
+      const realFrame = isBedroom || isBalcony;
       scene.dataset.bg = shot.bg;
       overlay.classList.toggle("is-bedroom-frame", isBedroom);
+      overlay.classList.toggle("is-balcony-frame", isBalcony);
       bedroom.classList.toggle("is-hidden", !isBedroom);
-      ground.classList.toggle("is-hidden", isBedroom);
-      barTop.classList.toggle("is-hidden", isBedroom);
-      barBottom.classList.toggle("is-hidden", isBedroom);
+      balcony.classList.toggle("is-hidden", !isBalcony);
+      ground.classList.toggle("is-hidden", realFrame);
+      barTop.classList.toggle("is-hidden", realFrame);
+      barBottom.classList.toggle("is-hidden", realFrame);
       glow.style.opacity =
-        !isBedroom && shot.fx === "glow" ? "1" : "0";
+        !realFrame && shot.fx === "glow" ? "1" : "0";
       petalHost.style.opacity =
-        !isBedroom && shot.fx === "petals" ? "1" : "0";
-      applyActor(girlEl, shot.girl, shot.car, shot.inBed);
-      applyActor(boyEl, isBedroom ? null : shot.boy);
+        !realFrame && shot.fx === "petals" ? "1" : "0";
+      rainbow.classList.toggle(
+        "is-visible",
+        isBalcony && (shot.fx === "rainbow" || shot.fx === undefined),
+      );
+      applyActor(girlEl, shot.girl, shot.car, shot.inBed, false);
+      applyActor(
+        boyEl,
+        isBedroom ? null : shot.boy,
+        false,
+        false,
+        Boolean(shot.flying),
+      );
       if (shot.cue) onCue?.(shot.cue);
 
       dialogue.classList.remove("is-hidden");
