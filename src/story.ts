@@ -24,6 +24,9 @@ type Shot = {
     | "void"
     | "desert"
     | "pyramid"
+    | "river"
+    | "rooftop"
+    | "mountain"
     | "bedroom"
     | "balcony";
   girl?: ActorState | null;
@@ -314,17 +317,144 @@ export const EPISODE_DESERT_FINAL: Episode = {
       text: "যাও। যতবার হারাবে, ততবার খুঁজে বের করব। এ আমার ভাগ্য—আর আমি ভাগ্যের পথেই চলি।",
     },
     {
-      bg: "void",
+      bg: "river",
+      girl: { x: 50, facing: "up" },
       speaker: "narrator",
-      text: "আর তারপর—চোখ খুলল।",
+      text: "দূরে, বৃষ্টির শব্দ। নদীর জলে একটা ছায়া ভেসে গেল—বর্ষা ডাকছে। — চলবে",
+      fx: "glow",
     },
   ],
 };
 
-/** Separate frame: she wakes in bed and realizes it was all a dream. */
+export const EPISODE_MONSOON_MEET: Episode = {
+  kicker: "অধ্যায় ৩ · পর্ব ১",
+  title: "বর্ষার নদীগ্রামে",
+  shots: [
+    {
+      bg: "river",
+      girl: { x: 30, facing: "right" },
+      speaker: "narrator",
+      text: "মরু পেরিয়ে বহ্নি পৌঁছাল বর্ষার নদীগ্রামে। শাপলা ভাসছে, বটগাছ ভিজছে, আকাশে অবিরাম বৃষ্টি।",
+      fx: "petals",
+    },
+    {
+      bg: "river",
+      girl: { x: 28, facing: "right" },
+      speaker: "narrator",
+      text: "তিনটি বিশ্বাসের তারা জ্বলে উঠতেই—নদীর জল থেমে গেল এক মুহূর্তের জন্য।",
+      fx: "glow",
+    },
+    {
+      bg: "mist",
+      girl: { x: 32, facing: "right", action: "dance" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "বৃষ্টির ভেতরেও তোমাকে চিনতে পারি। এবার অন্তত ছাতাটা ভাগ করে নাও!",
+      fx: "glow",
+    },
+    {
+      bg: "mist",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left", opacity: 1 },
+      speaker: "boy",
+      text: "Rain remembers what rivers forget.",
+      sub: "নদী যা ভুলে যায়, বৃষ্টি তা মনে রাখে।",
+    },
+    {
+      bg: "river",
+      girl: { x: 36, facing: "right" },
+      boy: { x: 70, facing: "left", opacity: 0.4 },
+      speaker: "boy",
+      text: "নৌকো ভাসাও, বহ্নি। জল যেখানে নিয়ে যায়—সেখানেই আমি।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      boy: null,
+      speaker: "narrator",
+      text: "বৃষ্টির পর্দার আড়ালে সে মিলিয়ে গেল—জলের দাগের মতো।",
+    },
+    {
+      bg: "river",
+      girl: { x: 50, facing: "down" },
+      speaker: "girl",
+      text: "ভিজে গেছি, তাতে কী। বর্ষার সব ফেইথ কয়েন জোগাড় করব—জল আমাকে পথ দেখাবে।",
+      fx: "glow",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "অভিযান চলছে — বর্ষার সব ফেইথ কয়েন জোগাড় করো।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_MONSOON_FINAL: Episode = {
+  kicker: "অধ্যায় ৩ · শেষ পর্ব",
+  title: "জলের চিঠি",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 26, facing: "right" },
+      speaker: "narrator",
+      text: "ভেজা আকাশে সবগুলো তারা জ্বলে উঠল। নদীর ওপারে একটা লণ্ঠন জ্বলল—তারপর আরেকটা।",
+      fx: "glow",
+    },
+    {
+      bg: "river",
+      girl: { x: 34, facing: "right", action: "dance" },
+      boy: { x: 66, facing: "left", opacity: 0.9 },
+      speaker: "girl",
+      text: "এবার পেয়েছি! বৃষ্টিও তোমাকে লুকোতে পারল না—",
+      fx: "glow",
+    },
+    {
+      bg: "mist",
+      girl: { x: 36, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0.8 },
+      speaker: "boy",
+      text: "প্রতিটি বৃষ্টির ফোঁটা একটা চিঠি, বহ্নি। তুমি পড়তে শিখে গেছ।",
+    },
+    {
+      bg: "mist",
+      girl: { x: 38, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0.35 },
+      speaker: "boy",
+      text: "শহরে যাও। ঢাকার ছাদে, ঘুড়ির ভিড়ে—আমি অপেক্ষা করব।",
+      fx: "petals",
+    },
+    {
+      bg: "void",
+      girl: { x: 46, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0 },
+      speaker: "narrator",
+      text: "জলের ওপর মিলিয়ে গেল সে—ঢেউয়ের ভাঁজে।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      speaker: "girl",
+      text: "এবার আর কাঁদলাম না। দেখেছ? আমি শিখে যাচ্ছি—হারানো মানে শেষ নয়।",
+    },
+    {
+      bg: "rooftop",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "দূরে শহরের আলো। ছাদের ওপর ঘুড়ি উড়ছে—ঢাকা ডাকছে। — চলবে",
+      fx: "glow",
+    },
+  ],
+};
+
+/**
+ * Chapter 5 epilogue, frame 1: she wakes in bed. The boy was a dream —
+ * she remembers him, but not a word of what he said.
+ */
 export const EPISODE_DREAM_WAKE: Episode = {
   kicker: "জেগে ওঠা",
-  title: "স্বপ্ন নাকি সত্যি",
+  title: "স্বপ্ন ভাঙার পরে",
   shots: [
     {
       bg: "bedroom",
@@ -343,62 +473,287 @@ export const EPISODE_DREAM_WAKE: Episode = {
       girl: { x: 38, facing: "down", opacity: 0.85 },
       inBed: true,
       speaker: "girl",
-      text: "…প্রেয়সীপাড়? বাগান? সেই চিঠিগুলো—",
+      text: "…সে। সে ছিল। এইমাত্র—আমার সামনে দাঁড়িয়ে—কী যেন বলছিল—",
     },
     {
       bg: "bedroom",
       girl: { x: 38, facing: "down", opacity: 1 },
       inBed: true,
-      speaker: "girl",
-      text: "রংধনু… মরুভূমি… পিরামিড… লাখো-হাজারের সেই কথাটা—",
+      speaker: "narrator",
+      text: "সব ভুলে গেছে সে। শুধু ছেলেটাকে মনে আছে—তার মুখ, তার চোখ। সে কী বলেছিল, তার একটা শব্দও নয়।",
     },
     {
       bg: "bedroom",
       girl: { x: 38, facing: "down" },
       inBed: true,
       speaker: "girl",
-      text: "এত কিছু… এত কাঁদা, এত দৌড়… সব কি স্বপ্ন ছিল?",
+      text: "শেকল… বিষ… কী যেন—কী বলেছিলে তুমি? মনে করতে পারছি না কেন?",
     },
     {
       bg: "bedroom",
       speaker: "narrator",
-      text: "তারা আর নেই। বাগান নেই। সোনালি স্তম্ভ নেই। শুধু এই ঘর, এই বিছানা।",
+      text: "বাগান নেই। মরু নেই। নদীগ্রাম, ছাদ, পাহাড়—কিছুই নেই। শুধু এই ঘর, এই বিছানা।",
     },
     {
       bg: "bedroom",
       girl: { x: 38, facing: "down" },
       inBed: true,
-      speaker: "girl",
-      text: "কিন্তু বুকে যে গভীরটা ছিল—সেটা কি স্বপ্ন? হাসি কাঁদা, অভিমান—সব?",
-    },
-    {
-      bg: "bedroom",
-      girl: { x: 38, facing: "down" },
-      inBed: true,
-      speaker: "girl",
-      text: "হয়তো স্বপ্নেই সত্যি থাকে। হয়তো একদিন জেগে উঠব—আর সে সত্যিই পাশে থাকবে।",
-    },
-    {
-      bg: "bedroom",
-      girl: { x: 38, facing: "down" },
-      inBed: true,
-      speaker: "girl",
-      text: "আজকের জন্য… স্বপ্নটুকু ধরে রাখি। ভাগ্যের পথে চলতে চলতে, একদিন তো দেখব।",
+      speaker: "narrator",
+      text: "সে খুঁজল—দরজায়, রাস্তায়, প্রতিটি চেনা মুখের ভিড়ে। কোথাও নেই।",
     },
     {
       bg: "bedroom",
       girl: { x: 38, facing: "right" },
       inBed: true,
       speaker: "narrator",
-      text: "সে বিছানা থেকে উঠল। বারান্দার দিকে পা বাড়াল—",
+      text: "তারপর, জানালার ফাঁকে একটা রঙের আভাস দেখে—সে বারান্দার দিকে পা বাড়াল।",
     },
   ],
 };
 
-/** Final frame: balcony, rainbow, and the boy flying a last goodbye. */
+export const EPISODE_ROOFTOP_MEET: Episode = {
+  kicker: "অধ্যায় ৪ · পর্ব ১",
+  title: "ঢাকার ছাদে",
+  shots: [
+    {
+      bg: "rooftop",
+      girl: { x: 30, facing: "right" },
+      speaker: "narrator",
+      text: "হেমন্তের বিকেল। পুরান ঢাকার ছাদে ছাদে ঘুড়ি, নিচে রিকশার টুংটাং, দূরে আজানের সুর।",
+    },
+    {
+      bg: "rooftop",
+      girl: { x: 28, facing: "right" },
+      speaker: "narrator",
+      text: "তিনটি বিশ্বাসের তারা জ্বলে উঠতেই—সবগুলো ঘুড়ি একসঙ্গে থমকে দাঁড়াল।",
+      fx: "glow",
+    },
+    {
+      bg: "rooftop",
+      girl: { x: 32, facing: "right", action: "dance" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "চায়ের কাপ হাতে দাঁড়িয়ে আছ! এত সহজে ধরা দেবে ভাবিনি।",
+      fx: "glow",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left", opacity: 1 },
+      speaker: "boy",
+      text: "A city holds a thousand roofs, but only one sky.",
+      sub: "শহরে হাজারটা ছাদ, কিন্তু আকাশ একটাই।",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 36, facing: "right" },
+      boy: { x: 70, facing: "left", opacity: 0.35 },
+      speaker: "boy",
+      text: "ঘুড়ির সুতো ছিঁড়ে গেলে ঘুড়ি হারায় না, বহ্নি—সে শুধু অন্য ছাদে নামে।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      boy: null,
+      speaker: "narrator",
+      text: "সন্ধ্যার ধোঁয়াশায় মিলিয়ে গেল সে—ছেঁড়া ঘুড়ির মতো।",
+    },
+    {
+      bg: "rooftop",
+      girl: { x: 50, facing: "down" },
+      speaker: "girl",
+      text: "বেশ। শহরের সব ফেইথ কয়েন জোগাড় করব—ছাদে ছাদে খুঁজব তোমাকে।",
+      fx: "glow",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "অভিযান চলছে — শহরের সব ফেইথ কয়েন জোগাড় করো।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_ROOFTOP_FINAL: Episode = {
+  kicker: "অধ্যায় ৪ · শেষ পর্ব",
+  title: "একটাই আকাশ",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 26, facing: "right" },
+      speaker: "narrator",
+      text: "শহরের ধোঁয়াশার ওপরে সবগুলো তারা জ্বলে উঠল। জেনারেটরের শব্দও যেন থেমে গেল।",
+      fx: "glow",
+    },
+    {
+      bg: "rooftop",
+      girl: { x: 34, facing: "right", action: "dance" },
+      boy: { x: 66, facing: "left", opacity: 0.9 },
+      speaker: "girl",
+      text: "এই শহরে তোমাকে খুঁজে পাওয়া—এটাই আমার সবচেয়ে বড় জয়।",
+      fx: "glow",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 36, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0.8 },
+      speaker: "boy",
+      text: "তুমি এখন শহরের ভিড়েও চিনে নাও। আর একটা জায়গা বাকি, বহ্নি।",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 38, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0.35 },
+      speaker: "boy",
+      text: "যেখানে মেঘ পায়ের নিচে, প্রার্থনার পতাকা ওড়ে—সেই পাহাড়ে এসো। শেষ দেখা সেখানে।",
+      fx: "petals",
+    },
+    {
+      bg: "void",
+      girl: { x: 46, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 0 },
+      speaker: "narrator",
+      text: "শহরের আলোয় মিলিয়ে গেল সে—নিভে যাওয়া জানালার মতো।",
+    },
+    {
+      bg: "mountain",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "উত্তরে, অনেক দূরে—বরফের চূড়া। প্রার্থনার পতাকা ডাকছে। — চলবে",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_MOUNTAIN_MEET: Episode = {
+  kicker: "অধ্যায় ৫ · পর্ব ১",
+  title: "পাহাড়ের মন্দিরে",
+  shots: [
+    {
+      bg: "mountain",
+      girl: { x: 30, facing: "right" },
+      speaker: "narrator",
+      text: "কুয়াশা ঠেলে বহ্নি উঠে এল পাহাড়ের মন্দিরে। পাইনের সারি, বরফের গন্ধ, রঙিন প্রার্থনার পতাকা।",
+    },
+    {
+      bg: "mountain",
+      girl: { x: 28, facing: "right" },
+      speaker: "narrator",
+      text: "তিনটি বিশ্বাসের তারা জ্বলে উঠতেই—সবগুলো পতাকা একদিকে উড়ল, হাওয়া ছাড়াই।",
+      fx: "glow",
+    },
+    {
+      bg: "mountain",
+      girl: { x: 32, facing: "right", action: "dance" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "এত ওপরে! ঠান্ডায় জমে যাচ্ছি, তবু এসেছি। এবার তো বলো—এটাই কি শেষ?",
+      fx: "glow",
+    },
+    {
+      bg: "mist",
+      girl: { x: 34, facing: "right" },
+      boy: { x: 66, facing: "left", opacity: 1 },
+      speaker: "boy",
+      text: "Snow keeps every promise the summer made.",
+      sub: "গ্রীষ্ম যত প্রতিশ্রুতি দেয়, বরফ সব রেখে দেয়।",
+    },
+    {
+      bg: "mist",
+      girl: { x: 36, facing: "right" },
+      boy: { x: 70, facing: "left", opacity: 0.35 },
+      speaker: "boy",
+      text: "শেষ তারাগুলো জ্বালাও, বহ্নি। মন্দিরের আগুনের পাশে—আমি অপেক্ষা করব।",
+    },
+    {
+      bg: "void",
+      girl: { x: 50, facing: "down", low: true },
+      boy: null,
+      speaker: "narrator",
+      text: "তুষারের ঘূর্ণিতে মিলিয়ে গেল সে—নিঃশ্বাসের ভাপের মতো।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 50, facing: "up" },
+      speaker: "narrator",
+      text: "শেষ অভিযান — পাহাড়ের সব ফেইথ কয়েন জোগাড় করো।",
+      fx: "glow",
+    },
+  ],
+};
+
+export const EPISODE_MOUNTAIN_FINAL: Episode = {
+  kicker: "অধ্যায় ৫ · শেষ পর্ব",
+  title: "স্বপ্নের শিকল",
+  shots: [
+    {
+      bg: "stars",
+      girl: { x: 26, facing: "right" },
+      speaker: "narrator",
+      text: "হিমালয়ের আকাশে সবগুলো তারা জ্বলে উঠল। মন্দিরের আগুনের পাশে—অবশেষে—সে দাঁড়িয়ে।",
+      fx: "glow",
+    },
+    {
+      bg: "mountain",
+      girl: { x: 34, facing: "right", action: "dance" },
+      boy: { x: 66, facing: "left", opacity: 1 },
+      speaker: "girl",
+      text: "পেয়েছি! পাঁচটা পৃথিবী পেরিয়ে, অবশেষে তোমার সামনে। এবার বলো—সব বলো।",
+      fx: "glow",
+    },
+    {
+      bg: "mountain",
+      girl: { x: 38, facing: "right" },
+      boy: { x: 62, facing: "left", opacity: 1, low: true },
+      speaker: "boy",
+      cue: "sheje",
+      text: "কিছু কথা আছে… যা আমি চাইলেও বলতে পারি না।",
+    },
+    {
+      bg: "mist",
+      girl: { x: 40, facing: "right" },
+      boy: { x: 60, facing: "left", opacity: 1, low: true },
+      speaker: "narrator",
+      text: "বহ্নি তখন দেখল—ছেলেটার হাত-পা অদৃশ্য শেকলে বাঁধা। একটা অদৃশ্য মুঠো তার গলা চেপে ধরে আছে—নিঃশ্বাস নিতে পারছে না সে। তার নিয়তি আজীবনের জন্য সিলমোহর করা।",
+    },
+    {
+      bg: "mist",
+      girl: { x: 40, facing: "right" },
+      boy: { x: 60, facing: "left", opacity: 0.9, low: true },
+      speaker: "boy",
+      text: "দাস হয়ে যেতাম আমিও… কিন্তু আমার শরীর থেকে যে বিষ ঝরে, সে আমাকে তা-ও হতে দেয়নি। আমার জীবনটাই আশেপাশের মানুষের জন্য বিষ।",
+    },
+    {
+      bg: "void",
+      girl: { x: 44, facing: "right" },
+      boy: { x: 58, facing: "left", opacity: 0.9, low: true },
+      speaker: "girl",
+      text: "তাতে কী! আমি ভয় পাই না—এই যে, আমার হাত ধরো!",
+      fx: "petals",
+    },
+    {
+      bg: "void",
+      girl: { x: 46, facing: "right" },
+      boy: { x: 58, facing: "left", opacity: 0.55, low: true },
+      speaker: "narrator",
+      text: "কিন্তু সে বাতাসে মিলিয়ে গেল না। মিলিয়ে যাওয়ার কিছু ছিলই না—ছেলেটার অস্তিত্ব বহ্নির একটা স্বপ্ন মাত্র।",
+    },
+    {
+      bg: "void",
+      speaker: "narrator",
+      text: "আর তারপর—চোখ খুলল।",
+    },
+  ],
+};
+
+/**
+ * Chapter 5 epilogue, frame 2: the balcony. One chance — a familiar
+ * shadow in the sky — and then the boy disappears for good.
+ */
 export const EPISODE_BALCONY_END: Episode = {
   kicker: "বারান্দায়",
-  title: "রংধনু",
+  title: "একটাই সুযোগ",
   shots: [
     {
       bg: "balcony",
@@ -421,7 +776,7 @@ export const EPISODE_BALCONY_END: Episode = {
       flying: true,
       fx: "rainbow",
       speaker: "narrator",
-      text: "আকাশের ওপরে—একটা পরিচিত ছায়া ভাসছে।",
+      text: "আকাশের ওপরে—একটা পরিচিত ছায়া ভাসছে। একটাই সুযোগ—শেষবারের মতো।",
     },
     {
       bg: "balcony",
@@ -430,7 +785,7 @@ export const EPISODE_BALCONY_END: Episode = {
       flying: true,
       fx: "rainbow",
       speaker: "girl",
-      text: "তুমি… তুমি সত্যিই আছ?",
+      text: "তুমি! দাঁড়াও—এবার বলো, সেদিন কী বলেছিলে—",
     },
     {
       bg: "balcony",
@@ -468,14 +823,14 @@ export const EPISODE_BALCONY_END: Episode = {
       boy: null,
       fx: "rainbow",
       speaker: "narrator",
-      text: "রংধনু মিলিয়ে গেল আকাশের আলোয়। বহ্নি বারান্দায় দাঁড়িয়েই হাসল—চোখে জল নিয়ে।",
+      text: "একটাই সুযোগ ছিল—আর ছেলেটা হারিয়ে গেল। রংধনু মিলিয়ে গেল আকাশের আলোয়।",
     },
     {
       bg: "balcony",
       girl: { x: 34, facing: "up" },
       fx: "rainbow",
       speaker: "narrator",
-      text: "শেষ — If fate wants, we will meet again.",
+      text: "কখনোই খুব দেরি হয় না… কিন্তু সেটা ঘটবে শীঘ্রই। — শেষ",
     },
   ],
 };

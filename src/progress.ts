@@ -47,3 +47,34 @@ export function clearGardenSave(): void {
     /* ignore */
   }
 }
+
+/**
+ * Chapter checkpoint — written when a chapter is completed so a future
+ * visit resumes the journey instead of starting from Chapter 1.
+ */
+export const CHAPTER_SAVE_KEY = "if-you-knew-me-chapter-reached";
+
+export function saveChapterReached(chapter: number): void {
+  try {
+    localStorage.setItem(CHAPTER_SAVE_KEY, String(chapter));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function loadChapterReached(): number {
+  try {
+    const n = Number(localStorage.getItem(CHAPTER_SAVE_KEY));
+    return Number.isInteger(n) && n >= 2 && n <= 5 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function clearChapterReached(): void {
+  try {
+    localStorage.removeItem(CHAPTER_SAVE_KEY);
+  } catch {
+    /* ignore */
+  }
+}

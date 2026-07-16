@@ -62,6 +62,47 @@ export const NEPALI_TRACKS: Track[] = [
   },
 ];
 
+/** Arnob (Shayan Chowdhury) — quieter, rain-and-rooftop songs. */
+export const ARNOB_TRACKS: Track[] = [
+  {
+    id: "she-je-boshe-ache",
+    title: "She Je Boshe Ache",
+    artist: "Arnob",
+    youtubeId: "nDMZA5yRM0U",
+    spotifyUrl:
+      "https://open.spotify.com/search/She%20Je%20Boshe%20Ache%20Arnob",
+  },
+  {
+    id: "she-je-boshe-ache-space",
+    title: "She Je Boshe Ache (Space Edition)",
+    artist: "Arnob",
+    youtubeId: "4ngJIJjfd8Y",
+    spotifyUrl:
+      "https://open.spotify.com/search/She%20Je%20Boshe%20Ache%20Space%20Edition%20Arnob",
+  },
+  {
+    id: "tomar-jonno",
+    title: "Tomar Jonno",
+    artist: "Arnob",
+    youtubeId: "Zv9PcTG7mAc",
+    spotifyUrl: "https://open.spotify.com/search/Tomar%20Jonno%20Arnob",
+  },
+  {
+    id: "hok-kolorob",
+    title: "Hok Kolorob",
+    artist: "Arnob",
+    youtubeId: "l2m0KysRXkc",
+    spotifyUrl: "https://open.spotify.com/search/Hok%20Kolorob%20Arnob",
+  },
+  {
+    id: "prokrito-jol",
+    title: "Prokrito Jol",
+    artist: "Arnob",
+    youtubeId: "eAM7mLwClZE",
+    spotifyUrl: "https://open.spotify.com/search/Prokrito%20Jol%20Arnob",
+  },
+];
+
 export const TRACKS: Track[] = [
   {
     id: "shesh-bikele",
@@ -185,6 +226,7 @@ export const TRACKS: Track[] = [
     spotifyId: "4uqrDdawq9ZR7YCOSghfAx",
     spotifyUrl: "https://open.spotify.com/track/4uqrDdawq9ZR7YCOSghfAx",
   },
+  ...ARNOB_TRACKS,
   ...NEPALI_TRACKS,
 ];
 
