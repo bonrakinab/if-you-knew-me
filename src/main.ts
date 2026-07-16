@@ -21,10 +21,11 @@ import {
   playFullSpotifyTrack,
   setSpotifyClientId,
 } from "./spotifyFull";
-import { clearGardenSave } from "./progress";
+import { clearGardenSave, markChapterComplete, loadStorySave, nextChapterToPlay } from "./progress";
 import { pickQuote, sendMotivationEmail } from "./motivation";
 import {
   CHAPTER_META,
+  CHAPTER_NUMS,
   HAZARD_SHELTER,
   HAZARD_STING,
   BIOME_BODY_CLASSES,
@@ -36,6 +37,7 @@ import {
   EPISODE_ONE,
   EPISODE_DREAM_WAKE,
   EPISODE_BALCONY_END,
+  EPISODE_PROOF_REUNION,
   BOY_NAME,
 } from "./story";
 import {
@@ -49,6 +51,7 @@ import {
 const canvas = document.querySelector<HTMLCanvasElement>("#world");
 const gate = document.querySelector<HTMLElement>("#gate");
 const enter = document.querySelector<HTMLButtonElement>("#enter");
+const chapterMapEl = document.querySelector<HTMLOListElement>("#chapter-map");
 const hud = document.querySelector<HTMLElement>("#hud");
 const foundEl = document.querySelector<HTMLElement>("#found");
 const totalEl = document.querySelector<HTMLElement>("#total");
@@ -479,22 +482,28 @@ const playChapterFinale = () => {
     if (chapter === 5) {
       void runEpisode(EPISODE_DREAM_WAKE, () => {
         void runEpisode(EPISODE_BALCONY_END, () => {
-          compass.textContent =
-            "পাঁচ অধ্যায় শেষ — ভাগ্য চাইলে আবার দেখা হবে।";
-          if (finaleLines[0])
-            finaleLines[0].textContent =
-              "বাগান, মরুভূমি, জঙ্গল, ঢাকা, উত্তর মেরু—সব স্বপ্ন।";
-          if (finaleLines[1])
-            finaleLines[1].textContent =
-              "If fate wants, we will meet again. Till then… — শেষ";
-          finaleContinue.textContent = "Leave a quiet line";
-          finale.classList.remove("is-hidden");
-          sessionStorage.removeItem(CHAPTER_KEY);
-          saveTrackId(DEFAULT_TRACK_ID);
+          void runEpisode(EPISODE_PROOF_REUNION, () => {
+            markChapterComplete(5);
+            refreshChapterMap();
+            compass.textContent =
+              "পাঁচ অধ্যায় শেষ — ভাগ্য চেয়েছিল, আর দেখা হলো।";
+            if (finaleLines[0])
+              finaleLines[0].textContent =
+                "স্বপ্ন ছিল পথ। জেগে ওঠাই দেখা—রংধনু পাশে।";
+            if (finaleLines[1])
+              finaleLines[1].textContent =
+                "Fate wanted it. We meet again—now. — শেষ";
+            finaleContinue.textContent = "Leave a quiet line";
+            finale.classList.remove("is-hidden");
+            sessionStorage.removeItem(CHAPTER_KEY);
+            saveTrackId(DEFAULT_TRACK_ID);
+          });
         });
       });
       return;
     }
+    markChapterComplete(chapter);
+    refreshChapterMap();
     const next = (chapter + 1) as ChapterNum;
     pendingNext = next;
     const nextMeta = CHAPTER_META[next];
@@ -664,6 +673,76 @@ const beginFreshGarden = () => {
   refreshJournal();
 };
 
+/** Gate Continue / chapter-map pick; null → resolve from session or story save. */
+let pendingStartChapter: ChapterNum | null = null;
+
+const refreshChapterMap = () => {
+  if (!chapterMapEl || !enter) return;
+  const save = loadStorySave();
+  const next = nextChapterToPlay(save);
+  const allDone = save.completed.length >= 5;
+
+  if (allDone) {
+    enter.textContent = "Replay from garden";
+  } else if (save.unlockedMax > 1 || save.completed.length > 0) {
+    enter.textContent = `Continue — ${CHAPTER_META[next].short}`;
+  } else {
+    enter.textContent = "Listen & begin wandering";
+  }
+
+  chapterMapEl.replaceChildren();
+  for (const n of CHAPTER_NUMS) {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chapter-map-item";
+    btn.dataset.chapter = String(n);
+
+    const locked = n > save.unlockedMax;
+    const explored = save.completed.includes(n);
+    const mark = document.createElement("span");
+    mark.className = "mark";
+    mark.setAttribute("aria-hidden", "true");
+
+    if (locked) {
+      btn.classList.add("is-locked");
+      btn.disabled = true;
+      mark.textContent = "×";
+      btn.title = "Locked";
+      btn.setAttribute("aria-label", `${CHAPTER_META[n].label} — locked`);
+    } else if (explored) {
+      btn.classList.add("is-explored");
+      mark.textContent = "✓";
+      btn.title = "Explored — replay";
+      btn.setAttribute("aria-label", `${CHAPTER_META[n].label} — explored`);
+    } else {
+      btn.classList.add("is-available");
+      mark.textContent = "○";
+      btn.title = "Unlocked";
+      btn.setAttribute("aria-label", `${CHAPTER_META[n].label} — unlocked`);
+    }
+
+    if (!locked && n === next && !allDone) btn.classList.add("is-next");
+
+    const label = document.createElement("span");
+    label.textContent = CHAPTER_META[n].short;
+    btn.append(mark, label);
+    li.append(btn);
+    chapterMapEl.append(li);
+  }
+};
+
+const resolveStartChapter = (): ChapterNum => {
+  if (pendingStartChapter) {
+    const n = pendingStartChapter;
+    pendingStartChapter = null;
+    return n;
+  }
+  const session = parseChapter(sessionStorage.getItem(CHAPTER_KEY));
+  if (session) return session;
+  return nextChapterToPlay();
+};
+
 let music: Awaited<ReturnType<typeof createMusic>> | null = null;
 let opening = false;
 let musicPromise: Promise<Awaited<ReturnType<typeof createMusic>>> | null =
@@ -730,14 +809,19 @@ const openGarden = () => {
   document.body.classList.remove("is-prologue");
   document.body.classList.add("is-garden");
   beginFreshGarden();
+  const startAt = resolveStartChapter();
   window.setTimeout(() => {
     gate.classList.add("is-hidden");
     hud.classList.remove("is-hidden");
     world.enable();
     showMotivation();
-    const resume = parseChapter(sessionStorage.getItem(CHAPTER_KEY));
-    if (resume && resume > 1) {
-      startChapter(resume);
+    if (startAt > 1) {
+      startChapter(startAt);
+    } else {
+      chapter = 1;
+      sessionStorage.setItem(CHAPTER_KEY, "1");
+      episodeMeetPlayed = false;
+      finalEpisodePlayed = false;
     }
   }, 1200);
 };
@@ -870,6 +954,9 @@ enter.addEventListener("click", async () => {
   if (opening) return;
   opening = true;
   enter.disabled = true;
+  if (!pendingStartChapter) {
+    pendingStartChapter = resolveStartChapter();
+  }
   enter.textContent = "Starting the song…";
 
   let played = false;
@@ -891,6 +978,19 @@ enter.addEventListener("click", async () => {
   enter.textContent = played ? "Opening the evening…" : "Entering quietly…";
   openGarden();
 });
+
+chapterMapEl?.addEventListener("click", (e) => {
+  const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+    ".chapter-map-item",
+  );
+  if (!btn || btn.disabled || opening) return;
+  const n = parseChapter(btn.dataset.chapter ?? null);
+  if (!n) return;
+  pendingStartChapter = n;
+  enter.click();
+});
+
+refreshChapterMap();
 
 muteBtn.addEventListener("click", async () => {
   if (!music) {

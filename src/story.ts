@@ -601,14 +601,14 @@ export const EPISODE_DREAM_WAKE: Episode = {
       girl: { x: 38, facing: "down" },
       inBed: true,
       speaker: "girl",
-      text: "হয়তো স্বপ্নেই সত্যি থাকে। হয়তো একদিন জেগে উঠব—আর সে সত্যিই পাশে থাকবে।",
+      text: "হয়তো স্বপ্নেই সত্যি থাকে। হয়তো… আজই কিছু বাকি আছে।",
     },
     {
       bg: "bedroom",
       girl: { x: 38, facing: "down" },
       inBed: true,
       speaker: "girl",
-      text: "আজকের জন্য… স্বপ্নটুকু ধরে রাখি। ভাগ্যের পথে চলতে চলতে, একদিন তো দেখব।",
+      text: "বুকে যে গভীরটা ছিল—সেটা তো এখনও আছে। তাহলে বারান্দায় যাই।",
     },
     {
       bg: "bedroom",
@@ -620,9 +620,9 @@ export const EPISODE_DREAM_WAKE: Episode = {
   ],
 };
 
-/** Epilogue continued — balcony, rainbow, boy's last goodbye. */
+/** Epilogue — balcony farewell, then a real faith coin left behind. */
 export const EPISODE_BALCONY_END: Episode = {
-  kicker: "উপসংহার · শেষ",
+  kicker: "উপসংহার",
   title: "রংধনু",
   shots: [
     {
@@ -664,8 +664,8 @@ export const EPISODE_BALCONY_END: Episode = {
       flying: true,
       fx: "rainbow",
       speaker: "boy",
-      text: "That is the end.",
-      sub: "এখানেই শেষ।",
+      text: "That is the end of the dream.",
+      sub: "স্বপ্নের এখানেই শেষ।",
     },
     {
       bg: "balcony",
@@ -693,14 +693,92 @@ export const EPISODE_BALCONY_END: Episode = {
       boy: null,
       fx: "rainbow",
       speaker: "narrator",
-      text: "রংধনু মিলিয়ে গেল আকাশের আলোয়। বহ্নি বারান্দায় দাঁড়িয়েই হাসল—চোখে জল নিয়ে।",
+      text: "রংধনু মিলিয়ে গেল আকাশের আলোয়। বহ্নি একা দাঁড়াল—চোখে জল নিয়ে।",
     },
     {
       bg: "balcony",
-      girl: { x: 34, facing: "up" },
-      fx: "rainbow",
+      girl: { x: 40, facing: "down" },
+      fx: "glow",
       speaker: "narrator",
-      text: "শেষ — If fate wants, we will meet again.",
+      text: "তখনই—জানালার কিনারে একটা সোনালি আলো। স্বপ্নের মতো নয়। সত্যিই জ্বলছে।",
+    },
+    {
+      bg: "balcony",
+      girl: { x: 44, facing: "down", action: "dance" },
+      fx: "glow",
+      speaker: "girl",
+      text: "…একটা ফেইথ কয়েন? এখানে? জেগে থাকা ঘরে?",
+    },
+  ],
+};
+
+/** Final epilogue — the coin proves the path; they meet in the waking world. */
+export const EPISODE_PROOF_REUNION: Episode = {
+  kicker: "উপসংহার · শেষ",
+  title: "ভাগ্য চাইল",
+  shots: [
+    {
+      bg: "balcony",
+      girl: { x: 46, facing: "down" },
+      fx: "glow",
+      speaker: "narrator",
+      text: "সে কয়েনটা হাতে নিল। হালকা গরম—যেন বাগানের সূর্য এখনও ধরে আছে।",
+    },
+    {
+      bg: "mist",
+      girl: { x: 40, facing: "right" },
+      fx: "petals",
+      speaker: "narrator",
+      text: "এক নিমেষে—পাতার গন্ধ, চেরির ছায়া, সোনালি স্তম্ভের স্মৃতি।",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 32, facing: "right" },
+      boy: { x: 68, facing: "left", opacity: 1 },
+      fx: "petals",
+      speaker: "narrator",
+      text: "আর যখন কুয়াশা সরল—সে দাঁড়িয়ে। পায়ে। উড়ে নয়।",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 34, facing: "right", action: "dance" },
+      boy: { x: 66, facing: "left", opacity: 1 },
+      fx: "glow",
+      speaker: "girl",
+      text: "তুমি… স্বপ্ন নও। তুমি এখানে।",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 36, facing: "right" },
+      boy: { x: 64, facing: "left", opacity: 1 },
+      speaker: "boy",
+      text: "The dream was the path. Waking is the meeting.",
+      sub: "স্বপ্ন ছিল পথ। জেগে ওঠাই দেখা।",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 38, facing: "right", action: "dance" },
+      boy: { x: 62, facing: "left", opacity: 1, action: "dance" },
+      fx: "petals",
+      speaker: "narrator",
+      text: "তারা হাসল—পাশাপাশি। এবার কেউ মিলিয়ে যায় না।",
+    },
+    {
+      bg: "stars",
+      girl: { x: 40, facing: "right" },
+      boy: { x: 60, facing: "left", opacity: 1 },
+      fx: "glow",
+      speaker: "boy",
+      text: "Fate wanted it. We meet again—now.",
+      sub: "ভাগ্য চেয়েছিল। আমরা আবার দেখা করলাম—এখনই।",
+    },
+    {
+      bg: "dusk",
+      girl: { x: 42, facing: "right", action: "dance" },
+      boy: { x: 58, facing: "left", opacity: 1 },
+      fx: "petals",
+      speaker: "narrator",
+      text: "প্রেয়সীপাড়ের সন্ধ্যা নরম হয়ে এল। শেষ নয়—শুরু।",
     },
   ],
 };

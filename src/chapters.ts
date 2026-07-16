@@ -20,6 +20,8 @@ export type ChapterMeta = {
   vehicle: boolean;
   bodyClass: string;
   label: string;
+  /** Short label for the gate chapter map. */
+  short: string;
   hazard: string;
   meet: Episode;
   fin: Episode;
@@ -33,6 +35,7 @@ export const CHAPTER_META: Record<ChapterNum, ChapterMeta> = {
     vehicle: false,
     bodyClass: "",
     label: "অধ্যায় ১ — বাগান",
+    short: "বাগান",
     hazard: "bee",
     meet: EPISODE_ONE,
     fin: EPISODE_FINAL,
@@ -43,6 +46,7 @@ export const CHAPTER_META: Record<ChapterNum, ChapterMeta> = {
     vehicle: true,
     bodyClass: "is-desert",
     label: "অধ্যায় ২ — মরুভূমি",
+    short: "মরু",
     hazard: "scorpion",
     meet: EPISODE_DESERT_MEET,
     fin: EPISODE_DESERT_FINAL,
@@ -54,6 +58,7 @@ export const CHAPTER_META: Record<ChapterNum, ChapterMeta> = {
     vehicle: false,
     bodyClass: "is-rainforest",
     label: "অধ্যায় ৩ — রেইনফরেস্ট",
+    short: "জঙ্গল",
     hazard: "snake",
     meet: EPISODE_RAIN_MEET,
     fin: EPISODE_RAIN_FINAL,
@@ -64,6 +69,7 @@ export const CHAPTER_META: Record<ChapterNum, ChapterMeta> = {
     vehicle: false,
     bodyClass: "is-city",
     label: "অধ্যায় ৪ — ঢাকা",
+    short: "ঢাকা",
     hazard: "crow",
     meet: EPISODE_CITY_MEET,
     fin: EPISODE_CITY_FINAL,
@@ -74,11 +80,14 @@ export const CHAPTER_META: Record<ChapterNum, ChapterMeta> = {
     vehicle: false,
     bodyClass: "is-arctic",
     label: "অধ্যায় ৫ — উত্তর মেরু",
+    short: "উত্তর মেরু",
     hazard: "fox",
     meet: EPISODE_ARCTIC_MEET,
     fin: EPISODE_ARCTIC_FINAL,
   },
 };
+
+export const CHAPTER_NUMS: ChapterNum[] = [1, 2, 3, 4, 5];
 
 export const HAZARD_STING: Record<string, string> = {
   bee: "A bee stung you—starting over…",

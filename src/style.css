@@ -175,6 +175,70 @@ body.is-garden #world {
   max-width: 36ch;
 }
 
+.chapter-progress {
+  margin: 1.15rem 0 0;
+  text-align: left;
+  max-width: 42ch;
+}
+
+.chapter-progress-label {
+  margin: 0 0 0.45rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.chapter-map {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chapter-map-item {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  color: var(--ink);
+  border-radius: 2px;
+  padding: 0.35rem 0.55rem;
+  font: inherit;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.chapter-map-item .mark {
+  font-size: 0.85rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.chapter-map-item.is-locked {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.chapter-map-item.is-available:hover,
+.chapter-map-item.is-explored:hover {
+  border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.chapter-map-item.is-explored {
+  border-color: color-mix(in srgb, #4d8a5c 55%, var(--ink));
+}
+
+.chapter-map-item.is-next {
+  outline: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
 .song-stage {
   display: flex;
   align-items: center;
