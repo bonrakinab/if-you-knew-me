@@ -18,8 +18,8 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Noto+Serif+Bengali:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/if-you-knew-me/assets/index-B9VPwpqz.js"></script>
-    <link rel="stylesheet" crossorigin href="/if-you-knew-me/assets/index-CewxZZv0.css">
+    <script type="module" crossorigin src="/if-you-knew-me/assets/index-ukNtEt5C.js"></script>
+    <link rel="stylesheet" crossorigin href="/if-you-knew-me/assets/index-DPIcQ2cW.css">
   </head>
   <body class="is-prologue">
     <canvas id="world"></canvas>
@@ -107,7 +107,7 @@
           Listen &amp; begin wandering
         </button>
         <p class="how">
-          Phone: move pad + Jump/Run/Plant · Desktop: WASD · Shift run · Space jump (dodge bees) · E dance · Q plant a seed
+          Phone: move pad + Jump/Run · Desktop: WASD · Shift run · Space jump (dodge bees) · E dance
         </p>
       </section>
     </div>
@@ -176,15 +176,6 @@
         aria-controls="song-panel"
       >
         Music
-      </button>
-      <button
-        type="button"
-        id="photo-toggle"
-        class="photo-toggle is-hidden"
-        aria-label="Take a postcard photo"
-        title="Postcard photo"
-      >
-        Photo
       </button>
       <button
         type="button"
@@ -281,10 +272,6 @@
         </button>
       </div>
       <p id="quiet-status" class="quiet-status"></p>
-      <p class="journal-kicker">Time capsule</p>
-      <button type="button" id="capsule-open" class="quiet-btn capsule-open-btn">
-        Bury a message here ⏳
-      </button>
       <button type="button" id="garden-reset" class="garden-reset">
         Start over
       </button>
@@ -298,11 +285,6 @@
         <span id="faith-coins">0</span>
         <span class="coin-label">faith coins</span>
         <span class="coin-total">/ <span id="faith-total">0</span></span>
-      </p>
-      <p class="seeds">
-        <span class="seed-glyph" aria-hidden="true">✿</span>
-        <span id="seed-count">0</span>
-        <span class="coin-label">seeds</span>
       </p>
       <p class="compass" id="compass">চিঠির আলো, জ্বলন্ত ফুল, চেরিগাছ — ঘুরে দেখো</p>
     </div>
@@ -336,9 +318,6 @@
     <div id="finale" class="finale is-hidden" aria-live="polite">
       <p>চেষ্টা করলে সবই সম্ভব</p>
       <p class="finale-soft">অসম্ভবও একদিন পথ হয়ে ওঠে।</p>
-      <p id="finale-save" class="finale-save is-hidden">
-        ✓ অগ্রগতি সেভ হয়েছে — পরের সফরে এখান থেকেই শুরু হবে
-      </p>
       <button type="button" id="finale-continue" class="enter finale-btn">
         Leave a quiet line
       </button>
@@ -379,28 +358,7 @@
       <button type="button" class="action-btn" data-action="dance" aria-label="Dance">
         Dance
       </button>
-      <button type="button" class="action-btn action-btn-plant" data-action="plant" aria-label="Plant a seed">
-        Plant
-      </button>
     </div>
-
-    <div id="photo-overlay" class="photo-overlay is-hidden" role="dialog" aria-label="Postcard">
-      <p class="photo-title">একটি পোস্টকার্ড</p>
-      <img id="photo-image" class="photo-image" alt="Garden postcard" />
-      <div class="photo-actions">
-        <a id="photo-download" class="enter photo-download" download="preyoshipar-postcard.png" href="#">Save postcard</a>
-        <button type="button" id="photo-close" class="note-close">Back to wandering</button>
-      </div>
-    </div>
-
-    <div id="capsule-box" class="letterbox capsule-box is-hidden" role="dialog" aria-labelledby="capsule-title">
-      <p class="letterbox-title" id="capsule-title">সময়ের ক্যাপসুল</p>
-      <p class="letterbox-hint">এখানে একটা কথা পুঁতে রাখো। পরের সফরে এই জায়গায় এলেই সেটা খুলে যাবে।</p>
-      <label class="letterbox-label" for="capsule-message">ভবিষ্যতের জন্য কথা</label>
-      <textarea id="capsule-message" class="letterbox-area" maxlength="240" rows="3" placeholder="যা মনে রাখতে চাও…"></textarea>
-      <button type="button" id="capsule-bury" class="enter">এখানে পুঁতে রাখো</button>
-      <button type="button" id="capsule-close" class="note-close">ফিরে যাই</button>
-    </div>
-
+
   </body>
 </html>
