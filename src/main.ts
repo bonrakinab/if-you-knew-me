@@ -402,7 +402,7 @@ let chapter: 1 | 2 = 1;
 let episodeMeetPlayed = false;
 let finalEpisodePlayed = false;
 let cutscenePlaying = false;
-let pendingChapter2 = false;
+let pendingChapter3 = false;
 
 const runEpisode = async (
   episode: typeof EPISODE_ONE,
@@ -429,8 +429,8 @@ const maybeStartStory = (faithCoins: number, totalQuotes: number) => {
         () => {
           compass.textContent =
             chapter === 1
-              ? `${BOY_NAME}কে খুঁজতে সব ফেইথ কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`
-              : `${BOY_NAME} পিরামিডে ফিরে গেছে — মরুর সব ফেইথ কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`;
+              ? `${BOY_NAME}কে খুঁজতে সব ফেইথ কয়েন জোগাড় করো — অধ্যায় ২ (${faithCoins}/${totalQuotes})`
+              : `${BOY_NAME} পিরামিডে ফিরে গেছে — অধ্যায় ৪ এর জন্য সব কয়েন জোগাড় করো (${faithCoins}/${totalQuotes})`;
         },
       );
     }, 1500);
@@ -490,27 +490,28 @@ const worldCallbacks: Parameters<typeof createWorld>[1] = {
       if (chapter === 1) {
         void runEpisode(EPISODE_FINAL, () => {
           compass.textContent =
-            "সে হারায়নি — মরুভূমির ওপারে তার ছায়া দেখা গেছে।";
+            "অধ্যায় ২ শেষ — মরুভূমির ওপারে অধ্যায় ৩ অপেক্ষা করছে।";
           if (finaleLines[0])
             finaleLines[0].textContent = "সে বাতাসে মিলিয়ে গেছে…";
           if (finaleLines[1])
             finaleLines[1].textContent =
-              "কিন্তু বহ্নি জানে—সে হারায়নি। মরুভূমি ডাকছে।";
-          pendingChapter2 = true;
-          finaleContinue.textContent = "অধ্যায় ২ — মরুভূমিতে চলো ▸";
+              "বহ্নি জানে—সে হারায়নি। অধ্যায় ৩: মরুভূমি ডাকছে।";
+          pendingChapter3 = true;
+          finaleContinue.textContent = "অধ্যায় ৩ — মরুভূমিতে চলো ▸";
           finale.classList.remove("is-hidden");
         });
       } else {
         void runEpisode(
           EPISODE_DESERT_FINAL,
           () => {
+            // Chapter 5 is the ending: wake-up + balcony farewell
             void runEpisode(EPISODE_DREAM_WAKE, () => {
               void runEpisode(EPISODE_BALCONY_END, () => {
                 compass.textContent =
-                  "ভাগ্য চাইলে আবার দেখা হবে—ততদিন স্বপ্নে।";
+                  "অধ্যায় ৫ শেষ — ভাগ্য চাইলে আবার দেখা হবে।";
                 if (finaleLines[0])
                   finaleLines[0].textContent =
-                    "বারান্দায় রংধনু—আর সেই উড়ন্ত বিদায়।";
+                    "পাঁচ অধ্যায় শেষ — বারান্দায় রংধনু, আর সেই উড়ন্ত বিদায়।";
                 if (finaleLines[1])
                   finaleLines[1].textContent =
                     "If fate wants, we will meet again. Till then… — শেষ";
@@ -707,9 +708,12 @@ const openGarden = () => {
     hud.classList.remove("is-hidden");
     world.enable();
     showMotivation();
-    // A scorpion sting reloads the page mid-desert; resume Chapter 2 directly.
-    if (sessionStorage.getItem(CHAPTER_KEY) === "2") {
-      startChapter2();
+    // A scorpion sting reloads the page mid-desert; resume Chapter 3–4 (desert).
+    if (
+      sessionStorage.getItem(CHAPTER_KEY) === "3" ||
+      sessionStorage.getItem(CHAPTER_KEY) === "2"
+    ) {
+      startChapter3();
     }
   }, 1200);
 };
@@ -758,11 +762,11 @@ const selectTrack = async (trackId: string) => {
   }
 };
 
-/** Chapter 2 — the desert. She drives; scorpions crawl; pyramids hum. */
-const startChapter2 = () => {
+/** Chapters 3–4 — the desert. She drives; scorpions crawl; pyramids hum. */
+const startChapter3 = () => {
   chapter = 2;
-  sessionStorage.setItem(CHAPTER_KEY, "2");
-  pendingChapter2 = false;
+  sessionStorage.setItem(CHAPTER_KEY, "3");
+  pendingChapter3 = false;
   episodeMeetPlayed = false;
   finalEpisodePlayed = false;
   finale.classList.add("is-hidden");
@@ -786,7 +790,7 @@ const startChapter2 = () => {
   refreshQuietUi();
   world.enable();
   compass.textContent =
-    "অধ্যায় ২ — মরুভূমি: ঝোপ, ক্যাকটাস আর পিরামিড ছুঁয়ে দেখো";
+    "অধ্যায় ৩ — মরুভূমি: ঝোপ, ক্যাকটাস আর পিরামিড ছুঁয়ে দেখো";
   void selectTrack("chithi-bhitra");
 };
 
@@ -925,8 +929,8 @@ noteClose.addEventListener("click", () => {
 
 finaleContinue.addEventListener("click", (e) => {
   e.stopPropagation();
-  if (pendingChapter2) {
-    startChapter2();
+  if (pendingChapter3) {
+    startChapter3();
     return;
   }
   openLetterbox();

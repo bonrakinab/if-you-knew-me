@@ -53,7 +53,7 @@ export const GIRL_NAME = "বহ্নি";
 export const BOY_NAME = "রংধনু";
 
 export const EPISODE_ONE: Episode = {
-  kicker: "পর্ব ১",
+  kicker: "অধ্যায় ১",
   title: "প্রথম দেখা",
   shots: [
     {
@@ -112,14 +112,14 @@ export const EPISODE_ONE: Episode = {
       bg: "stars",
       girl: { x: 50, facing: "up" },
       speaker: "narrator",
-      text: "অভিযান শুরু হলো — সবগুলো ফেইথ কয়েন জোগাড় করো, তার কাছে পৌঁছাও।",
+      text: "অধ্যায় ১ শেষ নয় — সবগুলো ফেইথ কয়েন জোগাড় করো। অধ্যায় ২ অপেক্ষা করছে।",
       fx: "glow",
     },
   ],
 };
 
 export const EPISODE_FINAL: Episode = {
-  kicker: "শেষ পর্ব",
+  kicker: "অধ্যায় ২",
   title: "শেষ বিকেলে",
   shots: [
     {
@@ -183,14 +183,14 @@ export const EPISODE_FINAL: Episode = {
       bg: "stars",
       girl: { x: 50, facing: "up" },
       speaker: "narrator",
-      text: "…কিন্তু বাতাসে মিলিয়ে যাওয়া মানেই কি হারিয়ে যাওয়া? — চলবে",
+      text: "…কিন্তু বাতাসে মিলিয়ে যাওয়া মানেই কি হারিয়ে যাওয়া? — অধ্যায় ৩ চলবে",
       fx: "glow",
     },
   ],
 };
 
 export const EPISODE_DESERT_MEET: Episode = {
-  kicker: "অধ্যায় ২ · পর্ব ১",
+  kicker: "অধ্যায় ৩",
   title: "পিরামিডের ছায়ায়",
   shots: [
     {
@@ -257,14 +257,14 @@ export const EPISODE_DESERT_MEET: Episode = {
       bg: "stars",
       girl: { x: 50, facing: "up" },
       speaker: "narrator",
-      text: "অভিযান আবার শুরু — মরুর সব ফেইথ কয়েন জোগাড় করো।",
+      text: "অধ্যায় ৩ চলছে — মরুর সব ফেইথ কয়েন জোগাড় করো। অধ্যায় ৪ অপেক্ষা করছে।",
       fx: "glow",
     },
   ],
 };
 
 export const EPISODE_DESERT_FINAL: Episode = {
-  kicker: "অধ্যায় ২ · শেষ পর্ব",
+  kicker: "অধ্যায় ৪",
   title: "লাখৌ হাজারৌ",
   shots: [
     {
@@ -316,15 +316,15 @@ export const EPISODE_DESERT_FINAL: Episode = {
     {
       bg: "void",
       speaker: "narrator",
-      text: "আর তারপর—চোখ খুলল।",
+      text: "আর তারপর—চোখ খুলল। অধ্যায় ৫ শুরু।",
     },
   ],
 };
 
-/** Separate frame: she wakes in bed and realizes it was all a dream. */
+/** Chapter 5 — ending: she wakes and realizes it was a dream. */
 export const EPISODE_DREAM_WAKE: Episode = {
-  kicker: "জেগে ওঠা",
-  title: "স্বপ্ন নাকি সত্যি",
+  kicker: "অধ্যায় ৫",
+  title: "জেগে ওঠা",
   shots: [
     {
       bg: "bedroom",
@@ -395,9 +395,9 @@ export const EPISODE_DREAM_WAKE: Episode = {
   ],
 };
 
-/** Final frame: balcony, rainbow, and the boy flying a last goodbye. */
+/** Chapter 5 continued — balcony, rainbow, boy's last goodbye. */
 export const EPISODE_BALCONY_END: Episode = {
-  kicker: "বারান্দায়",
+  kicker: "অধ্যায় ৫ · শেষ",
   title: "রংধনু",
   shots: [
     {
