@@ -16,13 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Send reminder
+      - name: Send reminder via Gmail SMTP
         env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           REMINDER_TO: ${{ secrets.REMINDER_TO }}
-          REMINDER_FROM: ${{ secrets.REMINDER_FROM }}
           REMINDER_FIRST: ${{ inputs.first && '1' || '' }}
-        run: node scripts/send-reminder.mjs
+        run: python3 scripts/send-reminder.py

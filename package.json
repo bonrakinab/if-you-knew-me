@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "remind": "node scripts/send-reminder.mjs"
+    "remind": "python scripts/send-reminder.py"
   },
   "devDependencies": {
     "@types/three": "^0.185.1",
